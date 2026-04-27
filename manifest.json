@@ -1,0 +1,18 @@
+{
+  "name": "VISION TRAINING",
+  "short_name": "VISION",
+  "description": "スポーツ選手向けビジョントレーニング",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
