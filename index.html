@@ -1,0 +1,2920 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>VISION TRAINING</title>
+<style>
+:root{--cr:#e63946;--cy:#f4c430;--cb:#1a6fb5;--cg:#2a9d3f;--cw:#fffef8;--cp:#7b2d8b;--co:#f4762a;--bk:#1a1a1a;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+html,body{height:100%;background:#111;font-family:'Arial Black',Arial,sans-serif;overflow:hidden;}
+#home{display:flex;flex-direction:column;align-items:center;height:100vh;height:100dvh;overflow-y:auto;padding:20px 14px max(60px,env(safe-area-inset-bottom));gap:16px;background:#0a0a0a;}
+.home-title-wrap{text-align:center;margin-top:8px;line-height:1;}
+.home-title-vision{
+  display:block;
+  font-size:clamp(48px,10vw,72px);font-weight:900;
+  color:#fff;letter-spacing:8px;
+  font-family:'Arial Black',Arial,sans-serif;
+  line-height:0.9;
+}
+.home-title-training{
+  display:block;
+  font-size:clamp(14px,3vw,20px);font-weight:900;
+  color:var(--cy);letter-spacing:10px;
+  font-family:'Arial Black',Arial,sans-serif;
+  margin-top:4px;
+}
+.home-title-line{
+  display:block;
+  width:60px;height:3px;
+  background:var(--cr);
+  margin:8px auto 0;
+  border-radius:2px;
+}
+.home-sub{font-size:10px;color:#555;letter-spacing:3px;text-align:center;font-family:'Arial Black',sans-serif;}
+.cat-wrap{display:flex;flex-direction:column;gap:12px;width:100%;max-width:640px;}
+.cat-card{border:4px solid var(--bk);border-radius:10px;overflow:hidden;background:var(--cw);}
+.cat-hdr{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--bk);}
+.cat-hdr.wu{background:var(--cb);}
+.cat-hdr.tr{background:var(--cr);}
+.cat-hdr-icon{font-size:24px;}
+.cat-hdr-title{font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;}
+.cat-hdr-desc{font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;font-family:Arial,sans-serif;font-weight:400;}
+.drill-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid rgba(0,0,0,0.07);cursor:pointer;background:var(--cw);-webkit-user-select:none;user-select:none;}
+.drill-row:last-child{border-bottom:none;}
+.drill-row:active{background:#e8e8e0;}
+.drill-badge{width:38px;height:38px;border-radius:50%;border:3px solid var(--bk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0;}
+.drill-name{font-size:14px;font-weight:900;color:var(--bk);letter-spacing:0.5px;}
+.drill-hint{font-size:11px;color:#666;font-family:Arial,sans-serif;font-weight:400;margin-top:2px;}
+.drill-arr{margin-left:auto;font-size:22px;color:#bbb;}
+#dscreen{display:none;flex-direction:column;height:100vh;background:var(--cw);}
+#dscreen.active{display:flex;}
+.dhdr{background:var(--bk);padding:10px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.back-btn{font-size:20px;color:var(--cy);cursor:pointer;padding:6px 12px;border:2px solid var(--cy);border-radius:6px;line-height:1;-webkit-user-select:none;user-select:none;}
+.dhdr-title{font-size:15px;font-weight:900;color:var(--cy);letter-spacing:1px;flex:1;}
+.dhdr-cat{font-size:10px;color:#888;letter-spacing:1px;}
+.instr{background:var(--cy);border-bottom:3px solid var(--bk);padding:8px 14px;font-family:Arial,sans-serif;font-size:13px;color:var(--bk);line-height:1.5;flex-shrink:0;}
+.instr b{font-family:'Arial Black',sans-serif;font-size:12px;}
+.garea{flex:1;position:relative;overflow:hidden;min-height:0;background:#000;min-height:200px;}
+.garea canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
+.sfx{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(40px,10vw,60px);font-weight:900;color:var(--cy);text-shadow:4px 4px 0 var(--bk);opacity:0;transition:opacity 0.15s;pointer-events:none;z-index:5;white-space:nowrap;}
+.sfx.on{opacity:1;}
+.sbadge{position:absolute;top:12px;left:14px;font-size:14px;font-weight:900;color:var(--cy);text-shadow:2px 2px 0 var(--bk);z-index:4;pointer-events:none;display:none;line-height:1.6;}
+.done-ov{display:none;position:absolute;inset:0;background:rgba(10,10,40,0.93);align-items:center;justify-content:center;flex-direction:column;gap:10px;z-index:10;}
+.done-ov.on{display:flex;}
+.done-title{font-size:clamp(34px,8vw,50px);font-weight:900;color:var(--cy);text-shadow:4px 4px 0 var(--bk);letter-spacing:3px;}
+.done-sc{font-size:20px;font-weight:900;color:#fff;}
+.done-msg{font-size:14px;color:#aaa;font-family:Arial,sans-serif;}
+.done-homebtn{margin-top:8px;padding:12px 28px;background:var(--cr);color:#fff;border:3px solid var(--bk);border-radius:8px;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:1px;-webkit-user-select:none;user-select:none;}
+.sbar{background:var(--bk);padding:7px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.pbwrap{flex:1;height:9px;background:#333;border-radius:5px;overflow:hidden;border:1.5px solid #555;}
+.pb{height:100%;background:var(--cr);width:0%;transition:width 0.1s;}
+.stime{font-size:12px;font-weight:900;color:var(--cy);min-width:90px;text-align:right;letter-spacing:1px;}
+.ctrls{background:var(--cw);border-top:4px solid var(--bk);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.btn-go{font-size:14px;font-weight:900;padding:9px 20px;background:var(--cr);color:#fff;border:3px solid var(--bk);border-radius:6px;cursor:pointer;letter-spacing:1px;-webkit-user-select:none;user-select:none;}
+.btn-stop{font-size:14px;font-weight:900;padding:9px 14px;background:#444;color:#fff;border:3px solid var(--bk);border-radius:6px;cursor:pointer;-webkit-user-select:none;user-select:none;}
+.opt{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:900;color:var(--bk);margin-left:auto;}
+.opt input[type=range]{width:70px;}
+.opt select{font-size:11px;font-weight:900;padding:5px 6px;border:2px solid var(--bk);border-radius:4px;background:var(--cw);cursor:pointer;}
+.optval{min-width:14px;font-size:13px;color:var(--cr);}
+.dot-btn,.cone-btn{position:absolute;border-radius:50%;border:4px solid #1a1a1a;display:flex;align-items:center;justify-content:center;font-family:'Arial Black',Arial,sans-serif;font-weight:900;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.5);cursor:pointer;z-index:2;-webkit-user-select:none;user-select:none;transition:transform 0.1s,opacity 0.3s;}
+/* マーカー設定UI */
+.marker-setup{position:absolute;inset:0;background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:8;padding:20px;}
+.marker-setup h2{font-size:20px;font-weight:900;color:var(--cy);letter-spacing:2px;}
+.marker-setup p{font-size:13px;color:#aaa;font-family:Arial,sans-serif;text-align:center;line-height:1.6;}
+.marker-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:400px;}
+.marker-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;-webkit-user-select:none;user-select:none;}
+.marker-dot{width:56px;height:56px;border-radius:50%;border:4px solid transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.4);transition:border-color 0.15s,transform 0.1s;}
+.marker-dot.selected{border-color:#fff;transform:scale(1.15);}
+.marker-label{font-size:11px;font-weight:900;color:#aaa;letter-spacing:1px;}
+.setup-btn{padding:12px 32px;background:var(--cg);color:#fff;border:3px solid var(--bk);border-radius:8px;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:1px;-webkit-user-select:none;user-select:none;}
+.sport-btn{
+  font-family:'Arial Black',Arial,sans-serif;font-size:15px;font-weight:900;
+  padding:0;color:#fff;border:4px solid #1a1a1a;border-radius:14px;
+  cursor:pointer;letter-spacing:0.5px;-webkit-user-select:none;user-select:none;
+  transition:transform 0.12s,box-shadow 0.12s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;aspect-ratio:1/1;
+  box-shadow:0 4px 0 #000;
+}
+.sport-btn:active{transform:scale(0.94) translateY(2px);box-shadow:0 2px 0 #000;}
+.sport-btn.active{border-color:#f4c430;box-shadow:0 4px 0 #f4a000;}
+.sport-btn .btn-icon{font-size:28px;line-height:1;}
+.sport-btn .btn-label{font-size:12px;font-weight:900;letter-spacing:1px;}
+
+/* ── オンボーディング ── */
+#onboarding{
+  position:fixed;inset:0;z-index:100;
+  background:#0a0a0a;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.ob-header{
+  background:#00c8c8;
+  padding:16px 20px;
+  text-align:center;
+  font-family:'Arial Black',sans-serif;
+  font-size:22px;font-weight:900;
+  color:#1a1a1a;letter-spacing:2px;
+  flex-shrink:0;
+}
+.ob-slides-wrap{
+  flex:1;overflow:hidden;position:relative;
+}
+.ob-slides{
+  display:flex;height:100%;
+  transition:transform 0.35s cubic-bezier(.4,0,.2,1);
+}
+.ob-slide{
+  min-width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px 24px;gap:18px;
+}
+.ob-illust{
+  width:100%;max-width:420px;
+  background:#fff;border-radius:16px;
+  padding:24px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:200px;
+}
+.ob-slide-title{
+  font-family:'Arial Black',sans-serif;
+  font-size:18px;font-weight:900;
+  color:#00c8c8;letter-spacing:1px;
+  text-align:center;
+}
+.ob-slide-text{
+  font-family:Arial,sans-serif;
+  font-size:14px;color:#ddd;
+  text-align:center;line-height:1.7;
+  max-width:400px;
+}
+.ob-dots{
+  display:flex;gap:8px;justify-content:center;
+  padding:10px 0;flex-shrink:0;
+}
+.ob-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  transition:background 0.2s;
+}
+.ob-dot.active{background:#00c8c8;}
+.ob-next{
+  flex-shrink:0;
+  margin:0 20px 20px;
+  padding:16px;
+  background:#00c8c8;color:#1a1a1a;
+  border:none;border-radius:40px;
+  font-family:'Arial Black',sans-serif;
+  font-size:18px;font-weight:900;
+  cursor:pointer;letter-spacing:1px;
+  -webkit-user-select:none;user-select:none;
+}
+.ob-svg{width:120px;height:120px;}
+.sport-page{display:none;flex-direction:column;gap:12px;width:100%;}
+.sport-page.active{display:flex;}
+.drill-step{
+  display:flex;align-items:center;gap:14px;padding:14px 18px;
+  border:3px solid #1a1a1a;border-radius:10px;cursor:pointer;
+  background:var(--cw);-webkit-user-select:none;user-select:none;
+  transition:background 0.1s;
+}
+.drill-step:active{background:#e8e8e0;}
+.step-num{
+  width:44px;height:44px;border-radius:50%;border:3px solid #1a1a1a;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:#fff;flex-shrink:0;
+}
+.step-info{flex:1;}
+.step-name{font-size:15px;font-weight:900;color:#1a1a1a;letter-spacing:0.5px;}
+.step-why{font-size:12px;color:#666;font-family:Arial,sans-serif;margin-top:3px;line-height:1.4;}
+.step-time{font-size:11px;font-weight:900;color:#888;margin-left:auto;white-space:nowrap;}
+.sport-header{
+  border:4px solid #1a1a1a;border-radius:10px;overflow:hidden;
+  margin-bottom:4px;
+}
+.sport-header-inner{
+  padding:14px 18px;display:flex;align-items:center;gap:14px;
+}
+.sport-title{font-size:22px;font-weight:900;color:#fff;letter-spacing:2px;}
+.sport-desc{font-size:12px;color:rgba(255,255,255,0.85);font-family:Arial,sans-serif;margin-top:3px;line-height:1.5;}
+
+/* フリーメニュー ボタン */
+.free-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;padding:0;aspect-ratio:1/1;
+  border:3px solid #1a1a1a;border-radius:14px;
+  cursor:pointer;-webkit-user-select:none;user-select:none;
+  box-shadow:0 4px 0 rgba(0,0,0,0.6);
+  transition:transform 0.1s,box-shadow 0.1s;
+  color:#fff;
+}
+.free-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,0.4);}
+.fbtn-num{
+  font-family:'Arial Black',sans-serif;font-size:13px;font-weight:900;
+  color:rgba(255,255,255,0.7);line-height:1;
+}
+.fbtn-name{
+  font-family:'Arial Black',sans-serif;font-size:11px;font-weight:900;
+  color:#fff;letter-spacing:0.3px;text-align:center;line-height:1.3;
+  padding:0 4px;
+}
+
+/* ── コーチダッシュボード ── */
+#coach-screen{display:none;flex-direction:column;height:100vh;height:100dvh;background:#0a0a0a;overflow:hidden;}
+#coach-screen.active{display:flex;}
+.coach-hdr{background:#1a1a1a;border-bottom:3px solid #f4c430;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.coach-hdr-title{font-family:'Arial Black',sans-serif;font-size:16px;font-weight:900;color:#f4c430;letter-spacing:2px;flex:1;}
+.coach-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.coach-section{background:#1a1a1a;border:2px solid #333;border-radius:10px;overflow:hidden;}
+.coach-section-hdr{background:#222;padding:10px 14px;font-family:'Arial Black',sans-serif;font-size:12px;font-weight:900;color:#f4c430;letter-spacing:2px;}
+.player-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #2a2a2a;cursor:pointer;transition:background 0.1s;}
+.player-card:last-child{border-bottom:none;}
+.player-card:active{background:#222;}
+.player-avatar{width:40px;height:40px;border-radius:50%;border:2px solid #444;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;font-family:'Arial Black',sans-serif;flex-shrink:0;}
+.player-info{flex:1;}
+.player-name{font-family:'Arial Black',sans-serif;font-size:14px;color:#fff;}
+.player-meta{font-size:11px;color:#666;font-family:Arial,sans-serif;margin-top:2px;}
+.player-score{font-family:'Arial Black',sans-serif;font-size:12px;color:#f4c430;}
+.add-player-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:#1a1a1a;border:2px dashed #444;border-radius:10px;cursor:pointer;font-family:'Arial Black',sans-serif;font-size:14px;color:#888;letter-spacing:1px;transition:border-color 0.15s,color 0.15s;}
+.add-player-btn:active{border-color:#f4c430;color:#f4c430;}
+
+/* 選手詳細 */
+#player-detail{display:none;flex-direction:column;height:100vh;background:#0a0a0a;overflow:hidden;}
+#player-detail.active{display:flex;}
+.radar-wrap{background:#1a1a1a;border:2px solid #333;border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.radar-title{font-family:'Arial Black',sans-serif;font-size:12px;color:#f4c430;letter-spacing:2px;text-align:center;}
+.ability-bars{display:flex;flex-direction:column;gap:8px;width:100%;}
+.ability-row{display:flex;align-items:center;gap:10px;}
+.ability-label{font-family:'Arial Black',sans-serif;font-size:11px;color:#aaa;min-width:80px;letter-spacing:0.5px;}
+.ability-bar-bg{flex:1;height:10px;background:#2a2a2a;border-radius:5px;overflow:hidden;}
+.ability-bar-fill{height:100%;border-radius:5px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
+.ability-val{font-family:'Arial Black',sans-serif;font-size:11px;color:#fff;min-width:36px;text-align:right;}
+.analysis-card{background:#1a1a1a;border:2px solid #333;border-radius:10px;padding:14px;}
+.analysis-title{font-family:'Arial Black',sans-serif;font-size:11px;color:#f4c430;letter-spacing:2px;margin-bottom:10px;}
+.analysis-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;}
+.analysis-item:last-child{margin-bottom:0;}
+.analysis-tag{font-family:'Arial Black',sans-serif;font-size:10px;font-weight:900;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;}
+.tag-good{background:#1a4a2e;color:#2a9d3f;}
+.tag-bad{background:#4a1a1a;color:#e63946;}
+.tag-tip{background:#2a2a1a;color:#f4c430;}
+.analysis-text{font-family:Arial,sans-serif;font-size:12px;color:#ccc;line-height:1.5;}
+.score-history{background:#1a1a1a;border:2px solid #333;border-radius:10px;overflow:hidden;}
+.score-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #2a2a2a;}
+.score-row:last-child{border-bottom:none;}
+.score-drill{font-family:'Arial Black',sans-serif;font-size:12px;color:#fff;flex:1;}
+.score-val{font-family:'Arial Black',sans-serif;font-size:14px;color:#f4c430;}
+.score-date{font-size:10px;color:#555;font-family:Arial,sans-serif;}
+
+/* ドリル中の選手選択 */
+#player-select-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:50;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+#player-select-modal.active{display:flex;}
+.modal-box{background:#1a1a1a;border:3px solid #f4c430;border-radius:14px;width:100%;max-width:400px;overflow:hidden;}
+.modal-hdr{background:#f4c430;padding:12px 16px;font-family:'Arial Black',sans-serif;font-size:15px;font-weight:900;color:#1a1a1a;letter-spacing:1px;}
+.modal-list{max-height:300px;overflow-y:auto;}
+.modal-player{padding:14px 16px;border-bottom:1px solid #2a2a2a;cursor:pointer;font-family:'Arial Black',sans-serif;font-size:14px;color:#fff;display:flex;align-items:center;gap:10px;}
+.modal-player:active{background:#222;}
+.modal-skip{padding:12px 16px;text-align:center;font-family:'Arial Black',sans-serif;font-size:13px;color:#666;cursor:pointer;border-top:2px solid #333;}
+
+/* ══ ゲーミフィケーション ══ */
+/* ストリーク */
+.streak-banner{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg,#ff6b00,#ff9500);
+  border:3px solid #1a1a1a;border-radius:10px;
+  padding:10px 16px;width:100%;
+  font-family:'Arial Black',sans-serif;
+}
+.streak-fire{font-size:28px;line-height:1;}
+.streak-count{font-size:28px;font-weight:900;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,0.3);}
+.streak-label{font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:1px;}
+
+/* レベル・EXP */
+.level-card{
+  background:#1a1a1a;border:3px solid #f4c430;border-radius:10px;
+  padding:12px 16px;width:100%;
+}
+.level-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.level-badge{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#f4c430,#f4762a);
+  border:3px solid #1a1a1a;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;flex-shrink:0;
+}
+.level-badge-num{font-family:'Arial Black',sans-serif;font-size:18px;font-weight:900;color:#1a1a1a;line-height:1;}
+.level-badge-lbl{font-family:'Arial Black',sans-serif;font-size:8px;color:#1a1a1a;letter-spacing:1px;}
+.level-info{flex:1;}
+.level-title{font-family:'Arial Black',sans-serif;font-size:14px;color:#f4c430;letter-spacing:1px;}
+.level-exp{font-size:11px;color:#888;font-family:Arial,sans-serif;margin-top:2px;}
+.exp-bar-bg{height:8px;background:#333;border-radius:4px;overflow:hidden;}
+.exp-bar-fill{height:100%;background:linear-gradient(90deg,#f4c430,#f4762a);border-radius:4px;transition:width 0.6s ease;}
+
+/* ミッション */
+.mission-card{
+  background:#1a1a1a;border:2px solid #333;border-radius:10px;
+  overflow:hidden;width:100%;
+}
+.mission-hdr{background:#222;padding:8px 14px;font-family:'Arial Black',sans-serif;font-size:11px;color:#f4c430;letter-spacing:2px;}
+.mission-row{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  border-bottom:1px solid #2a2a2a;
+}
+.mission-row:last-child{border-bottom:none;}
+.mission-icon{font-size:20px;flex-shrink:0;}
+.mission-info{flex:1;}
+.mission-name{font-family:'Arial Black',sans-serif;font-size:12px;color:#fff;}
+.mission-prog{font-size:10px;color:#888;font-family:Arial,sans-serif;margin-top:2px;}
+.mission-reward{font-family:'Arial Black',sans-serif;font-size:12px;color:#f4c430;white-space:nowrap;}
+.mission-bar-bg{height:5px;background:#333;border-radius:3px;overflow:hidden;margin-top:4px;}
+.mission-bar-fill{height:100%;background:#f4c430;border-radius:3px;}
+.mission-done{opacity:0.4;}
+
+/* レベルアップモーダル */
+#levelup-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+#levelup-modal.active{display:flex;}
+.levelup-title{
+  font-family:'Arial Black',sans-serif;font-size:48px;font-weight:900;
+  color:#f4c430;text-shadow:4px 4px 0 #000;letter-spacing:3px;text-align:center;
+}
+.levelup-new{font-family:'Arial Black',sans-serif;font-size:20px;color:#fff;letter-spacing:2px;}
+.levelup-badge{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,#f4c430,#f4762a);
+  border:5px solid #fff;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.levelup-badge-num{font-family:'Arial Black',sans-serif;font-size:36px;font-weight:900;color:#1a1a1a;}
+.levelup-close{
+  padding:14px 36px;background:#f4c430;color:#1a1a1a;
+  border:none;border-radius:40px;font-family:'Arial Black',sans-serif;
+  font-size:16px;font-weight:900;cursor:pointer;margin-top:8px;letter-spacing:1px;
+}
+
+/* EXP獲得エフェクト */
+.exp-pop{
+  position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Arial Black',sans-serif;font-size:28px;font-weight:900;
+  color:#f4c430;text-shadow:3px 3px 0 #000;
+  pointer-events:none;z-index:300;opacity:0;
+  animation:expPop 1.2s ease forwards;
+}
+@keyframes expPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(0.5);}
+  30%{opacity:1;transform:translate(-50%,-70%) scale(1.1);}
+  70%{opacity:1;transform:translate(-50%,-90%) scale(1);}
+  100%{opacity:0;transform:translate(-50%,-110%) scale(0.9);}
+}
+
+/* ══ 選手登録画面 ══ */
+#register-screen{
+  display:none;position:fixed;inset:0;z-index:90;
+  background:#0a0a0a;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:max(24px,env(safe-area-inset-top)) 24px max(24px,env(safe-area-inset-bottom));gap:20px;
+}
+#register-screen.active{display:flex;}
+.reg-title{font-family:'Arial Black',sans-serif;font-size:28px;font-weight:900;color:#f4c430;letter-spacing:3px;text-align:center;text-shadow:3px 3px 0 #000;}
+.reg-sub{font-size:13px;color:#888;font-family:Arial,sans-serif;text-align:center;line-height:1.6;}
+.reg-form{display:flex;flex-direction:column;gap:12px;width:100%;max-width:400px;}
+.reg-label{font-family:'Arial Black',sans-serif;font-size:11px;color:#f4c430;letter-spacing:2px;margin-bottom:2px;}
+.reg-input{
+  width:100%;padding:14px 16px;background:#1a1a1a;border:3px solid #333;
+  border-radius:10px;font-size:18px;font-weight:900;color:#fff;
+  font-family:'Arial Black',Arial,sans-serif;
+  outline:none;transition:border-color 0.15s;
+}
+.reg-input:focus{border-color:#f4c430;}
+.reg-sport-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.reg-sport-btn{
+  padding:12px 8px;background:#1a1a1a;border:3px solid #333;border-radius:10px;
+  font-family:'Arial Black',sans-serif;font-size:13px;font-weight:900;color:#888;
+  cursor:pointer;text-align:center;transition:all 0.15s;letter-spacing:0.5px;
+}
+.reg-sport-btn.selected{border-color:#f4c430;color:#f4c430;background:#1a1200;}
+.reg-submit{
+  width:100%;padding:16px;background:#f4c430;color:#1a1a1a;
+  border:none;border-radius:40px;font-family:'Arial Black',sans-serif;
+  font-size:18px;font-weight:900;cursor:pointer;letter-spacing:1px;
+  margin-top:4px;transition:transform 0.1s;
+}
+.reg-submit:active{transform:scale(0.97);}
+
+/* ══ 選手ホーム上部 ══ */
+.player-home-hdr{
+  width:100%;max-width:640px;
+  background:linear-gradient(135deg,#1a1a1a,#222);
+  border:3px solid #333;border-radius:12px;
+  padding:14px 18px;display:flex;align-items:center;gap:14px;
+}
+.player-home-avatar{
+  width:48px;height:48px;border-radius:50%;border:3px solid #f4c430;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Arial Black',sans-serif;font-size:20px;font-weight:900;color:#1a1a1a;
+  flex-shrink:0;
+}
+.player-home-name{font-family:'Arial Black',sans-serif;font-size:16px;color:#fff;letter-spacing:1px;}
+.player-home-meta{font-size:11px;color:#888;font-family:Arial,sans-serif;margin-top:2px;}
+.player-switch-btn{
+  margin-left:auto;padding:6px 12px;background:transparent;
+  border:2px solid #444;border-radius:6px;color:#666;
+  font-family:'Arial Black',sans-serif;font-size:10px;cursor:pointer;
+  letter-spacing:1px;
+}
+
+/* ══ レスポンシブ対応 ══ */
+/* スマホ縦向き */
+@media (max-width: 480px) {
+  .home-title-vision { font-size: 48px !important; letter-spacing: 4px !important; }
+  .home-title-training { font-size: 13px !important; letter-spacing: 6px !important; }
+  .cat-wrap, #home > div { max-width: 100% !important; }
+  .sport-btn { font-size: 11px !important; }
+  .free-btn { border-radius: 10px !important; border-width: 2px !important; }
+  .fbtn-name { font-size: 9px !important; }
+  .fbtn-num  { font-size: 11px !important; }
+  .drill-hdr { font-size: 13px !important; }
+  .dhdr { padding: 8px 10px !important; }
+  .sbar { padding: 6px 8px !important; }
+  .btn-go, .btn-stop { font-size: 13px !important; padding: 8px 12px !important; }
+  .streak-banner { padding: 8px 12px !important; }
+  .streak-count { font-size: 22px !important; }
+  .level-card { padding: 10px 12px !important; }
+  .mission-row { padding: 8px 10px !important; }
+  #home { padding: 12px 10px 60px !important; gap: 10px !important; }
+  .reg-input { font-size: 16px !important; padding: 12px !important; }
+  .ob-slide { padding: 12px 14px !important; }
+  .ob-illust { min-height: 150px !important; padding: 16px !important; }
+}
+
+/* スマホ横向き */
+@media (max-height: 500px) and (orientation: landscape) {
+  #home { padding: 8px 12px 50px !important; gap: 8px !important; }
+  .home-title-vision { font-size: 32px !important; }
+  .home-title-training { font-size: 10px !important; }
+  .home-title-line { margin-top: 4px !important; }
+  .streak-banner { padding: 6px 10px !important; }
+  .streak-fire { font-size: 20px !important; }
+  .streak-count { font-size: 18px !important; }
+  .level-card { padding: 8px 12px !important; }
+  .mission-row { padding: 6px 10px !important; }
+  .free-btn { border-radius: 8px !important; }
+  .fbtn-name { font-size: 9px !important; }
+  .ob-slide { padding: 8px 12px !important; gap: 10px !important; }
+  .ob-illust { min-height: 120px !important; }
+}
+
+/* iPad（768px以上） */
+@media (min-width: 768px) {
+  .cat-wrap, #home > div[style] { max-width: 680px !important; }
+  .free-btn { border-radius: 14px !important; }
+  .fbtn-name { font-size: 12px !important; }
+}
+
+/* セーフエリア対応（iPhoneのノッチ・ホームバー） */
+#home { padding-bottom: max(40px, env(safe-area-inset-bottom)) !important; }
+.dhdr { padding-top: max(10px, env(safe-area-inset-top)); }
+</style>
+</head>
+<body>
+
+<!-- ══ オンボーディング（初回のみ） ══ -->
+<div id="onboarding">
+  <div class="ob-header" style="letter-spacing:6px;">VISION TRAINING</div>
+  <div class="ob-slides-wrap">
+    <div class="ob-slides" id="ob-slides">
+
+      <!-- スライド1：距離・姿勢 -->
+      <div class="ob-slide">
+        <div class="ob-slide-title">始める前の準備</div>
+        <div class="ob-illust">
+          <svg class="ob-svg" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arr1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#f4762a"/>
+              </marker>
+            </defs>
+            <!-- 人物（正面・座ってる） -->
+            <!-- 頭 -->
+            <circle cx="44" cy="32" r="18" stroke="#1a1a1a" stroke-width="2.5" fill="#f5f5f5"/>
+            <!-- 目 -->
+            <ellipse cx="38" cy="30" rx="4" ry="5" fill="#1a1a1a"/>
+            <ellipse cx="50" cy="30" rx="4" ry="5" fill="#1a1a1a"/>
+            <ellipse cx="37" cy="28" rx="1.5" ry="1.5" fill="#fff"/>
+            <ellipse cx="49" cy="28" rx="1.5" ry="1.5" fill="#fff"/>
+            <!-- 鼻 -->
+            <path d="M43 34 Q44 38 45 34" stroke="#1a1a1a" stroke-width="1.5" fill="none"/>
+            <!-- 体 -->
+            <path d="M28 50 Q36 44 44 44 Q52 44 60 50 L64 90 Q64 96 56 96 L32 96 Q26 96 28 90 Z" stroke="#1a1a1a" stroke-width="2.5" fill="#f5f5f5"/>
+            <!-- 腕（両手前に出してiPad持つ） -->
+            <path d="M32 60 Q24 72 28 90" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M56 60 Q64 72 60 90" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+            <!-- iPad（縦向き・立てかけ・正面） -->
+            <rect x="100" y="18" width="52" height="72" rx="5" stroke="#1a1a1a" stroke-width="3" fill="#e0f7f7"/>
+            <!-- 画面 -->
+            <rect x="105" y="24" width="42" height="58" rx="3" fill="#00c8c8" opacity="0.3"/>
+            <!-- ホームボタン -->
+            <circle cx="126" cy="97" r="4" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+            <!-- 画面の点（ドリルイメージ） -->
+            <circle cx="120" cy="48" r="5" fill="#e63946"/>
+            <circle cx="136" cy="38" r="4" fill="#f4c430" opacity="0.8"/>
+            <circle cx="132" cy="60" r="4" fill="#1a6fb5" opacity="0.8"/>
+
+            <!-- 距離矢印 -->
+            <path d="M62 45 L98 40" stroke="#f4762a" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arr1)"/>
+            <!-- 40cm ラベル -->
+            <rect x="68" y="32" width="36" height="16" rx="8" fill="#f4762a"/>
+            <text x="86" y="43" font-family="Arial Black" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">40cm</text>
+
+            <!-- 台（iPadを立てかけてる） -->
+            <rect x="94" y="88" width="64" height="8" rx="3" fill="#bbb" stroke="#1a1a1a" stroke-width="1.5"/>
+            <rect x="108" y="96" width="36" height="6" rx="2" fill="#999"/>
+          </svg>
+          <div style="font-size:13px;color:#333;text-align:center;margin-top:8px;line-height:1.6;">
+            端末は目から<b>40cm</b>ほど離しましょう。<br>画面がぼやけたら距離を少し調整してください。
+          </div>
+        </div>
+        <div class="ob-slide-text">iPadを立てかけて、目の高さに合わせると<br>首・肩への負担が少なくなります。</div>
+      </div>
+
+      <!-- スライド2：目だけ動かす -->
+      <div class="ob-slide">
+        <div class="ob-slide-title">正しいやり方</div>
+        <div class="ob-illust">
+          <svg class="ob-svg" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 顔輪郭 -->
+            <ellipse cx="60" cy="38" rx="50" ry="38" stroke="#1a1a1a" stroke-width="2.5" fill="#f5f5f5"/>
+            <!-- 左目 -->
+            <ellipse cx="35" cy="35" rx="14" ry="16" stroke="#1a1a1a" stroke-width="2.5" fill="#fff"/>
+            <ellipse cx="39" cy="35" rx="8" ry="10" fill="#1a1a1a"/>
+            <ellipse cx="41" cy="31" rx="3" ry="3" fill="#fff"/>
+            <!-- 右目 -->
+            <ellipse cx="85" cy="35" rx="14" ry="16" stroke="#1a1a1a" stroke-width="2.5" fill="#fff"/>
+            <ellipse cx="81" cy="35" rx="8" ry="10" fill="#1a1a1a"/>
+            <ellipse cx="83" cy="31" rx="3" ry="3" fill="#fff"/>
+            <!-- 鼻 -->
+            <path d="M58 42 Q60 50 62 42" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+          </svg>
+          <div style="font-size:13px;color:#333;text-align:center;margin-top:8px;line-height:1.6;">
+            <b>頭は動かさず、目だけ</b>で目標を追いましょう。<br>外眼筋（目を動かす筋肉）を効率よく鍛えます。
+          </div>
+        </div>
+        <div class="ob-slide-text">首が動いていないか、意識しながらやってみましょう。</div>
+      </div>
+
+      <!-- スライド3：競技と視覚 -->
+      <div class="ob-slide">
+        <div class="ob-slide-title">なぜビジョントレーニング？</div>
+        <div class="ob-illust">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:8px;">
+            <div style="text-align:center;"><div style="font-size:36px;">🏀</div><div style="font-size:11px;color:#555;margin-top:4px;">周辺視野</div></div>
+            <div style="text-align:center;"><div style="font-size:36px;">⚽</div><div style="font-size:11px;color:#555;margin-top:4px;">動体視力</div></div>
+            <div style="text-align:center;"><div style="font-size:36px;">🏐</div><div style="font-size:11px;color:#555;margin-top:4px;">焦点切替</div></div>
+            <div style="text-align:center;"><div style="font-size:36px;">⚾</div><div style="font-size:11px;color:#555;margin-top:4px;">反応速度</div></div>
+          </div>
+          <div style="font-size:13px;color:#333;text-align:center;margin-top:8px;line-height:1.6;">
+            スポーツのパフォーマンスの多くは<b>「目」</b>が決める。<br>視覚能力は<b>トレーニングで向上</b>します。
+          </div>
+        </div>
+        <div class="ob-slide-text">競技ごとに必要な視覚能力が違います。<br>あなたの競技に合ったドリルで効率よく鍛えましょう！</div>
+      </div>
+
+      <!-- スライド4：ウォームアップの重要性 -->
+      <div class="ob-slide">
+        <div class="ob-slide-title">トレーニングの順番</div>
+        <div class="ob-illust">
+          <div style="display:flex;flex-direction:column;gap:10px;width:100%;padding:4px 8px;">
+            <div style="display:flex;align-items:center;gap:10px;background:#e8f7f7;border-radius:8px;padding:10px 14px;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#1a6fb5;display:flex;align-items:center;justify-content:center;font-family:Arial Black,sans-serif;font-weight:900;color:#fff;font-size:13px;flex-shrink:0;">1</div>
+              <div><div style="font-family:Arial Black,sans-serif;font-size:13px;color:#1a1a1a;">WARM UP（目慣らし）</div><div style="font-size:11px;color:#666;">眼球運動・追従視・跳躍 各30秒</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#fff0e8;border-radius:8px;padding:10px 14px;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#e63946;display:flex;align-items:center;justify-content:center;font-family:Arial Black,sans-serif;font-weight:900;color:#fff;font-size:13px;flex-shrink:0;">2</div>
+              <div><div style="font-family:Arial Black,sans-serif;font-size:13px;color:#1a1a1a;">TRAINING（競技別ドリル）</div><div style="font-size:11px;color:#666;">競技に合わせたドリルを実施</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#e8f5e8;border-radius:8px;padding:10px 14px;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#2a9d3f;display:flex;align-items:center;justify-content:center;font-family:Arial Black,sans-serif;font-weight:900;color:#fff;font-size:13px;flex-shrink:0;">3</div>
+              <div><div style="font-family:Arial Black,sans-serif;font-size:13px;color:#1a1a1a;">クールダウン</div><div style="font-size:11px;color:#666;">目をギュッと閉じてリラックス</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-slide-text">毎日10〜15分続けることで視覚能力が向上します。</div>
+      </div>
+
+      <!-- スライド5：注意事項 -->
+      <div class="ob-slide">
+        <div class="ob-slide-title">注意事項</div>
+        <div class="ob-illust">
+          <div style="display:flex;flex-direction:column;gap:8px;width:100%;text-align:left;">
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#e63946;font-size:18px;flex-shrink:0;">⚠</span><span style="font-size:13px;color:#333;line-height:1.5;">目に痛みや違和感を感じたらすぐに中断してください。</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#f4762a;font-size:18px;flex-shrink:0;">💡</span><span style="font-size:13px;color:#333;line-height:1.5;">明るい環境で行い、暗い場所での長時間使用は避けてください。</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#1a6fb5;font-size:18px;flex-shrink:0;">🕐</span><span style="font-size:13px;color:#333;line-height:1.5;">1日30分以内を目安に。疲れを感じたら休憩しましょう。</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#2a9d3f;font-size:18px;flex-shrink:0;">👁</span><span style="font-size:13px;color:#333;line-height:1.5;">眼疾患のある方は医師に相談してから使用してください。</span></div>
+          </div>
+        </div>
+        <div class="ob-slide-text">継続的なトレーニングが効果への近道です！</div>
+      </div>
+
+      <!-- スライド6：トレーニング後のケア -->
+      <div class="ob-slide">
+        <div class="ob-slide-title">トレーニング後のケア</div>
+        <div class="ob-illust">
+          <svg class="ob-svg" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 顔 -->
+            <circle cx="60" cy="45" r="36" stroke="#1a1a1a" stroke-width="2.5" fill="#f5f5f5"/>
+            <!-- 目（ぎゅっと閉じた） -->
+            <path d="M38 42 Q45 36 52 42" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M68 42 Q75 36 82 42" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- まつ毛 -->
+            <path d="M40 41 L38 36" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M45 39 L44 34" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M50 41 L50 36" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M70 41 L70 36" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M75 39 L76 34" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M80 41 L82 36" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- 笑顔 -->
+            <path d="M45 58 Q60 70 75 58" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </svg>
+          <div style="font-size:13px;color:#333;text-align:center;margin-top:8px;line-height:1.6;">
+            終わったら、目を<b>ギュッと閉じたり大きく開いたり</b>。<br>リラックスすることで疲れがたまりにくくなります。
+          </div>
+        </div>
+        <div class="ob-slide-text">遠くの景色を30秒見るのも効果的です。</div>
+      </div>
+
+    </div><!-- /ob-slides -->
+  </div><!-- /ob-slides-wrap -->
+
+  <div class="ob-dots" id="ob-dots"></div>
+  <button class="ob-next" id="ob-next">つぎへ</button>
+</div>
+
+<div id="home">
+  <div class="home-title-wrap">
+    <span class="home-title-vision">VISION</span>
+    <span class="home-title-training">TRAINING</span>
+    <span class="home-title-line"></span>
+  </div>
+  <div class="home-sub">SPORTS ATHLETE EDITION</div>
+  <!-- 選手ヘッダー -->
+  <div id="player-home-hdr-wrap" style="width:100%;max-width:640px;"></div>
+  <!-- ゲーミフィケーションエリア -->
+  <div id="gamify-home" style="width:100%;max-width:640px;display:flex;flex-direction:column;gap:10px;"></div>
+  <button onclick="openCoach()" style="position:fixed;bottom:16px;right:16px;padding:10px 16px;background:#1a1a1a;color:#f4c430;border:2px solid #f4c430;border-radius:8px;font-family:'Arial Black',sans-serif;font-size:11px;font-weight:900;cursor:pointer;letter-spacing:1px;z-index:5;">COACH ▶</button>
+
+  <!-- WARM UP / TRAINING ボタン -->
+  <div style="width:100%;max-width:640px;display:flex;flex-direction:column;gap:12px;align-items:center;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;">
+      <button id="btn-warmup" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:28px 10px;background:linear-gradient(135deg,#1a6fb5,#0f4f8a);border:4px solid #1a1a1a;border-radius:16px;box-shadow:0 5px 0 rgba(0,0,0,0.6);cursor:pointer;-webkit-user-select:none;user-select:none;">
+        <span style="font-size:36px;">👁</span>
+        <span style="font-family:'Arial Black',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;">WARM UP</span>
+        <span style="font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.7);">目慣らし 4種</span>
+      </button>
+      <button id="btn-training" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:28px 10px;background:linear-gradient(135deg,#e63946,#c0202e);border:4px solid #1a1a1a;border-radius:16px;box-shadow:0 5px 0 rgba(0,0,0,0.6);cursor:pointer;-webkit-user-select:none;user-select:none;">
+        <span style="font-size:36px;">⚡</span>
+        <span style="font-family:'Arial Black',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;">TRAINING</span>
+        <span style="font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.7);">認知×反応 7種</span>
+      </button>
+    </div>
+
+    <!-- ドリルメニュー（WARM UP / TRAINING ボタンで開閉） -->
+    <div id="free-content" style="width:100%;display:flex;flex-direction:column;gap:10px;">
+
+      <!-- WARM UP ラベル -->
+      <div id="fc-warmup" style="font-family:'Arial Black',sans-serif;font-size:10px;color:#4cc9f0;letter-spacing:2px;">WARM UP</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <button class="free-btn" id="row-eye" style="background:linear-gradient(135deg,#e63946,#c0202e);">
+          <span class="fbtn-num">W1</span><span class="fbtn-name">眼球運動</span>
+        </button>
+        <button class="free-btn" id="row-focus" style="background:linear-gradient(135deg,#1a6fb5,#0f4f8a);">
+          <span class="fbtn-num">W2</span><span class="fbtn-name">焦点切り替え</span>
+        </button>
+        <button class="free-btn" id="row-track" style="background:linear-gradient(135deg,#2a9d3f,#1a7a2e);">
+          <span class="fbtn-num">W3</span><span class="fbtn-name">追従視</span>
+        </button>
+        <button class="free-btn" id="row-saccade" style="background:linear-gradient(135deg,#e4609b,#c0407a);">
+          <span class="fbtn-num">W4</span><span class="fbtn-name">眼球跳躍</span>
+        </button>
+      </div>
+
+      <!-- TRAINING ラベル -->
+      <div id="fc-training" style="font-family:'Arial Black',sans-serif;font-size:10px;color:#f4c430;letter-spacing:2px;">TRAINING</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <button class="free-btn" id="row-zigzag" style="background:linear-gradient(135deg,#c8a800,#a08000);">
+          <span class="fbtn-num">T1</span><span class="fbtn-name">ジグザグ</span>
+        </button>
+        <button class="free-btn" id="row-memory" style="background:linear-gradient(135deg,#7b2d8b,#5a1f68);">
+          <span class="fbtn-num">T2</span><span class="fbtn-name">瞬間記憶</span>
+        </button>
+        <button class="free-btn" id="row-periph" style="background:linear-gradient(135deg,#f4762a,#d05510);">
+          <span class="fbtn-num">T3</span><span class="fbtn-name">周辺視野</span>
+        </button>
+        <button class="free-btn" id="row-color" style="background:linear-gradient(135deg,#e63946,#c0202e);">
+          <span class="fbtn-num">T4</span><span class="fbtn-name">色+数字</span>
+        </button>
+        <button class="free-btn" id="row-order" style="background:linear-gradient(135deg,#1a6fb5,#0f4f8a);">
+          <span class="fbtn-num">T5</span><span class="fbtn-name">ナンバー<br>タッチ</span>
+        </button>
+
+        <button class="free-btn" id="row-arrow" style="background:linear-gradient(135deg,#7b2d8b,#5a1f68);">
+          <span class="fbtn-num">T7</span><span class="fbtn-name">矢印ドリル</span>
+        </button>
+        <button class="free-btn" id="row-colorflash" style="background:linear-gradient(135deg,#e4609b,#b03070);">
+          <span class="fbtn-num">T6</span><span class="fbtn-name">カラー<br>フラッシュ</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ レベルアップモーダル ══ -->
+<div id="levelup-modal">
+  <div class="levelup-title">LEVEL UP!</div>
+  <div class="levelup-badge">
+    <div class="levelup-badge-num" id="levelup-num">2</div>
+  </div>
+  <div class="levelup-new" id="levelup-title-txt"></div>
+  <button class="levelup-close" id="levelup-close">つづける</button>
+</div>
+
+<!-- ══ 選手登録画面 ══ -->
+<div id="register-screen">
+  <div class="reg-title">PLAYER SETUP</div>
+  <div class="reg-sub">はじめに選手情報を登録してください。<br>コーチが進捗を確認できるようになります。</div>
+  <div class="reg-form">
+    <div>
+      <div class="reg-label">YOUR NAME</div>
+      <input class="reg-input" id="reg-name" type="text" placeholder="名前を入力" maxlength="12" autocomplete="off">
+    </div>
+    <div>
+      <div class="reg-label">GRADE / TEAM</div>
+      <input class="reg-input" id="reg-grade" type="text" placeholder="例：高校2年、社会人" maxlength="16" autocomplete="off">
+    </div>
+    <div>
+      <div class="reg-label">SPORT</div>
+      <div class="reg-sport-grid" id="reg-sport-grid">
+        <button class="reg-sport-btn" data-sport="basketball">🏀 BASKETBALL</button>
+        <button class="reg-sport-btn" data-sport="soccer">⚽ SOCCER</button>
+        <button class="reg-sport-btn" data-sport="volleyball">🏐 VOLLEYBALL</button>
+        <button class="reg-sport-btn" data-sport="baseball">⚾ BASEBALL</button>
+      </div>
+    </div>
+    <button class="reg-submit" id="reg-submit">登録してはじめる →</button>
+  </div>
+</div>
+<!-- ══ 選手選択モーダル ══ -->
+<div id="player-select-modal">
+  <div class="modal-box">
+    <div class="modal-hdr">誰がやる？</div>
+    <div class="modal-list" id="modal-player-list"></div>
+    <div class="modal-skip" id="modal-skip">記録しないでスタート</div>
+  </div>
+</div>
+
+<!-- ══ コーチダッシュボード ══ -->
+<div id="coach-screen">
+  <div class="coach-hdr">
+    <div class="back-btn" id="coach-back-btn">‹</div>
+    <div class="coach-hdr-title">COACH DASHBOARD</div>
+    <button id="coach-add-btn" style="padding:7px 14px;background:#f4c430;color:#1a1a1a;border:none;border-radius:6px;font-family:'Arial Black',sans-serif;font-size:12px;font-weight:900;cursor:pointer;">+ 選手追加</button>
+  </div>
+  <div class="coach-body">
+    <div class="coach-section">
+      <div class="coach-section-hdr">PLAYERS</div>
+      <div id="player-list"></div>
+    </div>
+    <div class="add-player-btn" id="add-player-btn2">＋ 選手を追加する</div>
+  </div>
+</div>
+
+<!-- ══ 選手詳細・レーダーチャート ══ -->
+<div id="player-detail">
+  <div class="coach-hdr">
+    <div class="back-btn" id="player-detail-back">‹</div>
+    <div class="coach-hdr-title" id="player-detail-name"></div>
+    <button id="player-delete-btn" style="padding:7px 12px;background:#e63946;color:#fff;border:none;border-radius:6px;font-family:'Arial Black',sans-serif;font-size:11px;cursor:pointer;">削除</button>
+  </div>
+  <div class="coach-body" id="player-detail-body"></div>
+</div>
+
+<!-- ══ 競技別ドリル画面 ══ -->
+<div id="sport-screen" style="display:none;flex-direction:column;height:100vh;background:#111;overflow:hidden;">
+  <div style="background:#1a1a1a;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <div id="sport-back-btn" style="font-size:20px;color:#f4c430;cursor:pointer;padding:6px 12px;border:2px solid #f4c430;border-radius:6px;line-height:1;-webkit-user-select:none;user-select:none;">‹</div>
+    <div id="sport-screen-title" style="font-size:16px;font-weight:900;color:#f4c430;letter-spacing:1px;flex:1;font-family:'Arial Black',sans-serif;"></div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;" id="sport-screen-body"></div>
+</div>
+
+<div id="dscreen">
+  <div class="dhdr">
+    <div class="back-btn" id="back-btn">‹</div>
+    <div><div class="dhdr-title" id="dhdr-title">DRILL</div><div class="dhdr-cat" id="dhdr-cat"></div></div>
+  </div>
+  <div class="instr" id="instr-bar"></div>
+  <div class="garea" id="garea">
+    <div class="sfx" id="sfx-main"></div>
+    <div class="sbadge" id="sbadge"></div>
+    <div class="done-ov" id="done-main">
+      <div class="done-title" id="done-title">CLEAR!!</div>
+      <div class="done-sc" id="done-sc"></div>
+      <div class="done-msg" id="done-msg"></div>
+      <button class="done-homebtn" id="done-homebtn">ホームへ戻る</button>
+    </div>
+  </div>
+  <div class="sbar"><div class="pbwrap"><div class="pb" id="pb-main"></div></div><div class="stime" id="stime">00:30</div></div>
+  <div class="ctrls" id="ctrls"></div>
+</div>
+
+<script>
+var TOTAL30 = 30000;
+var TOTAL60 = 60000;
+var rafId = null;
+var timerId = null;
+var currentName = '';
+
+var DRILL_INFO = {
+  eye:    {title:'眼球運動',      cat:'WARM UP',  instr:'<b>頭を動かさず</b>、目だけで赤い点を追おう！'},
+  focus:  {title:'焦点切り替え',  cat:'WARM UP',  instr:'「NEAR」→手元の指先。「FAR」→遠くの壁。<b>素早く切り替え！</b>'},
+  track:  {title:'追従視',        cat:'WARM UP',  instr:'動く球を<b>目だけ</b>で追い続けよう！赤い球を優先！'},
+  zigzag: {title:'ジグザグ追従',  cat:'TRAINING', instr:'折れ線を動く球を追おう。<b>方向転換を予測</b>しながら！'},
+  memory: {title:'瞬間記憶 PRO',  cat:'TRAINING', instr:'光ったマスを<b>全部記憶してタップ</b>！マス数がどんどん増えるぞ！'},
+  periph: {title:'周辺視野+反応', cat:'TRAINING', instr:'中央の十字を見ながら<b>周辺に光った点をタップ</b>！視線を動かさない！'},
+  color:  {title:'色+数字タップ', cat:'TRAINING', instr:'数字が出たら<b>その番号のカラードット</b>を即タップ！'},
+  order:  {title:'ナンバータッチ', cat:'TRAINING', instr:'<b>1分間</b>で何個タッチできる？次の番号を素早く見つけよう！'},
+  arrow:  {title:'矢印ドリル',    cat:'TRAINING', instr:'矢印が出たら<b>その方向に体を動かそう</b>！逆モードは逆方向！'},
+  saccade:{title:'眼球跳躍',cat:'WARM UP',instr:'点が瞬間移動したら<b>目だけで素早く追う</b>！頭は絶対動かさない！'},
+  colorflash:{title:'カラーフラッシュ',cat:'TRAINING',instr:'画面いっぱいに<b>色がフラッシュ</b>！素早く色を認識して反応しよう！'}
+};
+
+// ── ユーティリティ ──
+function addTap(el, fn) {
+  if (!el) return;
+  var moved = false;
+  el.addEventListener('touchstart', function(){ moved=false; }, {passive:true});
+  el.addEventListener('touchmove',  function(){ moved=true;  }, {passive:true});
+  el.addEventListener('touchend', function(e){ if(!moved){e.preventDefault();fn(e);} }, {passive:false});
+  el.addEventListener('click', fn);
+}
+
+function getTouchPos(e, el) {
+  var rect = el.getBoundingClientRect();
+  var cx=0, cy=0;
+  try {
+    if (e.changedTouches && e.changedTouches.length>0){ cx=e.changedTouches[0].clientX; cy=e.changedTouches[0].clientY; }
+    else if (e.touches && e.touches.length>0){ cx=e.touches[0].clientX; cy=e.touches[0].clientY; }
+    else if (typeof e.clientX==='number'){ cx=e.clientX; cy=e.clientY; }
+  } catch(err){}
+  var scaleX = el.width ? el.width/rect.width : 1;
+  var scaleY = el.height ? el.height/rect.height : 1;
+  return {x:(cx-rect.left)*scaleX, y:(cy-rect.top)*scaleY};
+}
+
+function stopAll() {
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  if(timerId){ clearTimeout(timerId); timerId=null; }
+}
+
+function goHome() {
+  stopAll();
+  document.getElementById('home').style.display='flex';
+  document.getElementById('dscreen').classList.remove('active');
+  if(currentPlayer) renderPlayerHomeHeader(currentPlayer);
+  renderGamifyHome();
+}
+
+function openDrill(name) {
+  currentName=name;
+  var info=DRILL_INFO[name];
+  document.getElementById('home').style.display='none';
+  document.getElementById('sport-screen').style.display='none';
+  document.getElementById('dscreen').classList.add('active');
+  document.getElementById('dhdr-title').textContent=info.title;
+  document.getElementById('dhdr-cat').textContent=info.cat;
+  document.getElementById('instr-bar').innerHTML=info.instr;
+  document.getElementById('done-main').classList.remove('on');
+  document.getElementById('done-title').textContent='CLEAR!!';
+  document.getElementById('sbadge').style.display='none';
+  document.getElementById('pb-main').style.width='0%';
+  document.getElementById('stime').textContent='00:30';
+  cleanGA();
+  buildControls(name);
+}
+
+function cleanGA() {
+  var ga=document.getElementById('garea');
+  var keep=['sfx-main','sbadge','done-main'];
+  var rem=[];
+  for(var i=0;i<ga.children.length;i++){
+    var ch=ga.children[i];
+    if(keep.indexOf(ch.id)===-1) rem.push(ch);
+  }
+  rem.forEach(function(ch){ga.removeChild(ch);});
+  ga.style.background='#0d0d2b';
+}
+
+function getCV() {
+  var ga=document.getElementById('garea'), cv=document.getElementById('cv-main');
+  if(!cv){ cv=document.createElement('canvas'); cv.id='cv-main'; ga.insertBefore(cv,ga.firstChild); }
+  var dpr=window.devicePixelRatio||1;
+  var w=Math.max(ga.offsetWidth,100)||640;
+  var h=Math.max(ga.offsetHeight,100)||360;
+  // CSS表示サイズ
+  cv.style.width=w+'px';
+  cv.style.height=h+'px';
+  // 実ピクセル（Retina対応）
+  cv.width=Math.round(w*dpr);
+  cv.height=Math.round(h*dpr);
+  var ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return cv;
+}
+
+function flash(txt,col) {
+  var el=document.getElementById('sfx-main');
+  el.textContent=txt; el.style.color=col||'#f4c430'; el.classList.add('on');
+  setTimeout(function(){el.classList.remove('on');},600);
+}
+function fmtTime(ms){var s=Math.max(0,Math.ceil(ms/1000));return'00:'+(s<10?'0'+s:''+s);}
+function updateBar(el,total){document.getElementById('pb-main').style.width=Math.min(100,el/total*100)+'%';document.getElementById('stime').textContent=fmtTime(total-el);}
+
+var PERIPH_RANK_KEY='vt_periph_ranks';
+function getPeriphRanks(){try{return JSON.parse(localStorage.getItem(PERIPH_RANK_KEY)||'[]');}catch(e){return[];}}
+function savePeriphRank(name,score,mode){
+  var r=getPeriphRanks();
+  r.push({name:name,score:score,mode:mode,date:new Date().toLocaleDateString('ja-JP')});
+  r.sort(function(a,b){return b.score-a.score;});
+  if(r.length>50)r=r.slice(0,50);
+  localStorage.setItem(PERIPH_RANK_KEY,JSON.stringify(r));
+}
+function showPeriphRanking(){
+  var pass=prompt('コーチ用パスワードを入力してください');
+  if(pass!==COACH_PASS){alert('パスワードが違います');return;}
+  var ranks=getPeriphRanks();
+  var ga=document.getElementById('garea');
+  var div=document.createElement('div');
+  div.id='periph-rank-screen';
+  div.style.cssText='position:absolute;inset:0;background:#0d0d2b;z-index:20;display:flex;flex-direction:column;overflow:hidden;';
+  var medals=['🥇','🥈','🥉'];
+  var rows=ranks.slice(0,20).map(function(r,i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #222;">'
+      +'<div style="font-size:20px;min-width:28px;">'+(medals[i]||(i+1))+'</div>'
+      +'<div style="flex:1;font-family:Arial Black,sans-serif;font-size:14px;color:#fff;">'+r.name+'</div>'
+      +'<div style="font-size:11px;color:#888;font-family:Arial,sans-serif;">'+r.mode+'</div>'
+      +'<div style="font-family:Arial Black,sans-serif;font-size:20px;color:#f4c430;margin-left:8px;">'+r.score+'</div>'
+      +'</div>';
+  }).join('');
+  div.innerHTML='<div style="background:#7b2d8b;border-bottom:4px solid #1a1a1a;padding:12px 16px;display:flex;align-items:center;gap:12px;">'
+    +'<div style="font-family:Arial Black,sans-serif;font-size:16px;color:#f4c430;letter-spacing:2px;flex:1;">🏆 周辺視野 RANKING</div>'
+    +'<button id="pr-close" style="padding:7px 14px;background:#e63946;color:#fff;border:3px solid #1a1a1a;border-radius:6px;font-family:Arial Black,sans-serif;font-size:13px;cursor:pointer;">✕</button>'
+    +'</div>'
+    +'<div style="flex:1;overflow-y:auto;">'+(rows||'<div style="padding:20px;text-align:center;color:#555;">記録なし</div>')+'</div>';
+  ga.appendChild(div);
+  addTap(document.getElementById('pr-close'),function(){if(div.parentNode)div.parentNode.removeChild(div);});
+}
+function showDone(sc,msg,drillKey,score){
+  document.getElementById('done-sc').textContent=sc;
+  document.getElementById('done-msg').textContent=msg||'';
+  document.getElementById('done-main').classList.add('on');
+  if(drillKey&&score!==undefined) savePlayerScore(drillKey,score);
+  if(drillKey) addExp(drillKey, score||0);
+  updateStreak();
+  currentPlayer=null;
+}
+function getSp(){var el=document.getElementById('sp');return el?parseInt(el.value):3;}
+function getSel(){var el=document.getElementById('sel');return el?el.value:'';}
+
+function buildControls(name) {
+  // iPad等でlayoutが確定してからcanvasを描画するため少し待つ
+  var html='<button class="btn-go" id="btn-go">スタート</button><button class="btn-stop" id="btn-stop">停止</button>';
+  if(name==='zigzag'||name==='track')
+    html+='<div class="opt">速度<input type="range" id="sp" min="1" max="5" value="3" step="1" oninput="document.getElementById(\'spv\').textContent=this.value"><span class="optval" id="spv">3</span></div>';
+  if(name==='eye')
+    html+='<div class="opt">パターン<select id="eye-pat"><option value="cross" selected>上下左右</option><option value="diag">斜め</option><option value="all">全方向</option></select>&nbsp;速度<select id="eye-sp"><option value="slow">ゆっくり</option><option value="normal" selected>ふつう</option><option value="fast">はやい</option><option value="vfast">超はやい</option></select></div>';
+  if(name==='memory')
+    html+='<div class="opt">グリッド<select id="sel"><option value="4">4×4</option><option value="5" selected>5×5</option><option value="6">6×6</option></select></div>';
+  if(name==='color')
+    html+='<div class="opt">モード<select id="mode-sel"><option value="20">20問勝負</option><option value="60" selected>60秒チャレンジ</option></select>&nbsp;難易度<select id="sel"><option value="4">4色</option><option value="6" selected>6色</option><option value="8">8色</option></select></div>';
+  if(name==='order')
+    html+='<div class="opt">個数<select id="sel"><option value="30">LV1: 30個</option><option value="50" selected>LV2: 50個</option><option value="100">LV3: 100個</option></select></div>'
+    +'<div class="opt">スタイル<select id="style-sel"><option value="plain" selected>数字のみ</option><option value="color">カラー丸</option><option value="size">大小あり</option><option value="colorsize">カラー+大小</option></select></div>'
+    +'<button class="btn-rank" id="btn-rank" style="font-size:12px;font-weight:900;padding:8px 12px;background:#7b2d8b;color:#fff;border:3px solid #1a1a1a;border-radius:6px;cursor:pointer;">🏆 ランキング</button>';
+  if(name==='periph')
+    html+='<div class="opt">モード<select id="mode-sel"><option value="30">30秒</option><option value="60" selected>60秒チャレンジ</option></select></div><button class="btn-rank" id="btn-periph-rank" style="font-size:12px;font-weight:900;padding:8px 12px;background:#7b2d8b;color:#fff;border:3px solid #1a1a1a;border-radius:6px;cursor:pointer;">🏆 ランキング</button>';
+
+
+  if(name==='saccade')
+    html+='<div class="opt">時間<select id="sac-time"><option value="15">15秒</option><option value="30" selected>30秒</option><option value="60">1分</option></select>&nbsp;テンポ<select id="sel"><option value="60">60BPM</option><option value="80">80BPM</option><option value="100">100BPM</option></select>&nbsp;パターン<select id="sel2"><option value="lr" selected>左右</option><option value="ud">上下</option><option value="diag">斜め</option><option value="all">全方向</option></select></div>';
+  if(name==='colorflash'){
+    html+='<div class="opt" style="flex-wrap:wrap;gap:6px;">時間<select id="cf-time"><option value="30">30秒</option><option value="60" selected>1分</option><option value="90">1分半</option></select>'
+      +'&nbsp;速度<select id="cf-speed"><option value="slow">ゆっくり</option><option value="normal" selected>ふつう</option><option value="fast">はやい</option></select></div>'
+      +'<div id="cf-color-wrap" style="display:flex;gap:8px;align-items:center;margin-left:auto;"></div>';
+  }
+  if(name==='arrow')
+    html+='<div class="opt">方向<select id="arrow-dir"><option value="lr">左右</option><option value="ud">上下</option><option value="4" selected>4方向</option><option value="8">8方向</option></select>&nbsp;モード<select id="sel"><option value="normal" selected>通常</option><option value="reverse">逆方向</option><option value="mixed">ミックス</option></select>&nbsp;間隔<select id="sel2"><option value="2000">ゆっくり</option><option value="1400" selected>ふつう</option><option value="800">はやい</option></select></div>';
+  document.getElementById('ctrls').innerHTML=html;
+  addTap(document.getElementById('btn-go'), function(){startDrill();});
+  addTap(document.getElementById('btn-stop'), function(){stopAll();});
+  if(name==='colorflash') initColorFlashUI();
+}
+
+function startDrill() {
+  _doStartDrill();
+}
+function _doStartDrill(){
+  stopAll();
+  document.getElementById('done-main').classList.remove('on');
+  document.getElementById('pb-main').style.width='0%';
+  document.getElementById('sbadge').style.display='none';
+  if(currentName==='eye')    startEye();
+  else if(currentName==='focus')  startFocus();
+  else if(currentName==='track')  startTrack();
+  else if(currentName==='zigzag') startZigzag();
+  else if(currentName==='memory') startMemory();
+  else if(currentName==='periph') startPeriph();
+  else if(currentName==='color')  startColor();
+  else if(currentName==='order')  startOrder();
+  else if(currentName==='arrow')  startArrow();
+  else if(currentName==='saccade') startSaccade();
+  else if(currentName==='colorflash') startColorFlash();
+}
+
+/* ═══════════════ EYE ═══════════════ */
+function startEye() {
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,start=performance.now();
+  var patEl=document.getElementById('eye-pat'),pat=patEl?patEl.value:'cross';
+  var spEl=document.getElementById('eye-sp'),spVal=spEl?spEl.value:'normal';
+  var spMap={slow:3000,normal:1800,fast:1000,vfast:600};
+  var segDur=spMap[spVal]||1800;
+  var cx=W/2,cy=H/2,mx=W*0.06,my=H*0.1;
+  // パターン別ポイント（左右・上下・斜め）
+  var crossPts=[[cx,cy],[cx-W*0.44,cy],[cx,cy],[cx+W*0.44,cy],[cx,cy],[cx,cy-H*0.42],[cx,cy],[cx,cy+H*0.42]];
+  var diagPts=[[cx,cy],[cx-W*0.4,cy-H*0.38],[cx,cy],[cx+W*0.4,cy+H*0.38],[cx,cy],[cx+W*0.4,cy-H*0.38],[cx,cy],[cx-W*0.4,cy+H*0.38]];
+  var allPts=[
+    [cx,cy],[cx-W*0.44,cy],[cx,cy],[cx+W*0.44,cy],
+    [cx,cy],[cx,cy-H*0.42],[cx,cy],[cx,cy+H*0.42],
+    [cx,cy],[cx-W*0.4,cy-H*0.38],[cx,cy],[cx+W*0.4,cy+H*0.38],
+    [cx,cy],[cx+W*0.4,cy-H*0.38],[cx,cy],[cx-W*0.4,cy+H*0.38]
+  ];
+  var pts=pat==='cross'?crossPts:pat==='diag'?diagPts:allPts;
+
+  function draw(now){
+    var el=now-start; if(el>=TOTAL30){updateBar(TOTAL30,TOTAL30);showDone('','ウォームアップ完了！','eye',80);return;}
+    updateBar(el,TOTAL30);
+    var seg=Math.floor(el/segDur),frac=(el%segDur)/segDur;
+    var cur=pts[seg%pts.length]||pts[0],nxt=pts[(seg+1)%pts.length]||pts[0];
+    var x=cur[0]+(nxt[0]-cur[0])*frac,y=cur[1]+(nxt[1]-cur[1])*frac;
+    ctx.fillStyle='#0d0d2b';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+    ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);ctx.fillStyle='#e63946';ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle='#e63946';ctx.fill();
+    rafId=requestAnimationFrame(draw);
+  }
+  rafId=requestAnimationFrame(draw);
+}
+
+/* ═══════════════ FOCUS（近：大きい1点→遠：小さい1点）═══════════════ */
+function startFocus() {
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,start=performance.now();
+  var phases=['NEAR','FAR','NEAR','FAR','NEAR','FAR','NEAR','FAR','NEAR','FAR'],pDur=TOTAL30/10,lastP=-1;
+  var cx=W/2,cy=H/2;
+
+  function draw(now){
+    var el=now-start; if(el>=TOTAL30){updateBar(TOTAL30,TOTAL30);showDone('','ウォームアップ完了！','focus',80);return;}
+    updateBar(el,TOTAL30);
+    var pi=Math.min(Math.floor(el/pDur),9),isNear=phases[pi]==='NEAR';
+    if(pi!==lastP){lastP=pi;}
+
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+
+    if(isNear){
+      // 近：画面いっぱいの大きな赤い点1つ
+      var dotR=Math.min(W,H)*0.44;
+      ctx.beginPath();ctx.arc(cx,cy,dotR,0,Math.PI*2);
+      ctx.fillStyle='#e63946';ctx.fill();
+      ctx.beginPath();ctx.arc(cx,cy,dotR*0.42,0,Math.PI*2);
+      ctx.fillStyle='#fff';ctx.fill();
+      ctx.beginPath();ctx.arc(cx,cy,dotR*0.18,0,Math.PI*2);
+      ctx.fillStyle='#e63946';ctx.fill();
+    } else {
+      // 遠：中央に小さな青い点1つ（動かない）
+      var dotR2=Math.min(W,H)*0.028;
+      // 同心円で奥行き感
+      for(var ri=4;ri>=1;ri--){
+        ctx.beginPath();ctx.arc(cx,cy,dotR2*(1+ri*2.2),0,Math.PI*2);
+        ctx.strokeStyle='rgba(76,201,240,'+(0.08-ri*0.01)+')';ctx.lineWidth=1;ctx.stroke();
+      }
+      ctx.beginPath();ctx.arc(cx,cy,dotR2,0,Math.PI*2);
+      ctx.fillStyle='#4cc9f0';ctx.fill();
+      ctx.beginPath();ctx.arc(cx,cy,dotR2*0.4,0,Math.PI*2);
+      ctx.fillStyle='#fff';ctx.fill();
+    }
+    rafId=requestAnimationFrame(draw);
+  }
+  rafId=requestAnimationFrame(draw);
+}
+
+/* ═══════════════ TRACK ═══════════════ */
+function startTrack() {
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,start=performance.now();
+  var balls=[{c:'#e63946',r:18},{c:'#4cc9f0',r:12},{c:'#f4c430',r:10}],off=[0,2.1,4.2],trails=[[],[],[]];
+
+  function getPos(t,i){var sp=getSp(),spd=(sp*0.0008+0.0012)*(1+i*0.4),rx=W*0.38,ry=H*0.34,a=t*spd*1000+off[i];if(i===0)return[W/2+rx*Math.cos(a),H/2+ry*Math.sin(a)];if(i===1)return[W/2+rx*0.55*Math.cos(-a*1.4+1),H/2+ry*0.55*Math.sin(-a*1.4+1)];return[W/2+rx*0.75*Math.cos(a*0.6+2),H/2+ry*0.5*Math.sin(a*1.2+2)];}
+  function draw(now){
+    var el=now-start; if(el>=TOTAL30){updateBar(TOTAL30,TOTAL30);showDone('','ウォームアップ完了！','track',80);return;}
+    updateBar(el,TOTAL30);var t=el/1000;
+    ctx.fillStyle='rgba(13,13,43,0.2)';ctx.fillRect(0,0,W,H);
+    balls.forEach(function(b,i){
+      var pos=getPos(t,i),x=pos[0],y=pos[1];
+      trails[i].push([x,y]);if(trails[i].length>20)trails[i].shift();
+      trails[i].forEach(function(tp,ti){var a=(ti/trails[i].length)*0.25,rgb=parseInt(b.c.slice(1,3),16)+','+parseInt(b.c.slice(3,5),16)+','+parseInt(b.c.slice(5,7),16);ctx.beginPath();ctx.arc(tp[0],tp[1],b.r*0.5,0,Math.PI*2);ctx.fillStyle='rgba('+rgb+','+a+')';ctx.fill();});
+      ctx.beginPath();ctx.arc(x,y,b.r,0,Math.PI*2);ctx.fillStyle=b.c;ctx.fill();
+      ctx.beginPath();ctx.arc(x-b.r*0.3,y-b.r*0.3,b.r*0.28,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fill();
+    });
+    rafId=requestAnimationFrame(draw);
+  }
+  rafId=requestAnimationFrame(draw);
+}
+
+/* ═══════════════ ZIGZAG ═══════════════ */
+function startZigzag() {
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,start=performance.now();
+  var pad=20;
+  // 次の動きが読めないランダムジグザグ：端から端へ
+  // X方向：左端/右端をランダムに切り替え　Y方向：上端/下端/中央をランダムに
+  var xOpts=[pad, W-pad];
+  var yOpts=[pad, H*0.5, H-pad];
+  var pts=[[W/2,H/2]]; // 最初は中央
+  // 30ポイント事前生成（連続して同じにならないように）
+  for(var i=0;i<30;i++){
+    var lastPt=pts[pts.length-1];
+    var nx,ny,att=0;
+    do{
+      nx=xOpts[Math.floor(Math.random()*xOpts.length)];
+      ny=yOpts[Math.floor(Math.random()*yOpts.length)];
+      att++;
+    }while(att<20&&Math.abs(nx-lastPt[0])<W*0.3&&Math.abs(ny-lastPt[1])<H*0.2);
+    pts.push([nx,ny]);
+  }
+  var spEl=document.getElementById('sp');
+  var segDur=spEl?Math.max(200,1800-parseInt(spEl.value)*250):1200;
+  var seg=0,segStart=start;
+
+  function draw(now){
+    var el=now-start; if(el>=TOTAL30){updateBar(TOTAL30,TOTAL30);showDone('','よく集中できました！','zigzag',80);return;}
+    updateBar(el,TOTAL30);
+    // セグメント進行
+    var segEl=now-segStart;
+    if(segEl>=segDur){seg++;segStart=now;segEl=0;if(seg>=pts.length-1){seg=0;segStart=now;}}
+    var frac=Math.min(1,segEl/segDur);
+    var cur=pts[seg]||pts[0],nxt=pts[seg+1]||pts[0];
+    var x=cur[0]+(nxt[0]-cur[0])*frac,y=cur[1]+(nxt[1]-cur[1])*frac;
+
+    ctx.fillStyle='#0d0d2b';ctx.fillRect(0,0,W,H);
+    // 薄いガイドラインのみ（次の動きは見せない）
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+    // ドット（大きく・薄い残像や予告点なし）
+    ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fillStyle='#f4c430';ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,11,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fillStyle='#f4c430';ctx.fill();
+    rafId=requestAnimationFrame(draw);
+  }
+  rafId=requestAnimationFrame(draw);
+}
+
+/* ═══════════════ MEMORY PRO ═══════════════ */
+function startMemory() {
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  var grid=parseInt(getSel())||5;
+  var cellW=W/grid,cellH=H/grid;
+  var score=0,round=0,level=1,maxLevel=6,state='idle';
+  var targets=[],tapOrder=[];
+  var sbadge=document.getElementById('sbadge');
+  sbadge.style.display='block';
+  document.getElementById('stime').textContent='LV1: 1マス';
+
+  function drawGrid(highlights,oks,misses){
+    ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,H);
+    for(var r=0;r<grid;r++){
+      for(var c=0;c<grid;c++){
+        var idx=r*grid+c;
+        var x=c*cellW,y=r*cellH;
+        ctx.fillStyle='#0d0d2b';ctx.fillRect(x+3,y+3,cellW-6,cellH-6);
+        ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.strokeRect(x+3,y+3,cellW-6,cellH-6);
+        if(highlights&&highlights.indexOf(idx)>=0){ctx.fillStyle='#f4c430';ctx.fillRect(x+6,y+6,cellW-12,cellH-12);}
+        if(oks&&oks.indexOf(idx)>=0){ctx.fillStyle='rgba(42,157,63,0.85)';ctx.fillRect(x+6,y+6,cellW-12,cellH-12);}
+        if(misses&&misses.indexOf(idx)>=0){ctx.fillStyle='rgba(230,57,70,0.85)';ctx.fillRect(x+6,y+6,cellW-12,cellH-12);}
+      }
+    }
+  }
+
+  function updateBadge(){
+    sbadge.textContent='LV'+level+': '+level+'マス  ✓'+score+'/'+round;
+  }
+
+  function pickTargets(){
+    var all=[],used={};
+    while(all.length<level){
+      var idx=Math.floor(Math.random()*grid*grid);
+      if(!used[idx]){used[idx]=true;all.push(idx);}
+    }
+    return all;
+  }
+
+  function showPhase(){
+    state='showing';
+    targets=pickTargets();
+    tapOrder=[];
+    // 点灯時間：レベルが上がるほど短く
+    var showTime=Math.max(300,800-level*150);
+    drawGrid(targets,null,null);
+    timerId=setTimeout(function(){
+      drawGrid(null,null,null);
+      state='waiting';
+    },showTime);
+  }
+
+  function nextRound(){
+    round++;
+    // 3問クリアごとにレベルアップ
+    if(round>1&&(round-1)%3===0&&level<maxLevel){
+      level++;
+    }
+    document.getElementById('pb-main').style.width=Math.min(100,(round/54)*100)+'%';
+    document.getElementById('stime').textContent='LV'+level+': '+level+'マス';
+    updateBadge();
+    if(round>54){
+      sbadge.style.display='none';
+      showDone('スコア: '+score+' / 54','完璧な記憶力！','memory',score);
+      return;
+    }
+    timerId=setTimeout(showPhase,600);
+  }
+
+  function handleTap(e){
+    if(state!=='waiting')return;
+    e.preventDefault();
+    var pos=getTouchPos(e,cv);
+    var c=Math.floor(pos.x/cellW),r=Math.floor(pos.y/cellH);
+    var idx=r*grid+c;
+    if(idx<0||idx>=grid*grid)return;
+    // 既にタップ済みなら無視
+    if(tapOrder.indexOf(idx)>=0)return;
+    tapOrder.push(idx);
+    // 正否判定
+    var expectedIdx=tapOrder.length-1;
+    if(targets.indexOf(idx)>=0){
+      // 正解のマスをタップ
+      drawGrid(null,tapOrder,null);
+      if(tapOrder.length===targets.length){
+        // 全部正解
+        score++;state='result';
+        timerId=setTimeout(nextRound,700);
+      }
+    } else {
+      // 不正解
+      state='result';
+      drawGrid(null,null,[idx]);
+      // 正解を一瞬表示
+      timerId=setTimeout(function(){
+        drawGrid(targets,null,null);
+        timerId=setTimeout(nextRound,600);
+      },400);
+    }
+    updateBadge();
+  }
+
+  cv.addEventListener('touchend',function(e){e.preventDefault();handleTap(e);},{passive:false});
+  cv.addEventListener('click',handleTap);
+  drawGrid(null,null,null);
+  updateBadge();
+  timerId=setTimeout(showPhase,500);
+}
+
+/* ═══════════════ PERIPH（60秒モード追加）═══════════════ */
+function startPeriph() {
+  var rBtn=document.getElementById('btn-periph-rank');
+  if(rBtn) addTap(rBtn,function(){showPeriphRanking();});
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,start=performance.now();
+  var msel=document.getElementById('mode-sel');
+  var TOTAL=msel&&msel.value==='30'?TOTAL30:TOTAL60;
+  var cx=W/2,cy=H/2;
+  var score=0,active=null,canTap=false,nextSpawn=600;
+
+  // Supreme Vision L再現：画面いっぱい楕円形に37点
+  // 画像を解析した実際の配置：外リング・中間・内側の3層＋ランダム散布
+  var dots=[];
+  var pad=32; // 端からのマージン
+  var rw=W/2-pad; // 横半径（画面幅いっぱい）
+  var rh=H/2-pad; // 縦半径（画面高さいっぱい）
+  var dr=Math.min(W,H)*0.028; // ドット半径
+  var idx=0;
+
+  // 外周リング（14点）- 楕円
+  var N_outer=14;
+  for(var i=0;i<N_outer;i++){
+    var a=(i/N_outer)*Math.PI*2-Math.PI/2;
+    dots.push({x:cx+rw*Math.cos(a), y:cy+rh*Math.sin(a), idx:idx++, r:dr});
+  }
+  // 中間リング（12点）
+  var N_mid=12;
+  for(var i=0;i<N_mid;i++){
+    var a=(i/N_mid)*Math.PI*2-Math.PI/2+Math.PI/N_mid;
+    dots.push({x:cx+rw*0.65*Math.cos(a), y:cy+rh*0.65*Math.sin(a), idx:idx++, r:dr});
+  }
+  // 内側リング（8点）
+  var N_inner=8;
+  for(var i=0;i<N_inner;i++){
+    var a=(i/N_inner)*Math.PI*2-Math.PI/2;
+    dots.push({x:cx+rw*0.35*Math.cos(a), y:cy+rh*0.35*Math.sin(a), idx:idx++, r:dr});
+  }
+  // 中心付近（3点）
+  dots.push({x:cx,            y:cy-rh*0.12, idx:idx++, r:dr});
+  dots.push({x:cx-rw*0.12,   y:cy+rh*0.1,  idx:idx++, r:dr});
+  dots.push({x:cx+rw*0.12,   y:cy+rh*0.1,  idx:idx++, r:dr});
+
+  var N=dots.length;
+
+  var sbadge=document.getElementById('sbadge');sbadge.style.display='block';sbadge.textContent='SCORE: 0';
+  document.getElementById('stime').textContent=TOTAL===TOTAL60?'01:00':'00:30';
+
+  function drawScene(hi){
+    ctx.fillStyle='#0d0d2b';ctx.fillRect(0,0,W,H);
+    // 中央マーク削除済み
+    // 楕円ガイド（薄く）
+    ctx.save();ctx.scale(1,rh/rw);
+    ctx.beginPath();ctx.arc(cx,cy*rw/rh,rw,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;ctx.stroke();
+    ctx.restore();
+    // 全ドット
+    dots.forEach(function(d){
+      var isHi=d.idx===hi;
+      ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle=isHi?'#f4c430':'rgba(255,255,255,0.18)';ctx.fill();
+      if(isHi){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();}
+    });
+  }
+
+  function handleTap(e){
+    if(!canTap||active===null)return;e.preventDefault();
+    var pos=getTouchPos(e,cv);
+    for(var i=0;i<dots.length;i++){
+      if(dots[i].idx===active&&Math.sqrt(Math.pow(pos.x-dots[i].x,2)+Math.pow(pos.y-dots[i].y,2))<Math.max(32,dr*1.8)){
+        score++;canTap=false;active=null;sbadge.textContent='SCORE: '+score;break;
+      }
+    }
+  }
+  cv.addEventListener('touchend',function(e){e.preventDefault();handleTap(e);},{passive:false});
+  cv.addEventListener('click',handleTap);
+
+  function draw(now){
+    var el=now-start;if(el>=TOTAL){sbadge.style.display='none';updateBar(TOTAL,TOTAL);var modeLabel=(TOTAL===TOTAL60)?'60秒':'30秒';
+      var pname=currentPlayer?currentPlayer.name:prompt('名前を入力してください（ランキング登録）')||'';
+      if(pname) savePeriphRank(pname,score,modeLabel);
+      showDone('スコア: '+score+' 個','反応速度バツグン！','periph',score);return;}
+    updateBar(el,TOTAL);sbadge.textContent='SCORE: '+score;
+    if(el>nextSpawn&&!canTap){nextSpawn=el+700+Math.random()*600;active=Math.floor(Math.random()*N);canTap=true;}
+    drawScene(canTap?active:null);
+    rafId=requestAnimationFrame(draw);
+  }
+  rafId=requestAnimationFrame(draw);
+}
+
+/* ═══════════════ COLOR（60秒モード追加）═══════════════ */
+var ALL_COLORS=[{hex:'#e63946',label:'赤'},{hex:'#1a6fb5',label:'青'},{hex:'#f4c430',label:'黄'},{hex:'#2a9d3f',label:'緑'},{hex:'#7b2d8b',label:'紫'},{hex:'#f4762a',label:'橙'},{hex:'#e4609b',label:'桃'},{hex:'#4cc9f0',label:'水'}];
+function startColor() {
+  var ga=document.getElementById('garea');ga.style.background='#111';
+  var n=parseInt(getSel())||6,cols=ALL_COLORS.slice(0,n);
+  var msel=document.getElementById('mode-sel'),mode=msel?msel.value:'60';
+  var is60=mode==='60';
+  var TOTAL=is60?TOTAL60:null;
+  var W=Math.max(ga.offsetWidth||window.innerWidth,100),H=Math.max(ga.offsetHeight||window.innerHeight,100);
+  var margin=56,dotR=Math.min(W,H)*0.09;
+  var score=0,total=0,target=null,active=true,start=is60?performance.now():null;
+  var MAX=is60?9999:20;
+  var sbadge=document.getElementById('sbadge');sbadge.style.display='block';
+  document.getElementById('stime').textContent=is60?'01:00':'0 / 20';
+
+  var nd=document.createElement('div');
+  nd.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);font-family:Arial Black,Arial,sans-serif;font-size:clamp(72px,18vw,110px);font-weight:900;color:#1a1a1a;text-shadow:4px 4px 0 rgba(0,0,0,0.12);z-index:2;pointer-events:none;opacity:0;transition:opacity 0.15s;';
+  ga.insertBefore(nd,document.getElementById('sfx-main'));
+
+  if(is60){
+    function tick(){
+      var el=performance.now()-start;
+      if(el>=TOTAL60){active=false;nd.style.opacity='0';sbadge.style.display='none';document.getElementById('pb-main').style.width='100%';document.getElementById('stime').textContent='00:00';showDone(score+'個 タップ！','60秒ベスト記録！','color',score);return;}
+      document.getElementById('pb-main').style.width=(el/TOTAL60*100)+'%';
+      document.getElementById('stime').textContent=fmtTime(TOTAL60-el);
+      sbadge.textContent='SCORE: '+score;
+      rafId=requestAnimationFrame(tick);
+    }
+    rafId=requestAnimationFrame(tick);
+  }
+
+  cols.forEach(function(c,i){
+    var a=(i/n)*Math.PI*2-Math.PI/2,rx=W/2-margin-dotR,ry=H/2-margin-dotR;
+    var x=W/2+rx*Math.cos(a),y=H/2+ry*Math.sin(a);
+    var dot=document.createElement('div');dot.className='dot-btn';
+    var sz=dotR*2;
+    dot.style.cssText='width:'+sz+'px;height:'+sz+'px;background:'+c.hex+';left:'+(x-dotR)+'px;top:'+(y-dotR)+'px;font-size:'+Math.round(dotR*0.55)+'px;';
+    dot.textContent=i+1;dot.dataset.idx=i;
+    (function(dot,idx){
+      function onTap(e){
+        if(!active||target===null)return;e.preventDefault();
+        if(idx===target){score++;dot.style.transform='scale(1.3)';setTimeout(function(){dot.style.transform='';},250);}
+        else{dot.style.transform='scale(0.8)';setTimeout(function(){dot.style.transform='';},250);}
+        total++;
+        sbadge.textContent='SCORE: '+score+' / '+total;
+        if(!is60){document.getElementById('pb-main').style.width=Math.min(100,total/20*100)+'%';document.getElementById('stime').textContent=total+' / 20';}
+        if(!is60&&total>=20){active=false;nd.style.opacity='0';sbadge.style.display='none';showDone('スコア: '+score+' / 20','正確さが上がってきた！');return;}
+        showNext();
+      }
+      dot.addEventListener('touchend',function(e){e.preventDefault();onTap(e);},{passive:false});
+      dot.addEventListener('click',onTap);
+    })(dot,i);
+    ga.insertBefore(dot,document.getElementById('sfx-main'));
+  });
+
+  function showNext(){target=Math.floor(Math.random()*n);nd.textContent=target+1;nd.style.opacity='1';}
+  setTimeout(showNext,300);
+}
+
+/* ═══════════════ NUMBERTAP（ナンバータッチ）═══════════════ */
+
+// ─ ランキング管理 ─
+var RANK_KEY = 'vt_numtap_ranks';
+var COACH_PASS = '12345'; // コーチ用パスワード
+
+function getRanks() {
+  try { return JSON.parse(localStorage.getItem(RANK_KEY)||'[]'); } catch(e){ return []; }
+}
+function saveRank(name, score, level) {
+  var ranks = getRanks();
+  ranks.push({name:name, score:score, level:level, date:new Date().toLocaleDateString('ja-JP')});
+  ranks.sort(function(a,b){ return b.score-a.score; });
+  if(ranks.length>100) ranks=ranks.slice(0,100);
+  localStorage.setItem(RANK_KEY, JSON.stringify(ranks));
+}
+
+function showRankingScreen() {
+  // パスワード確認
+  var pass = prompt('コーチ用パスワードを入力してください');
+  if(pass !== COACH_PASS){ alert('パスワードが違います'); return; }
+  var ranks = getRanks();
+  var ga = document.getElementById('garea');
+  // 既存のランキング画面があれば削除
+  var existing = document.getElementById('ranking-screen');
+  if(existing) ga.removeChild(existing);
+
+  var div = document.createElement('div');
+  div.id = 'ranking-screen';
+  div.style.cssText = 'position:absolute;inset:0;background:#0d0d2b;z-index:20;display:flex;flex-direction:column;overflow:hidden;';
+
+  var header = '<div style="background:#7b2d8b;border-bottom:4px solid #1a1a1a;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-shrink:0;">'
+    +'<div style="font-size:22px;font-weight:900;color:#f4c430;letter-spacing:2px;">🏆 ランキング</div>'
+    +'<div style="font-size:12px;color:rgba(255,255,255,0.7);">ナンバータッチ</div>'
+    +'<button id="rank-close" style="margin-left:auto;padding:7px 16px;background:#e63946;color:#fff;border:3px solid #1a1a1a;border-radius:6px;font-size:14px;font-weight:900;cursor:pointer;">✕ 閉じる</button>'
+    +'<button id="rank-clear" style="padding:7px 16px;background:#444;color:#fff;border:3px solid #1a1a1a;border-radius:6px;font-size:12px;font-weight:900;cursor:pointer;">🗑 リセット</button>'
+    +'</div>';
+
+  var body = '<div style="flex:1;overflow-y:auto;padding:12px;">';
+  if(ranks.length===0){
+    body += '<div style="text-align:center;color:#888;font-size:16px;margin-top:40px;">記録がありません</div>';
+  } else {
+    var medals = ['🥇','🥈','🥉'];
+    ranks.slice(0,30).forEach(function(r,i){
+      var lv = r.level<=30?'LV1':r.level<=50?'LV2':'LV3';
+      var bg = i===0?'rgba(244,196,48,0.15)':i===1?'rgba(200,200,200,0.1)':i===2?'rgba(205,127,50,0.1)':'rgba(255,255,255,0.04)';
+      body += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;background:'+bg+';border-radius:8px;border:2px solid rgba(255,255,255,0.08);">'
+        +'<div style="font-size:22px;min-width:32px;text-align:center;">'+(medals[i]||(''+( i+1)))+'</div>'
+        +'<div style="flex:1;">'
+        +'<div style="font-size:16px;font-weight:900;color:#fff;">'+r.name+'</div>'
+        +'<div style="font-size:11px;color:#888;">'+r.date+'　'+lv+'</div>'
+        +'</div>'
+        +'<div style="font-size:26px;font-weight:900;color:#f4c430;letter-spacing:1px;">'+r.score+'<span style="font-size:13px;color:#aaa;"> 個</span></div>'
+        +'</div>';
+    });
+  }
+  body += '</div>';
+
+  div.innerHTML = header + body;
+  ga.appendChild(div);
+
+  addTap(document.getElementById('rank-close'), function(){
+    if(div.parentNode) div.parentNode.removeChild(div);
+  });
+  addTap(document.getElementById('rank-clear'), function(){
+    if(confirm('ランキングを全削除しますか？')){
+      localStorage.removeItem(RANK_KEY);
+      if(div.parentNode) div.parentNode.removeChild(div);
+    }
+  });
+}
+
+function showScoreEntry(score, level) {
+  // ナンバータッチのスコアを自動保存
+  savePlayerScore('order', score);
+  var ga = document.getElementById('garea');
+  var div = document.createElement('div');
+  div.id = 'score-entry';
+  div.style.cssText = 'position:absolute;inset:0;background:rgba(10,10,40,0.96);z-index:15;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;';
+
+  var lv = level<=30?'LV1':level<=50?'LV2':'LV3';
+  div.innerHTML = '<div style="font-size:44px;font-weight:900;color:#f4c430;text-shadow:3px 3px 0 #1a1a1a;letter-spacing:2px;">🏆 '+ score +' 個！</div>'
+    +'<div style="font-size:16px;color:#aaa;font-family:Arial,sans-serif;">1分間 '+lv+'</div>'
+    +'<input id="player-name" type="text" placeholder="名前を入力" maxlength="12" style="font-size:22px;padding:12px 18px;border:4px solid #f4c430;border-radius:8px;background:#1a1a2e;color:#fff;text-align:center;width:100%;max-width:320px;font-family:Arial Black,Arial,sans-serif;">'
+    +'<div style="display:flex;gap:12px;width:100%;max-width:320px;">'
+    +'<button id="entry-save" style="flex:1;padding:14px;background:#2a9d3f;color:#fff;border:4px solid #1a1a1a;border-radius:8px;font-size:18px;font-weight:900;cursor:pointer;">💾 記録する</button>'
+    +'<button id="entry-skip" style="padding:14px 18px;background:#444;color:#fff;border:4px solid #1a1a1a;border-radius:8px;font-size:16px;font-weight:900;cursor:pointer;">スキップ</button>'
+    +'</div>';
+  ga.appendChild(div);
+  setTimeout(function(){ var inp=document.getElementById('player-name'); if(inp)inp.focus(); },300);
+
+  addTap(document.getElementById('entry-save'), function(){
+    var name = (document.getElementById('player-name').value||'').trim();
+    if(!name){ alert('名前を入力してください'); return; }
+    saveRank(name, score, level);
+    if(div.parentNode) div.parentNode.removeChild(div);
+    document.getElementById('done-title').textContent = '登録完了！';
+    document.getElementById('done-sc').textContent = name + ' さん：' + score + '個';
+    document.getElementById('done-msg').textContent = '🏆 ランキングに記録されました！';
+    document.getElementById('done-main').classList.add('on');
+  });
+  addTap(document.getElementById('entry-skip'), function(){
+    if(div.parentNode) div.parentNode.removeChild(div);
+    document.getElementById('done-main').classList.add('on');
+  });
+}
+
+function startOrder() {
+  var ga=document.getElementById('garea');ga.style.background='#111';
+  var CCOLS=['#e63946','#1a6fb5','#f4c430','#2a9d3f','#7b2d8b','#f4762a','#e4609b','#4cc9f0','#e63946','#1a6fb5','#f4c430','#2a9d3f'];
+  var n=parseInt(getSel())||50;
+  // gaの実際のサイズをBoundingClientRectで取得（iPad対応）
+  var gaRect=ga.getBoundingClientRect();
+  var W=Math.max(gaRect.width||ga.offsetWidth||window.innerWidth,100);
+  var H=Math.max(gaRect.height||ga.offsetHeight,100);
+  // Hが小さすぎる場合はコントロール・ヘッダー分を引いて算出
+  if(H<200){
+    var ctrlH=(document.getElementById('ctrls')||{offsetHeight:0}).offsetHeight||60;
+    var dhdrH=(document.querySelector('.dhdr')||{offsetHeight:0}).offsetHeight||44;
+    var sbarH=(document.querySelector('.sbar')||{offsetHeight:0}).offsetHeight||32;
+    var safeB=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sab')||0)||0;
+    H=Math.max(window.innerHeight-ctrlH-dhdrH-sbarH-safeB-20,200);
+  }
+  // フォントサイズベースで最小間隔を計算（数字同士が被らないよう）
+  var isPhone=window.innerWidth<600;
+  var baseMult=isPhone?0.75:1.0; // スマホは0.75倍
+  var fsize=Math.round((n<=30?26:n<=50?20:15)*baseMult); // デバイス別フォントサイズ
+  var minGap=fsize*2.6; // 数字幅の約2.6倍を最小間隔に
+  var coneR=fsize*0.6;
+  var margin=fsize+16; // 上下左右の余白（下切れ防止のため大きめ）
+  var nextNum=1,cones=[],placed=[],tapCount=0;
+  var DURATION=60000; // 1分間固定
+  var startTime=null,finished=false;
+  var sbadge=document.getElementById('sbadge');sbadge.style.display='block';sbadge.textContent='準備OK！';
+  document.getElementById('pb-main').style.width='0%';
+  document.getElementById('stime').textContent='01:00';
+
+  // ランキングボタンにイベント登録
+  var rankBtn=document.getElementById('btn-rank');
+  if(rankBtn) addTap(rankBtn,function(){ showRankingScreen(); });
+
+  // タイマーloop
+  function timerLoop(){
+    if(finished||!startTime) return;
+    var el=performance.now()-startTime;
+    if(el>=DURATION){
+      finished=true;
+      document.getElementById('pb-main').style.width='100%';
+      document.getElementById('stime').textContent='00:00';
+      sbadge.style.display='none';
+      showScoreEntry(tapCount, n);
+      return;
+    }
+    document.getElementById('pb-main').style.width=(el/DURATION*100)+'%';
+    var remain=Math.max(0,Math.ceil((DURATION-el)/1000));
+    var mm=Math.floor(remain/60),ss=remain%60;
+    document.getElementById('stime').textContent=(mm<10?'0'+mm:mm)+':'+(ss<10?'0'+ss:ss);
+    sbadge.textContent='タップ: '+tapCount;
+    rafId=requestAnimationFrame(timerLoop);
+  }
+
+  function buildCones(){
+    cones.forEach(function(c){if(c.parentNode)c.parentNode.removeChild(c);});
+    cones=[];placed=[];nextNum=1;
+
+    var styleMode2=document.getElementById('style-sel')?document.getElementById('style-sel').value:'plain';
+    var areaW=W-margin*2, areaH=H-margin*2;
+
+    // グリッドを均等に割り付け（被りゼロ保証）
+    var cols2=Math.ceil(Math.sqrt(n*(areaW/areaH)));
+    var rows2=Math.ceil(n/cols2);
+    // セルサイズが最小間隔を下回らないよう調整
+    while(cols2>1 && areaW/cols2<minGap){cols2--;}
+    while(rows2>1 && areaH/rows2<minGap){rows2--;}
+    var cellW2=areaW/cols2, cellH2=areaH/rows2;
+
+    // 全セル列挙
+    var cells=[];
+    for(var r2=0;r2<rows2;r2++){
+      for(var c2=0;c2<cols2;c2++){
+        var ox=(Math.random()-0.5)*cellW2*0.38;
+        var oy=(Math.random()-0.5)*cellH2*0.38;
+        var cx2=Math.max(margin,Math.min(W-margin, margin+cellW2*(c2+0.5)+ox));
+        var cy2=Math.max(margin,Math.min(H-margin, margin+cellH2*(r2+0.5)+oy));
+        cells.push([cx2,cy2]);
+      }
+    }
+    // Fisher-Yatesシャッフル
+    for(var s=cells.length-1;s>0;s--){
+      var t2=Math.floor(Math.random()*(s+1));
+      var tmp=cells[s];cells[s]=cells[t2];cells[t2]=tmp;
+    }
+    var chosen=cells.slice(0,Math.min(n,cells.length));
+    // 足りない場合の補完（既存セルの隙間に）
+    var tries=0;
+    while(chosen.length<n&&tries<500){
+      tries++;
+      var rx=margin+Math.random()*areaW;
+      var ry=margin+Math.random()*areaH;
+      var ok2=chosen.every(function(p){return Math.sqrt(Math.pow(p[0]-rx,2)+Math.pow(p[1]-ry,2))>=minGap;});
+      if(ok2) chosen.push([rx,ry]);
+    }
+
+    for(var i=0;i<n;i++){
+      var x=chosen[i]?chosen[i][0]:margin+Math.random()*areaW;
+      var y=chosen[i]?chosen[i][1]:margin+Math.random()*areaH;
+      placed.push([x,y]);
+      var cone=document.createElement('div');cone.className='cone-btn';
+      var styleMode=document.getElementById('style-sel')?document.getElementById('style-sel').value:'plain';
+      var sizeVar=1;
+      if(styleMode==='size'||styleMode==='colorsize'){
+        var sizeRand=Math.random();
+        sizeVar=sizeRand<0.33?0.8:sizeRand<0.66?1.0:1.25;
+      }
+      var thisSz=fsize*1.2*sizeVar;
+      var thisFsBig=Math.round(fsize*sizeVar);
+      var thisConeR=thisSz/2;
+      // 色モード
+      var hasColor=(styleMode==='color'||styleMode==='colorsize');
+      var ccolor=CCOLS[i%CCOLS.length];
+      // スタイル別CSS
+      var coneCSS='position:absolute;'
+        +'width:'+thisSz+'px;height:'+thisSz+'px;'
+        +'left:'+(x-thisConeR)+'px;top:'+(y-thisConeR)+'px;'
+        +'font-size:'+thisFsBig+'px;'
+        +'font-family:Arial Black,Arial,sans-serif;font-weight:900;'
+        +'display:flex;align-items:center;justify-content:center;'
+        +'cursor:pointer;z-index:2;'
+        +'-webkit-user-select:none;user-select:none;'
+        +'transition:transform 0.1s,opacity 0.3s;'
+        +'opacity:1;';
+      if(styleMode==='plain'){
+        // 数字のみ：背景なし・丸なし・黒文字
+        coneCSS+='background:transparent;border:none;color:#ffffff;border-radius:0;';
+      } else if(hasColor){
+        // カラー丸あり
+        coneCSS+='background:'+ccolor+';border:3px solid #1a1a1a;border-radius:50%;color:#fff;';
+      }
+      cone.style.cssText=coneCSS;
+      cone.textContent=i+1;cone.dataset.num=i+1;cone.dataset.origbg=ccolor;
+      (function(cone,num){
+        function onTap(e){
+          e.preventDefault();
+          if(finished) return;
+          if(num!==nextNum){cone.style.transform='scale(0.85)';setTimeout(function(){cone.style.transform='';},150);return;}
+          // スタート時刻を記録（最初のタップで計測開始）
+          if(!startTime){
+            startTime=performance.now();
+            sbadge.textContent='タップ: 0';
+            rafId=requestAnimationFrame(timerLoop);
+          }
+          cone.style.opacity='0.3';
+          setTimeout(function(){cone.style.opacity='0';},150);
+          nextNum++;tapCount++;
+          sbadge.textContent='タップ: '+tapCount;
+          if(nextNum>n){
+            // 全コーンタップ→再配置
+            timerId=setTimeout(function(){buildCones();highlight();},300);
+          } else {
+            highlight();
+          }
+        }
+        cone.addEventListener('touchend',function(e){e.preventDefault();onTap(e);},{passive:false});
+        cone.addEventListener('click',onTap);
+      })(cone,i+1);
+      ga.insertBefore(cone,document.getElementById('sfx-main'));
+      cones.push(cone);
+    }
+  }
+  function highlight(){
+    // 色・サイズ変更なし。何もしない。
+  }
+  buildCones();highlight();
+}
+
+
+/* ═══════════════ MARKER（マーカー連携）═══════════════ */
+var ALL_MARKERS=[
+  {hex:'#e63946',label:'赤'},{hex:'#1a6fb5',label:'青'},{hex:'#f4c430',label:'黄'},
+  {hex:'#2a9d3f',label:'緑'},{hex:'#f4762a',label:'橙'},{hex:'#7b2d8b',label:'紫'}
+];
+var selectedMarkers=[];
+
+function startMarker(){
+  // まずマーカー選択画面を表示
+  var ga=document.getElementById('garea');
+  var setup=document.createElement('div');setup.className='marker-setup';
+  setup.innerHTML='<h2>🎯 マーカー設定</h2><p>今日使うマーカーの色を<br>選んでください（2〜6色）</p><div class="marker-grid" id="mgrid"></div><button class="setup-btn" id="setup-start">スタート！</button>';
+  ga.appendChild(setup);
+  selectedMarkers=[];
+  var mgrid=document.getElementById('mgrid');
+  ALL_MARKERS.forEach(function(m,i){
+    var item=document.createElement('div');item.className='marker-item';
+    var dot=document.createElement('div');dot.className='marker-dot';dot.style.background=m.hex;dot.textContent=m.label;
+    var lbl=document.createElement('div');lbl.className='marker-label';lbl.textContent=m.label;
+    item.appendChild(dot);item.appendChild(lbl);
+    function toggleMarker(e){
+      e.preventDefault();
+      var idx=selectedMarkers.indexOf(i);
+      if(idx>=0){selectedMarkers.splice(idx,1);dot.classList.remove('selected');}
+      else if(selectedMarkers.length<6){selectedMarkers.push(i);dot.classList.add('selected');}
+    }
+    item.addEventListener('touchend',function(e){e.preventDefault();toggleMarker(e);},{passive:false});
+    item.addEventListener('click',toggleMarker);
+    mgrid.appendChild(item);
+  });
+
+  addTap(document.getElementById('setup-start'),function(){
+    if(selectedMarkers.length<2){flash('2色以上選んで！','#e63946');return;}
+    ga.removeChild(setup);
+    runMarker();
+  });
+}
+
+function runMarker(){
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,start=performance.now();
+  var cols=selectedMarkers.map(function(i){return ALL_MARKERS[i];});
+  var n=cols.length,curActive=null;
+  var spEl=document.getElementById('marker-speed'),interval=spEl?parseInt(spEl.value):1400;
+  var cmd=document.createElement('div');
+  cmd.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:3;';
+  document.getElementById('garea').appendChild(cmd);
+
+  // 背景にマーカー配置イメージを描画
+  function drawBG(activeIdx){
+    ctx.fillStyle='#e8ede8';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(0,0,0,0.04)';ctx.lineWidth=1;
+    for(var xi=0;xi<W;xi+=40){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+    for(var yi=0;yi<H;yi+=40){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+    var cR=Math.min(W,H)*0.07,margin2=cR+16;
+    cols.forEach(function(c,i){
+      var a=(i/n)*Math.PI*2-Math.PI/2;
+      var px=W/2+(W/2-margin2)*Math.cos(a),py=H/2+(H/2-margin2)*Math.sin(a);
+      var isA=i===activeIdx;
+      ctx.beginPath();ctx.arc(px,py,cR*(isA?1.4:1),0,Math.PI*2);ctx.fillStyle=c.hex;ctx.fill();
+      ctx.strokeStyle='#1a1a1a';ctx.lineWidth=isA?5:3;ctx.stroke();
+      if(isA){ctx.beginPath();ctx.arc(px,py,cR*2,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=4;ctx.stroke();}
+      ctx.fillStyle='#fff';ctx.font='bold '+Math.round(cR*0.5)+'px Arial Black,Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(c.label,px,py);
+    });
+  }
+  drawBG(null);
+
+  function showCmd(){
+    var el=performance.now()-start;
+    if(el>=TOTAL30){cmd.innerHTML='';drawBG(null);showDone('30秒完了！','フットワーク最高！',80);updateBar(TOTAL30,TOTAL30);return;}
+    updateBar(el,TOTAL30);
+    var next;do{next=Math.floor(Math.random()*n);}while(next===curActive&&n>1);
+    curActive=next;
+    var c=cols[curActive];
+    // 大きな色ブロック表示
+    cmd.innerHTML='<div style="background:'+c.hex+';border:6px solid #1a1a1a;border-radius:20px;padding:24px 48px;font-family:Arial Black,Arial,sans-serif;font-size:clamp(48px,12vw,80px);font-weight:900;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.4);letter-spacing:2px;">'+c.label+'</div>';
+    drawBG(curActive);
+    timerId=setTimeout(showCmd,interval);
+  }
+  timerId=setTimeout(showCmd,600);
+}
+
+/* ═══════════════ ARROW（矢印ドリル）═══════════════ */
+var ARROWS_LR=[
+  {dir:'LEFT', sym:'←', hex:'#f4762a'},
+  {dir:'RIGHT',sym:'→', hex:'#f4762a'}
+];
+var ARROWS_UD=[
+  {dir:'UP',   sym:'↑', hex:'#f4762a'},
+  {dir:'DOWN', sym:'↓', hex:'#f4762a'}
+];
+var ARROWS4=[
+  {dir:'UP',   sym:'↑', hex:'#f4762a'},
+  {dir:'DOWN', sym:'↓', hex:'#f4762a'},
+  {dir:'LEFT', sym:'←', hex:'#f4762a'},
+  {dir:'RIGHT',sym:'→', hex:'#f4762a'}
+];
+var ARROWS8=[
+  {dir:'UP',      sym:'↑', hex:'#f4762a'},
+  {dir:'DOWN',    sym:'↓', hex:'#f4762a'},
+  {dir:'LEFT',    sym:'←', hex:'#f4762a'},
+  {dir:'RIGHT',   sym:'→', hex:'#f4762a'},
+  {dir:'UL',      sym:'↖', hex:'#f4762a'},
+  {dir:'UR',      sym:'↗', hex:'#f4762a'},
+  {dir:'DL',      sym:'↙', hex:'#f4762a'},
+  {dir:'DR',      sym:'↘', hex:'#f4762a'}
+];
+var ARROWS=ARROWS4;
+function startArrow(){
+  var ga=document.getElementById('garea');
+  var dirEl=document.getElementById('arrow-dir'),dirCount=dirEl?dirEl.value:'4';
+  var modeEl=document.getElementById('sel'),mode=modeEl?modeEl.value:'normal';
+  var intEl=document.getElementById('sel2'),interval=intEl?parseInt(intEl.value):1400;
+  var POOL=dirCount===8?ARROWS8:dirCount==='lr'?ARROWS_LR:dirCount==='ud'?ARROWS_UD:ARROWS4;
+  var REV={UP:'DOWN',DOWN:'UP',LEFT:'RIGHT',RIGHT:'LEFT',UL:'DR',DR:'UL',UR:'DL',DL:'UR'};
+  var curIdx=null;
+
+  // 矢印コマンドオーバーレイ（canvas不使用・div全画面）
+  var cmd=document.createElement('div');
+  cmd.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#111;pointer-events:none;z-index:3;';
+  ga.appendChild(cmd);
+  ga.style.background='#111';
+
+  var start=performance.now();
+
+  function getDisplay(arrow){
+    if(mode==='reverse'){
+      var rd=REV[arrow.dir];
+      var ra=POOL.filter(function(a){return a.dir===rd;})[0]||arrow;
+      return ra;
+    }
+    if(mode==='mixed'&&Math.random()<0.5){
+      var rd2=REV[arrow.dir];
+      var ra2=POOL.filter(function(a){return a.dir===rd2;})[0]||arrow;
+      return ra2;
+    }
+    return arrow;
+  }
+
+  function drawArrow(sym){
+    cmd.innerHTML='<div style="'
+      +'font-size:min(60vw,60vh,480px);'
+      +'line-height:1;'
+      +'color:#f4762a;'
+      +'font-weight:900;'
+      +'font-family:Arial Black,Arial,sans-serif;'
+      +'">'+sym+'</div>';
+  }
+
+  function showNext(){
+    var el=performance.now()-start;
+    if(el>=TOTAL30){cmd.innerHTML='';updateBar(TOTAL30,TOTAL30);showDone('30秒完了！','ナイスリアクション！','arrow',80);return;}
+    updateBar(el,TOTAL30);
+    var next;
+    do{next=Math.floor(Math.random()*POOL.length);}while(next===curIdx&&POOL.length>1);
+    curIdx=next;
+    var shown=getDisplay(POOL[curIdx]);
+    drawArrow(shown.sym);
+    timerId=setTimeout(function(){
+      cmd.innerHTML='';
+      timerId=setTimeout(showNext,150);
+    },interval);
+  }
+  timerId=setTimeout(showNext,400);
+}
+
+
+/* ═══════════════ COLOR FLASH ═══════════════ */
+var CF_ALL_COLORS = [
+  {hex:'#e63946', label:'RED',    ja:'赤'},
+  {hex:'#1a6fb5', label:'BLUE',   ja:'青'},
+  {hex:'#f4c430', label:'YELLOW', ja:'黄'},
+  {hex:'#2a9d3f', label:'GREEN',  ja:'緑'},
+  {hex:'#7b2d8b', label:'PURPLE', ja:'紫'},
+  {hex:'#f4762a', label:'ORANGE', ja:'橙'},
+];
+var cfSelected = [0,1,2,3];
+
+function initColorFlashUI(){
+  var wrap = document.getElementById('cf-color-wrap');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  CF_ALL_COLORS.forEach(function(c, i){
+    var isSel = cfSelected.indexOf(i)>=0;
+    var item = document.createElement('div');
+    item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;-webkit-user-select:none;user-select:none;';
+    var circle = document.createElement('div');
+    circle.style.cssText = 'width:44px;height:44px;border-radius:50%;background:'+c.hex+';'
+      +'border:'+(isSel?'4px solid #1a1a1a':'3px solid #333')+';'
+      +'box-shadow:'+(isSel?'0 0 0 3px #f4c430, 0 0 0 5px #1a1a1a':'none')+';'
+      +'transition:all 0.15s;flex-shrink:0;';
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'font-family:Arial Black,sans-serif;font-size:9px;font-weight:900;'
+      +'color:'+(isSel?'#f4c430':'#555')+';letter-spacing:0.5px;';
+    lbl.textContent = c.ja;
+    item.appendChild(circle);
+    item.appendChild(lbl);
+    (function(idx, circle, lbl){
+      function update(sel){
+        circle.style.border = sel?'4px solid #1a1a1a':'3px solid #333';
+        circle.style.boxShadow = sel?'0 0 0 3px #f4c430, 0 0 0 5px #1a1a1a':'none';
+        circle.style.transform = sel?'scale(1.12)':'scale(1)';
+        lbl.style.color = sel?'#f4c430':'#555';
+      }
+      addTap(item, function(){
+        var pos = cfSelected.indexOf(idx);
+        if(pos>=0){
+          if(cfSelected.length<=1) return;
+          cfSelected.splice(pos,1);
+          update(false);
+        } else {
+          cfSelected.push(idx);
+          update(true);
+        }
+      });
+    })(i, circle, lbl);
+    wrap.appendChild(item);
+  });
+}
+
+function startColorFlash(){
+  var ga = document.getElementById('garea');
+  ga.style.background = '#111';
+
+  var timeVal  = parseInt((document.getElementById('cf-time')  ||{value:'60'}).value)||60;
+  var speedVal = (document.getElementById('cf-speed')||{value:'normal'}).value;
+  var cols = cfSelected.map(function(i){return CF_ALL_COLORS[i];});
+  if(cols.length===0) cols = CF_ALL_COLORS.slice(0,4);
+
+  var TOTAL_CF = timeVal * 1000;
+  var speedMap = {slow:2000, normal:1200, fast:600};
+  var interval = speedMap[speedVal] || 1200;
+
+  // 色表示用の大きい正方形div
+  var box = document.createElement('div');
+  var bSize = Math.min(ga.offsetWidth||window.innerWidth, ga.offsetHeight||window.innerHeight) * 0.72;
+  box.style.cssText = 'position:absolute;top:50%;left:50%;'
+    +'transform:translate(-50%,-50%);'
+    +'width:'+bSize+'px;height:'+bSize+'px;'
+    +'border-radius:24px;'
+    +'border:6px solid rgba(255,255,255,0.15);'
+    +'z-index:3;background:#333;'
+    +'transition:background 0.05s;';
+  ga.appendChild(box);
+
+  var start = performance.now();
+  var curIdx = null;
+
+  function showNext(){
+    var el = performance.now() - start;
+    if(el >= TOTAL_CF){
+      box.style.background = '#222';
+      updateBar(TOTAL_CF, TOTAL_CF);
+      document.getElementById('stime').textContent = '00:00';
+      showDone(timeVal+'秒完了！', 'カラー認識完了！', 'colorflash', 0);
+      return;
+    }
+    updateBar(el, TOTAL_CF);
+    var remain = Math.max(0, Math.ceil((TOTAL_CF-el)/1000));
+    var mm = Math.floor(remain/60), ss = remain%60;
+    document.getElementById('stime').textContent = (mm<10?'0'+mm:mm)+':'+(ss<10?'0'+ss:ss);
+
+    var next;
+    do{ next = Math.floor(Math.random()*cols.length); }while(next===curIdx && cols.length>1);
+    curIdx = next;
+    var c = cols[curIdx];
+
+    box.style.background = c.hex;
+
+    timerId = setTimeout(function(){
+      box.style.background = '#1a1a1a';
+      timerId = setTimeout(showNext, interval*0.18);
+    }, interval*0.82);
+  }
+  showNext();
+}
+
+/* ═══════════════ SACCADE（眼球跳躍）═══════════════ */
+function startSaccade(){
+  var cv=getCV(),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,start=performance.now();
+  var bpmEl=document.getElementById('sel'),bpm=bpmEl?parseInt(bpmEl.value):60;
+  var patEl=document.getElementById('sel2'),pat=patEl?patEl.value:'lr';
+  var timeEl=document.getElementById('sac-time'),sacSec=timeEl?parseInt(timeEl.value):30;
+  var TOTAL_SAC=sacSec*1000;
+  var interval=Math.round(60000/bpm); // BPMをmsに変換
+  var mx=W/2,my=H/2;
+  // 端から端へ：画面端ギリギリ（余白24px）
+  var pad=28;
+  var lx=pad, rx=W-pad, ty=pad, by=H-pad;
+  var cx=W/2, cy=H/2;
+
+  // パターン定義（中央省略・直接端へ跳躍）
+  var lrPts=[
+    [lx,cy],[rx,cy],   // 左→右→左→右...
+    [lx,cy],[rx,cy],
+    [lx,cy],[rx,cy],
+    [lx,cy],[rx,cy]
+  ];
+  var udPts=[
+    [cx,ty],[cx,by],   // 上→下→上→下...
+    [cx,ty],[cx,by],
+    [cx,ty],[cx,by],
+    [cx,ty],[cx,by]
+  ];
+  var diagPts=[
+    [lx,ty],[rx,by],   // 左上→右下
+    [lx,ty],[rx,by],
+    [rx,ty],[lx,by],   // 右上→左下
+    [rx,ty],[lx,by]
+  ];
+  var allPts=[
+    [lx,cy],[rx,cy],
+    [cx,ty],[cx,by],
+    [lx,ty],[rx,by],
+    [rx,ty],[lx,by],
+    [lx,cy],[rx,cy],
+    [cx,ty],[cx,by],
+    [lx,ty],[rx,by],
+    [rx,ty],[lx,by]
+  ];
+
+  var pts = pat==='lr'?lrPts : pat==='ud'?udPts : pat==='diag'?diagPts : allPts;
+  // 最初の点位置（先頭のパターン位置からスタート）
+  var ptIdx=0, curX=pts[0][0], curY=pts[0][1], prevX=pts[0][0], prevY=pts[0][1];
+  var showDot=true, beat=0;
+
+  function drawFrame(){
+    ctx.fillStyle='#0d0d2b'; ctx.fillRect(0,0,W,H);
+    // 薄いグリッド線
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+    // メインドット（常に表示・フラッシュなし）
+    ctx.beginPath();ctx.arc(curX,curY,20,0,Math.PI*2);
+    ctx.fillStyle='#e63946';ctx.fill();
+    ctx.beginPath();ctx.arc(curX,curY,10,0,Math.PI*2);
+    ctx.fillStyle='#fff';ctx.fill();
+    ctx.beginPath();ctx.arc(curX,curY,4,0,Math.PI*2);
+    ctx.fillStyle='#e63946';ctx.fill();
+  }
+
+  // ビートに合わせて点を瞬間移動（フラッシュなし・点はそのまま残る）
+  function nextBeat(){
+    var el=performance.now()-start;
+    if(el>=TOTAL_SAC){updateBar(TOTAL_SAC,TOTAL_SAC);showDone('','眼球跳躍完了！','saccade',80);return;}
+    updateBar(el,TOTAL_SAC);
+    ptIdx=(ptIdx+1)%pts.length;
+    curX=pts[ptIdx][0]; curY=pts[ptIdx][1];
+    drawFrame(); // 点はそのまま表示し続ける
+    timerId=setTimeout(nextBeat,interval);
+  }
+
+  drawFrame();
+  var sm=Math.floor(sacSec/60),ss2=sacSec%60;
+  document.getElementById('stime').textContent=(sm<10?'0'+sm:sm)+':'+(ss2<10?'0'+ss2:ss2);
+  timerId=setTimeout(nextBeat,interval); // 最初からBPMテンポに合わせる
+}
+
+
+
+// ══════════════════════════════
+// ゲーミフィケーション
+// ══════════════════════════════
+
+var GAMIFY_KEY = 'vt_gamify';
+var STREAK_KEY = 'vt_streak';
+
+// レベル定義
+var LEVELS = [
+  {lv:1,  title:'ROOKIE',        exp:0},
+  {lv:2,  title:'BEGINNER',      exp:100},
+  {lv:3,  title:'TRAINEE',       exp:250},
+  {lv:4,  title:'ATHLETE',       exp:500},
+  {lv:5,  title:'CHALLENGER',    exp:800},
+  {lv:6,  title:'COMPETITOR',    exp:1200},
+  {lv:7,  title:'ADVANCED',      exp:1700},
+  {lv:8,  title:'ELITE',         exp:2300},
+  {lv:9,  title:'MASTER',        exp:3000},
+  {lv:10, title:'VISION MASTER', exp:4000},
+];
+
+// EXP報酬
+var EXP_REWARDS = {
+  eye:20, focus:20, track:20, saccade:20, zigzag:25,
+  memory:30, periph:30, color:25, order:40, marker:20, arrow:20
+};
+
+// 週次ミッション定義
+var WEEKLY_MISSIONS = [
+  {id:'m1', icon:'🎯', name:'ナンバータッチ3回',  drill:'order',  target:3,  reward:80},
+  {id:'m2', icon:'👁', name:'ウォームアップ完走',  drill:'warmup', target:3,  reward:60},
+  {id:'m3', icon:'⚡', name:'全ドリル制覇',        drill:'all',    target:5,  reward:150},
+  {id:'m4', icon:'🏆', name:'連続5日トレーニング', drill:'streak', target:5,  reward:200},
+  {id:'m5', icon:'🔥', name:'ナンバータッチ50個超',drill:'order50',target:1,  reward:120},
+];
+
+function getGamify(){
+  try{return JSON.parse(localStorage.getItem(GAMIFY_KEY)||'null')||{exp:0,drillHistory:{},missions:{},lastDate:''};}
+  catch(e){return {exp:0,drillHistory:{},missions:{},lastDate:''};}
+}
+function saveGamify(g){ localStorage.setItem(GAMIFY_KEY,JSON.stringify(g)); }
+
+function getStreak(){
+  try{return JSON.parse(localStorage.getItem(STREAK_KEY)||'null')||{count:0,lastDate:''};}
+  catch(e){return {count:0,lastDate:''};}
+}
+function saveStreak(s){ localStorage.setItem(STREAK_KEY,JSON.stringify(s)); }
+
+function getLevelInfo(exp){
+  var lv=LEVELS[0];
+  for(var i=0;i<LEVELS.length;i++){if(exp>=LEVELS[i].exp)lv=LEVELS[i];}
+  return lv;
+}
+function getNextLevel(exp){
+  for(var i=0;i<LEVELS.length;i++){if(LEVELS[i].exp>exp)return LEVELS[i];}
+  return null;
+}
+
+// ストリーク更新
+function updateStreak(){
+  var s=getStreak();
+  var today=new Date().toLocaleDateString('ja-JP');
+  if(s.lastDate===today) return s.count;
+  var yesterday=new Date(Date.now()-86400000).toLocaleDateString('ja-JP');
+  if(s.lastDate===yesterday){s.count++;}
+  else{s.count=1;}
+  s.lastDate=today;
+  saveStreak(s);
+  return s.count;
+}
+
+// EXP追加
+function addExp(drillKey, score){
+  var g=getGamify();
+  var base=EXP_REWARDS[drillKey]||20;
+  // スコアボーナス（ナンバータッチ等）
+  var bonus=0;
+  if(drillKey==='order'&&score>=50) bonus=20;
+  if(drillKey==='order'&&score>=70) bonus=40;
+  if(drillKey==='periph'&&score>=25) bonus=15;
+  var gained=base+bonus;
+
+  var oldExp=g.exp;
+  var oldLv=getLevelInfo(oldExp);
+  g.exp+=gained;
+  var newLv=getLevelInfo(g.exp);
+
+  // ドリル履歴
+  var today=new Date().toLocaleDateString('ja-JP');
+  if(!g.drillHistory[today]) g.drillHistory[today]=[];
+  g.drillHistory[today].push(drillKey);
+
+  // ミッション進捗
+  updateMissions(g, drillKey, score);
+
+  saveGamify(g);
+  updateStreak();
+
+  // EXPポップ表示
+  showExpPop('+'+gained+' EXP');
+
+  // レベルアップ判定
+  if(newLv.lv>oldLv.lv){
+    setTimeout(function(){showLevelUp(newLv);},800);
+  }
+
+  return gained;
+}
+
+function updateMissions(g, drillKey, score){
+  if(!g.missions) g.missions={};
+  var week=getWeekKey();
+  if(!g.missions[week]) g.missions[week]={};
+  var wm=g.missions[week];
+
+  WEEKLY_MISSIONS.forEach(function(m){
+    if(!wm[m.id]) wm[m.id]=0;
+    if(wm[m.id]>=m.target) return; // 完了済み
+    if(m.drill===drillKey) wm[m.id]++;
+    if(m.drill==='warmup'&&['eye','focus','track','saccade'].indexOf(drillKey)>=0) wm[m.id]++;
+    if(m.drill==='all') wm[m.id]++;
+    if(m.drill==='order50'&&drillKey==='order'&&score>=50){ wm[m.id]=1; g.exp+=m.reward; }
+    if(m.drill==='streak'){
+      var s=getStreak(); wm[m.id]=Math.min(m.target,s.count);
+    }
+    // ミッション達成
+    if(wm[m.id]>=m.target&&wm[m.id+'-done']!==true){
+      wm[m.id+'-done']=true;
+      g.exp+=m.reward;
+      setTimeout(function(){showExpPop('MISSION +'+m.reward+'EXP!');},1200);
+    }
+  });
+}
+
+function getWeekKey(){
+  var d=new Date(); var day=d.getDay();
+  var mon=new Date(d-day*86400000+(day===0?-6:1)*86400000);
+  return mon.toLocaleDateString('ja-JP');
+}
+
+function showExpPop(txt){
+  var el=document.createElement('div');
+  el.className='exp-pop';el.textContent=txt;
+  document.body.appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},1300);
+}
+
+function showLevelUp(lv){
+  document.getElementById('levelup-num').textContent=lv.lv;
+  document.getElementById('levelup-title-txt').textContent=lv.title;
+  document.getElementById('levelup-modal').classList.add('active');
+}
+
+// ── ホーム画面にゲーミフィ要素を描画 ──
+function renderGamifyHome(){
+  var g=getGamify();
+  var s=getStreak();
+  var lv=getLevelInfo(g.exp);
+  var nextLv=getNextLevel(g.exp);
+  var expPct=nextLv?Math.round((g.exp-lv.exp)/(nextLv.exp-lv.exp)*100):100;
+
+  var wrap=document.getElementById('gamify-home');
+  if(!wrap) return;
+  wrap.innerHTML='';
+
+  // ストリーク
+  var streak=document.createElement('div');
+  streak.className='streak-banner';
+  var fire=s.count>=3?'🔥':s.count>=1?'⭐':'○';
+  streak.innerHTML='<span class="streak-fire">'+fire+'</span>'
+    +'<div><div class="streak-count">'+s.count+'</div><div class="streak-label">DAY STREAK</div></div>'
+    +'<div style="margin-left:auto;text-align:right;">'
+    +'<div style="font-family:Arial Black,sans-serif;font-size:11px;color:rgba(255,255,255,0.7);">TOTAL EXP</div>'
+    +'<div style="font-family:Arial Black,sans-serif;font-size:18px;color:#fff;">'+g.exp+'</div>'
+    +'</div>';
+  wrap.appendChild(streak);
+
+  // レベルカード
+  var lvCard=document.createElement('div');
+  lvCard.className='level-card';
+  lvCard.innerHTML='<div class="level-row">'
+    +'<div class="level-badge"><div class="level-badge-num">'+lv.lv+'</div><div class="level-badge-lbl">LEVEL</div></div>'
+    +'<div class="level-info">'
+    +'<div class="level-title">'+lv.title+'</div>'
+    +'<div class="level-exp">'+(nextLv?g.exp+' / '+nextLv.exp+' EXP →LV'+nextLv.lv:'MAX LEVEL')+'</div>'
+    +'<div class="exp-bar-bg" style="margin-top:6px;"><div class="exp-bar-fill" style="width:'+expPct+'%;"></div></div>'
+    +'</div></div>';
+  wrap.appendChild(lvCard);
+
+  // ウィークリーミッション
+  var g2=getGamify();
+  var week=getWeekKey();
+  var wm=(g2.missions&&g2.missions[week])||{};
+  var mCard=document.createElement('div');
+  mCard.className='mission-card';
+  mCard.innerHTML='<div class="mission-hdr">WEEKLY MISSIONS</div>';
+  WEEKLY_MISSIONS.forEach(function(m){
+    var prog=wm[m.id]||0;
+    var done=prog>=m.target;
+    var pct=Math.min(100,Math.round(prog/m.target*100));
+    var row=document.createElement('div');
+    row.className='mission-row'+(done?' mission-done':'');
+    row.innerHTML='<div class="mission-icon">'+(done?'✅':m.icon)+'</div>'
+      +'<div class="mission-info">'
+      +'<div class="mission-name">'+m.name+'</div>'
+      +'<div class="mission-prog">'+Math.min(prog,m.target)+' / '+m.target+(done?' — 達成！':'')+'</div>'
+      +'<div class="mission-bar-bg"><div class="mission-bar-fill" style="width:'+pct+'%;"></div></div>'
+      +'</div>'
+      +'<div class="mission-reward">+'+m.reward+'<br>EXP</div>';
+    mCard.appendChild(row);
+  });
+  wrap.appendChild(mCard);
+}
+
+// ══════════════════════════════
+// コーチダッシュボード & 選手管理
+// ══════════════════════════════
+
+var PLAYERS_KEY = 'vt_players';
+var SCORES_KEY  = 'vt_scores';
+var currentPlayer = null; // ドリル中の選手
+
+// 視覚能力の定義
+var ABILITIES = [
+  {key:'search',   label:'探索速度',   color:'#e63946', drills:['order']},
+  {key:'periph',   label:'周辺視野',   color:'#f4762a', drills:['periph']},
+  {key:'memory',   label:'瞬間記憶',   color:'#7b2d8b', drills:['memory']},
+  {key:'tracking', label:'追従・動体', color:'#2a9d3f', drills:['track','zigzag']},
+  {key:'reaction', label:'反応速度',   color:'#1a6fb5', drills:['color','periph']},
+  {key:'saccade',  label:'眼球跳躍',   color:'#e4609b', drills:['eye','saccade']},
+];
+
+// 基準スコア（LV2ベース）
+var BENCHMARKS = {
+  order:  {label:'ナンバータッチ', unit:'個', max:80,  good:50, avg:35},
+  periph: {label:'周辺視野',       unit:'個', max:40,  good:25, avg:15},
+  memory: {label:'瞬間記憶',       unit:'点', max:54,  good:35, avg:20},
+  track:  {label:'追従視',         unit:'%',  max:100, good:80, avg:60},
+  zigzag: {label:'ジグザグ',       unit:'%',  max:100, good:80, avg:60},
+  color:  {label:'色+数字',        unit:'個', max:60,  good:40, avg:25},
+  eye:    {label:'眼球運動',       unit:'%',  max:100, good:80, avg:60},
+  saccade:{label:'眼球跳躍',       unit:'%',  max:100, good:80, avg:60},
+};
+
+var SPORT_COLORS = {basketball:'#e63946',soccer:'#2a9d3f',volleyball:'#1a6fb5',baseball:'#f4762a',other:'#7b2d8b'};
+
+function getPlayers(){ try{return JSON.parse(localStorage.getItem(PLAYERS_KEY)||'[]');}catch(e){return [];} }
+function savePlayers(p){ localStorage.setItem(PLAYERS_KEY,JSON.stringify(p)); }
+function getScores(){ try{return JSON.parse(localStorage.getItem(SCORES_KEY)||'{}');}catch(e){return {};} }
+function saveScores(s){ localStorage.setItem(SCORES_KEY,JSON.stringify(s)); }
+
+// スコアを保存
+function savePlayerScore(drillKey, score){
+  if(!currentPlayer) return;
+  var scores=getScores();
+  if(!scores[currentPlayer.id]) scores[currentPlayer.id]={};
+  if(!scores[currentPlayer.id][drillKey]) scores[currentPlayer.id][drillKey]=[];
+  scores[currentPlayer.id][drillKey].push({score:score, date:new Date().toLocaleDateString('ja-JP'), ts:Date.now()});
+  // 最新10件だけ保持
+  if(scores[currentPlayer.id][drillKey].length>10)
+    scores[currentPlayer.id][drillKey]=scores[currentPlayer.id][drillKey].slice(-10);
+  saveScores(scores);
+}
+
+// 能力スコア計算（0〜100）
+function calcAbility(playerId){
+  var scores=getScores();
+  var ps=scores[playerId]||{};
+  var result={};
+  ABILITIES.forEach(function(ab){
+    var vals=[];
+    ab.drills.forEach(function(dk){
+      if(ps[dk]&&ps[dk].length>0){
+        var latest=ps[dk][ps[dk].length-1].score;
+        var bm=BENCHMARKS[dk];
+        if(bm) vals.push(Math.min(100,Math.round(latest/bm.max*100)));
+      }
+    });
+    result[ab.key]=vals.length>0?Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length):null;
+  });
+  return result;
+}
+
+// 分析コメント生成
+function genAnalysis(abilities){
+  var items=[];
+  var scored=ABILITIES.filter(function(ab){return abilities[ab.key]!==null;});
+  if(scored.length===0) return [{type:'tip',text:'まだデータがありません。ドリルを実施してください。'}];
+  var sorted=scored.slice().sort(function(a,b){return (abilities[b.key]||0)-(abilities[a.key]||0);});
+  // 得意
+  if(abilities[sorted[0].key]>=70){
+    items.push({type:'good',text:'【得意】'+sorted[0].label+' ('+abilities[sorted[0].key]+'点) — この能力は高いレベルにあります！'});
+  }
+  // 苦手
+  var weak=sorted.filter(function(ab){return abilities[ab.key]!==null&&abilities[ab.key]<50;});
+  if(weak.length>0){
+    var w=weak[weak.length-1];
+    items.push({type:'bad',text:'【要強化】'+w.label+' ('+abilities[w.key]+'点) — 重点的にトレーニングしましょう。'});
+  }
+  // アドバイス
+  var tips={
+    search:'ナンバータッチLV3を繰り返し行うと効果的です。',
+    periph:'周辺視野ドリルを60秒モードで毎日実施しましょう。',
+    memory:'瞬間記憶を上位レベルで挑戦してみましょう。',
+    tracking:'ジグザグ追従を速度最大で練習しましょう。',
+    reaction:'色+数字タップを60秒モードで反復練習しましょう。',
+    saccade:'眼球跳躍を100BPMに上げて挑戦しましょう。',
+  };
+  if(weak.length>0) items.push({type:'tip',text:'アドバイス：'+tips[weak[weak.length-1].key]});
+  return items;
+}
+
+// ── コーチ画面を開く ──
+function openCoach(){
+  var pass=prompt('コーチ用パスワードを入力してください');
+  if(pass!==COACH_PASS){alert('パスワードが違います');return;}
+  document.getElementById('home').style.display='none';
+  document.getElementById('coach-screen').classList.add('active');
+  renderPlayerList();
+}
+
+function closeCoach(){
+  document.getElementById('coach-screen').classList.remove('active');
+  document.getElementById('home').style.display='flex';
+}
+
+function renderPlayerList(){
+  var players=getPlayers();
+  var list=document.getElementById('player-list');
+  list.innerHTML='';
+  if(players.length===0){
+    list.innerHTML='<div style="padding:20px;text-align:center;color:#555;font-family:Arial,sans-serif;font-size:13px;">選手が登録されていません</div>';
+    return;
+  }
+  players.forEach(function(p){
+    var scores=getScores();
+    var ps=scores[p.id]||{};
+    var drillCount=Object.keys(ps).length;
+    var card=document.createElement('div');
+    card.className='player-card';
+    var sportColor=SPORT_COLORS[p.sport]||'#7b2d8b';
+    card.innerHTML='<div class="player-avatar" style="background:'+sportColor+';">'+p.name.slice(0,1)+'</div>'
+      +'<div class="player-info"><div class="player-name">'+p.name+'</div>'
+      +'<div class="player-meta">'+p.grade+' / '+(p.sport==='basketball'?'バスケ':p.sport==='soccer'?'サッカー':p.sport==='volleyball'?'バレー':p.sport==='baseball'?'野球':'その他')+'</div></div>'
+      +'<div class="player-score">'+drillCount+'種記録済</div>'
+      +'<div style="color:#555;font-size:18px;margin-left:4px;">›</div>';
+    addTap(card,(function(player){return function(){openPlayerDetail(player);};})(p));
+    list.appendChild(card);
+  });
+}
+
+function addPlayer(){
+  var name=prompt('選手名を入力してください');
+  if(!name||!name.trim()) return;
+  var grade=prompt('学年・所属を入力してください（例：高校2年、一般など）');
+  if(!grade) grade='未設定';
+  var sportInput=prompt('競技を入力 (basketball / soccer / volleyball / baseball / other)');
+  var sport=['basketball','soccer','volleyball','baseball','other'].indexOf(sportInput)>=0?sportInput:'other';
+  var players=getPlayers();
+  var newPlayer={id:'p'+Date.now(),name:name.trim(),grade:grade,sport:sport};
+  players.push(newPlayer);
+  savePlayers(players);
+  renderPlayerList();
+}
+
+function openPlayerDetail(player){
+  document.getElementById('coach-screen').classList.remove('active');
+  document.getElementById('player-detail').classList.add('active');
+  document.getElementById('player-detail-name').textContent=player.name;
+  var body=document.getElementById('player-detail-body');
+  body.innerHTML='';
+
+  var abilities=calcAbility(player.id);
+  var scores=getScores();
+  var ps=scores[player.id]||{};
+
+  // レーダーチャート（Canvas）
+  var radarWrap=document.createElement('div');
+  radarWrap.className='radar-wrap';
+  radarWrap.innerHTML='<div class="radar-title">VISION ABILITY RADAR</div>';
+  var canvas=document.createElement('canvas');
+  canvas.width=240;canvas.height=240;
+  canvas.style.cssText='width:200px;height:200px;';
+  radarWrap.appendChild(canvas);
+  body.appendChild(radarWrap);
+
+  // abilityバー
+  var barsWrap=document.createElement('div');
+  barsWrap.className='ability-bars';
+  ABILITIES.forEach(function(ab){
+    var val=abilities[ab.key];
+    var row=document.createElement('div');
+    row.className='ability-row';
+    row.innerHTML='<div class="ability-label">'+ab.label+'</div>'
+      +'<div class="ability-bar-bg"><div class="ability-bar-fill" style="width:0%;background:'+ab.color+';"></div></div>'
+      +'<div class="ability-val">'+(val!==null?val:'--')+'</div>';
+    barsWrap.appendChild(row);
+  });
+  radarWrap.appendChild(barsWrap);
+  body.appendChild(radarWrap);
+
+  // 分析コメント
+  var analysis=genAnalysis(abilities);
+  var aCard=document.createElement('div');
+  aCard.className='analysis-card';
+  aCard.innerHTML='<div class="analysis-title">ANALYSIS</div>';
+  analysis.forEach(function(item){
+    var div=document.createElement('div');div.className='analysis-item';
+    var tagClass=item.type==='good'?'tag-good':item.type==='bad'?'tag-bad':'tag-tip';
+    var tagLabel=item.type==='good'?'得意':item.type==='bad'?'要強化':'TIP';
+    div.innerHTML='<span class="analysis-tag '+tagClass+'">'+tagLabel+'</span><span class="analysis-text">'+item.text+'</span>';
+    aCard.appendChild(div);
+  });
+  body.appendChild(aCard);
+
+  // スコア履歴
+  var histKeys=Object.keys(ps);
+  if(histKeys.length>0){
+    var histCard=document.createElement('div');histCard.className='score-history';
+    var histHdr=document.createElement('div');histHdr.className='coach-section-hdr';histHdr.textContent='SCORE HISTORY';
+    histCard.appendChild(histHdr);
+    histKeys.forEach(function(dk){
+      var bm=BENCHMARKS[dk]; if(!bm) return;
+      var latest=ps[dk][ps[dk].length-1];
+      var row=document.createElement('div');row.className='score-row';
+      row.innerHTML='<div class="score-drill">'+bm.label+'</div>'
+        +'<div><div class="score-val">'+latest.score+' '+bm.unit+'</div>'
+        +'<div class="score-date">'+latest.date+'</div></div>';
+      histCard.appendChild(row);
+    });
+    body.appendChild(histCard);
+  }
+
+  // 削除ボタン
+  addTap(document.getElementById('player-delete-btn'),function(){
+    if(!confirm(player.name+'を削除しますか？')){return;}
+    var players=getPlayers().filter(function(p){return p.id!==player.id;});
+    savePlayers(players);
+    var scores=getScores();delete scores[player.id];saveScores(scores);
+    closePlayerDetail();
+  });
+
+  // レーダーチャート描画（少し遅らせてcanvasがDOMに入ってから）
+  setTimeout(function(){
+    drawRadar(canvas, abilities);
+    // バーアニメ
+    barsWrap.querySelectorAll('.ability-bar-fill').forEach(function(bar,i){
+      var val=abilities[ABILITIES[i].key];
+      setTimeout(function(){bar.style.width=(val||0)+'%';},50+i*80);
+    });
+  },50);
+}
+
+function drawRadar(canvas, abilities){
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,R=W*0.38;
+  var N=ABILITIES.length;
+  ctx.fillStyle='#1a1a1a';ctx.fillRect(0,0,W,H);
+
+  // 背景グリッド
+  [0.25,0.5,0.75,1].forEach(function(t){
+    ctx.beginPath();
+    for(var i=0;i<N;i++){
+      var a=(i/N)*Math.PI*2-Math.PI/2;
+      var x=cx+R*t*Math.cos(a),y=cy+R*t*Math.sin(a);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.stroke();
+  });
+
+  // 軸線・ラベル
+  for(var i=0;i<N;i++){
+    var a=(i/N)*Math.PI*2-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));
+    ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.stroke();
+    // ラベル
+    var lx=cx+(R+18)*Math.cos(a),ly=cy+(R+18)*Math.sin(a);
+    ctx.fillStyle='#888';ctx.font='bold 9px Arial Black,Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(ABILITIES[i].label,lx,ly);
+  }
+
+  // データ塗り
+  ctx.beginPath();
+  for(var i=0;i<N;i++){
+    var a=(i/N)*Math.PI*2-Math.PI/2;
+    var val=(abilities[ABILITIES[i].key]||0)/100;
+    var x=cx+R*val*Math.cos(a),y=cy+R*val*Math.sin(a);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(244,196,48,0.18)';ctx.fill();
+  ctx.strokeStyle='#f4c430';ctx.lineWidth=2;ctx.stroke();
+
+  // ドット
+  for(var i=0;i<N;i++){
+    var a=(i/N)*Math.PI*2-Math.PI/2;
+    var val=(abilities[ABILITIES[i].key]||0)/100;
+    var x=cx+R*val*Math.cos(a),y=cy+R*val*Math.sin(a);
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle=ABILITIES[i].color;ctx.fill();
+  }
+}
+
+function closePlayerDetail(){
+  document.getElementById('player-detail').classList.remove('active');
+  document.getElementById('coach-screen').classList.add('active');
+  renderPlayerList();
+}
+
+// ── 選手選択モーダル ──
+function showPlayerSelectModal(callback){
+  var players=getPlayers();
+  var modal=document.getElementById('player-select-modal');
+  var list=document.getElementById('modal-player-list');
+  list.innerHTML='';
+  players.forEach(function(p){
+    var div=document.createElement('div');div.className='modal-player';
+    var sportColor=SPORT_COLORS[p.sport]||'#7b2d8b';
+    div.innerHTML='<div style="width:32px;height:32px;border-radius:50%;background:'+sportColor+';display:flex;align-items:center;justify-content:center;font-family:Arial Black,sans-serif;font-size:14px;color:#fff;flex-shrink:0;">'+p.name.slice(0,1)+'</div>'+p.name+' <span style="color:#666;font-size:11px;font-family:Arial,sans-serif;">'+p.grade+'</span>';
+    addTap(div,(function(player){return function(){
+      currentPlayer=player;
+      modal.classList.remove('active');
+      callback();
+    };})(p));
+    list.appendChild(div);
+  });
+  if(players.length===0){
+    list.innerHTML='<div style="padding:16px;text-align:center;color:#555;font-family:Arial,sans-serif;font-size:13px;">選手が登録されていません<br><span style="font-size:11px;">コーチダッシュボードで登録してください</span></div>';
+  }
+  modal.classList.add('active');
+  addTap(document.getElementById('modal-skip'),function(){
+    currentPlayer=null;modal.classList.remove('active');callback();
+  });
+}
+
+
+// ══════════════════════════════
+// 選手自己登録 & セッション管理
+// ══════════════════════════════
+var CURRENT_PLAYER_KEY = 'vt_current_player_id';
+var selectedSport = '';
+
+function getCurrentPlayerId(){
+  return localStorage.getItem(CURRENT_PLAYER_KEY)||null;
+}
+function setCurrentPlayerId(id){
+  localStorage.setItem(CURRENT_PLAYER_KEY, id);
+}
+
+// 起動時：登録済みかチェック
+function initPlayerSession(){
+  // テストモード：セットアップスキップ
+  renderGamifyHome();
+}
+
+function showRegisterScreen(){
+  document.getElementById('register-screen').classList.add('active');
+}
+
+function renderPlayerHomeHeader(player){
+  var wrap = document.getElementById('player-home-hdr-wrap');
+  if(!wrap) return;
+  var sportColors = {basketball:'#e63946',soccer:'#2a9d3f',volleyball:'#1a6fb5',baseball:'#f4762a',other:'#7b2d8b'};
+  var sportNames = {basketball:'BASKETBALL',soccer:'SOCCER',volleyball:'VOLLEYBALL',baseball:'BASEBALL',other:'OTHER'};
+  var col = sportColors[player.sport]||'#7b2d8b';
+  wrap.innerHTML = '<div class="player-home-hdr">'
+    +'<div class="player-home-avatar" style="background:'+col+';">'+player.name.slice(0,1)+'</div>'
+    +'<div><div class="player-home-name">'+player.name+'</div>'
+    +'<div class="player-home-meta">'+player.grade+' / '+(sportNames[player.sport]||'OTHER')+'</div></div>'
+    +'<button class="player-switch-btn" id="switch-player-btn">SWITCH</button>'
+    +'</div>';
+  var sw = document.getElementById('switch-player-btn');
+  if(sw) addTap(sw, function(){
+    if(confirm('別の選手に切り替えますか？（新しく登録画面が表示されます）')){
+      currentPlayer = null;
+      localStorage.removeItem(CURRENT_PLAYER_KEY);
+      showRegisterScreen();
+    }
+  });
+}
+
+function initRegisterScreen(){
+  // スポーツボタン選択
+  var btns = document.querySelectorAll('.reg-sport-btn');
+  btns.forEach(function(btn){
+    addTap(btn, function(){
+      btns.forEach(function(b){b.classList.remove('selected');});
+      btn.classList.add('selected');
+      selectedSport = btn.dataset.sport;
+    });
+  });
+
+  // 登録ボタン
+  addTap(document.getElementById('reg-submit'), function(){
+    var name = (document.getElementById('reg-name').value||'').trim();
+    var grade = (document.getElementById('reg-grade').value||'').trim()||'未設定';
+    if(!name){ alert('名前を入力してください'); return; }
+    if(!selectedSport){ alert('競技を選んでください'); return; }
+
+    // 選手データに追加
+    var players = getPlayers();
+    var newPlayer = {
+      id: 'p'+Date.now(),
+      name: name,
+      grade: grade,
+      sport: selectedSport,
+      registeredAt: new Date().toLocaleDateString('ja-JP')
+    };
+    players.push(newPlayer);
+    savePlayers(players);
+    setCurrentPlayerId(newPlayer.id);
+    currentPlayer = newPlayer;
+
+    // 登録画面を閉じてホームへ
+    document.getElementById('register-screen').classList.remove('active');
+    renderPlayerHomeHeader(newPlayer);
+    renderGamifyHome();
+
+    // ウェルカム演出
+    showExpPop('WELCOME, '+name+'!');
+  });
+}
+
+// ══════════════════════════════
+// オンボーディング
+// ══════════════════════════════
+var OB_TOTAL = 6;
+var obIdx = 0;
+
+function initOnboarding(){
+  var shown = localStorage.getItem('vt_onboarding_done');
+  var ob = document.getElementById('onboarding');
+  if(shown){ ob.style.display='none'; return; }
+
+  // ドットを生成
+  var dotsEl = document.getElementById('ob-dots');
+  dotsEl.innerHTML='';
+  for(var i=0;i<OB_TOTAL;i++){
+    var d=document.createElement('div');
+    d.className='ob-dot'+(i===0?' active':'');
+    d.dataset.i=i;
+    dotsEl.appendChild(d);
+  }
+
+  // スワイプ対応
+  var wrap=document.getElementById('ob-slides-wrap')||document.querySelector('.ob-slides-wrap');
+  var startX=0;
+  wrap.addEventListener('touchstart',function(e){startX=e.touches[0].clientX;},{passive:true});
+  wrap.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-startX;
+    if(dx<-40) obNext();
+    else if(dx>40) obPrev();
+  },{passive:true});
+
+  addTap(document.getElementById('ob-next'),obNext);
+}
+
+function obSetSlide(idx){
+  obIdx=Math.max(0,Math.min(OB_TOTAL-1,idx));
+  document.getElementById('ob-slides').style.transform='translateX(-'+obIdx+'00%)';
+  var dots=document.querySelectorAll('.ob-dot');
+  dots.forEach(function(d,i){ d.classList.toggle('active',i===obIdx); });
+  var btn=document.getElementById('ob-next');
+  btn.textContent = obIdx===OB_TOTAL-1 ? 'はじめる！' : 'つぎへ';
+}
+
+function obNext(){
+  if(obIdx<OB_TOTAL-1){ obSetSlide(obIdx+1); }
+  else {
+    localStorage.setItem('vt_onboarding_done','1');
+    document.getElementById('onboarding').style.display='none';
+  }
+}
+function obPrev(){ obSetSlide(obIdx-1); }
+
+// ══════════════════════════════
+// 競技別モード
+// ══════════════════════════════
+var SPORTS = {
+  basketball: {
+    name:'バスケットボール', icon:'🏀', color:'#e63946',
+    desc:'広い周辺視野と瞬時の判断力がカギ。コート全体を把握しながら素早く反応する能力を鍛えます。',
+    drills:[
+      {key:'eye',    step:1, color:'#e63946', name:'眼球運動',      time:'30秒', why:'コート全体をスキャンする眼球コントロールの基礎'},
+      {key:'saccade',step:2, color:'#e4609b', name:'眼球跳躍',      time:'30秒', why:'速いパスの追跡。目を素早く動かす瞬発力'},
+      {key:'periph', step:3, color:'#f4762a', name:'周辺視野+反応',  time:'60秒', why:'ディフェンスを見ながらパスコースを察知する能力'},
+      {key:'track',  step:4, color:'#2a9d3f', name:'追従視',        time:'30秒', why:'ドリブル中にボールと相手を同時に追う訓練'},
+      {key:'memory', step:5, color:'#7b2d8b', name:'瞬間記憶 PRO',  time:'自分のペース', why:'瞬時にコートの状況を把握・記憶する能力'},
+      {key:'arrow',  step:6, color:'#1a6fb5', name:'矢印ドリル',    time:'30秒', why:'監督の指示への素早い反応・方向判断'},
+      {key:'order',  step:7, color:'#1a6fb5', name:'ナンバータッチ', time:'60秒', why:'注意分散能力。スコアで成長を記録'},
+    ]
+  },
+  soccer: {
+    name:'サッカー', icon:'⚽', color:'#2a9d3f',
+    desc:'広大なフィールドでの状況把握と予測力が重要。動くボールと選手を同時に追う目を養います。',
+    drills:[
+      {key:'eye',    step:1, color:'#e63946', name:'眼球運動',      time:'30秒', why:'フィールド全体を俯瞰する眼球コントロール'},
+      {key:'focus',  step:2, color:'#1a6fb5', name:'焦点切り替え',  time:'30秒', why:'ボールと遠くの選手を交互に確認する訓練'},
+      {key:'track',  step:3, color:'#2a9d3f', name:'追従視',        time:'30秒', why:'動くボールと複数選手を同時に追う動体視力'},
+      {key:'zigzag', step:4, color:'#f4c430', name:'ジグザグ追従',  time:'30秒', why:'予測不能なボールの軌道への対応力'},
+      {key:'periph', step:5, color:'#f4762a', name:'周辺視野+反応',  time:'60秒', why:'ボールを見ながら周囲のポジションを把握'},
+      {key:'marker', step:6, color:'#2a9d3f', name:'マーカー連携',  time:'30秒', why:'色指示への反応。ポジション移動の俊敏性'},
+      {key:'arrow',  step:7, color:'#7b2d8b', name:'矢印ドリル',    time:'30秒', why:'方向転換の判断速度を上げる'},
+    ]
+  },
+  volleyball: {
+    name:'バレーボール', icon:'🏐', color:'#1a6fb5',
+    desc:'上下の視野切り替えと高速移動するボールへの追従が命。瞬時の焦点調整能力を高めます。',
+    drills:[
+      {key:'eye',    step:1, color:'#e63946', name:'眼球運動',      time:'30秒', why:'コート内の選手配置を素早くスキャン'},
+      {key:'saccade',step:2, color:'#e4609b', name:'眼球跳躍',      time:'30秒', why:'サーブ・スパイクの追跡。縦方向の眼球移動'},
+      {key:'focus',  step:3, color:'#1a6fb5', name:'焦点切り替え',  time:'30秒', why:'ネット前後の焦点切り替え。遠近の瞬時調整'},
+      {key:'track',  step:4, color:'#2a9d3f', name:'追従視',        time:'30秒', why:'高速移動するボールを目で追い続ける'},
+      {key:'zigzag', step:5, color:'#f4c430', name:'ジグザグ追従',  time:'30秒', why:'トスの軌道変化への対応力'},
+      {key:'periph', step:6, color:'#f4762a', name:'周辺視野+反応',  time:'60秒', why:'ボールを追いながらブロッカーの動きを察知'},
+      {key:'memory', step:7, color:'#7b2d8b', name:'瞬間記憶 PRO',  time:'自分のペース', why:'サーブレシーブ時の相手コート状況把握'},
+    ]
+  },
+  baseball: {
+    name:'野球', icon:'⚾', color:'#f4762a',
+    desc:'高速移動するボールへの動体視力と、瞬時の反応速度が最重要。バッター・外野どちらにも効果的。',
+    drills:[
+      {key:'eye',    step:1, color:'#e63946', name:'眼球運動',      time:'30秒', why:'投手から打球まで。視線移動の基礎訓練'},
+      {key:'saccade',step:2, color:'#e4609b', name:'眼球跳躍',      time:'30秒', why:'高速ボールへの即座の視線追跡'},
+      {key:'track',  step:3, color:'#2a9d3f', name:'追従視',        time:'30秒', why:'変化球・フライの軌道予測と追従'},
+      {key:'focus',  step:4, color:'#1a6fb5', name:'焦点切り替え',  time:'30秒', why:'投手→ボール→グラブへの焦点切り替え'},
+      {key:'zigzag', step:5, color:'#f4c430', name:'ジグザグ追従',  time:'30秒', why:'変化球の急激な軌道変化への対応'},
+      {key:'periph', step:6, color:'#f4762a', name:'周辺視野+反応',  time:'60秒', why:'打球判断。ボールを見ながら走路を確認'},
+      {key:'order',  step:7, color:'#1a6fb5', name:'ナンバータッチ', time:'60秒', why:'集中力・注意力。スコアで成長を記録'},
+    ]
+  }
+};
+
+var currentSport = null;
+
+function selectSport(sport) {
+  currentSport = sport;
+
+  if(sport==='free'){
+    // フリーはホーム内でフリーメニューを表示
+    document.getElementById('free-content').style.display='flex';
+    return;
+  }
+
+  var sp = SPORTS[sport];
+  if(!sp) return;
+
+  // 競技詳細スクリーンに遷移
+  document.getElementById('home').style.display='none';
+  var ss=document.getElementById('sport-screen');
+  ss.style.display='flex';
+
+  // タイトル
+  document.getElementById('sport-screen-title').textContent=sp.name.toUpperCase();
+
+  var body=document.getElementById('sport-screen-body');
+  body.innerHTML='';
+
+  // 説明カード
+  var descCard=document.createElement('div');
+  descCard.style.cssText='background:'+sp.color+';border:3px solid #1a1a1a;border-radius:12px;padding:16px 18px;';
+  descCard.innerHTML='<div style="font-family:Arial Black,sans-serif;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.6;">'+sp.desc+'</div>';
+  body.appendChild(descCard);
+
+  // セクションラベル
+  var lbl=document.createElement('div');
+  lbl.style.cssText='font-family:Arial Black,sans-serif;font-size:10px;color:#f4c430;letter-spacing:2px;padding:0;';
+  lbl.textContent='DRILL ORDER';
+  body.appendChild(lbl);
+
+  // ドリルグリッド（種目選択と同じボタンスタイル・3列）
+  var grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;';
+  sp.drills.forEach(function(d){
+    var card=document.createElement('button');
+    card.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;'
+      +'gap:6px;padding:0;aspect-ratio:1/1;'
+      +'background:'+d.color+';'
+      +'border:3px solid #1a1a1a;border-radius:14px;'
+      +'cursor:pointer;-webkit-user-select:none;user-select:none;'
+      +'box-shadow:0 4px 0 rgba(0,0,0,0.5);'
+      +'transition:transform 0.1s,box-shadow 0.1s;';
+    card.innerHTML='<span style="font-family:Arial Black,sans-serif;font-size:18px;font-weight:900;color:#fff;line-height:1;">'+d.step+'</span>'
+      +'<span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:0.3px;text-align:center;line-height:1.3;padding:0 4px;">'+d.name+'</span>'
+      +'<span style="font-size:10px;color:rgba(255,255,255,0.75);font-family:Arial,sans-serif;">'+d.time+'</span>';
+    card.addEventListener('touchstart',function(){this.style.transform='translateY(3px)';this.style.boxShadow='0 1px 0 rgba(0,0,0,0.4)';},{passive:true});
+    card.addEventListener('touchend',function(){this.style.transform='';this.style.boxShadow='0 4px 0 rgba(0,0,0,0.5)';},{passive:true});
+    addTap(card,function(key){return function(){openDrill(key);};}(d.key));
+    grid.appendChild(card);
+  });
+  body.appendChild(grid);
+}
+
+function goSportHome(){
+  document.getElementById('sport-screen').style.display='none';
+  document.getElementById('home').style.display='flex';
+}
+
+// ── イベント登録 ──
+window.addEventListener('DOMContentLoaded',function(){
+  // スポーツボタンはWARM UP/TRAININGボタンに統合済み
+  var rows=['eye','focus','track','saccade','zigzag','memory','periph','color','order','arrow','colorflash'];
+  rows.forEach(function(name){
+    var el=document.getElementById('row-'+name);
+    if(el) addTap(el,(function(n){return function(){openDrill(n);};})(name));
+  });
+  initOnboarding();
+  initRegisterScreen();
+  // WARM UP / TRAINING ボタン
+  addTap(document.getElementById('btn-warmup'), function(){
+    var el=document.getElementById('fc-warmup');if(el)el.scrollIntoView({behavior:'smooth'});
+  });
+  addTap(document.getElementById('btn-training'), function(){
+    var el=document.getElementById('fc-training');if(el)el.scrollIntoView({behavior:'smooth'});
+  });
+  initPlayerSession();
+  addTap(document.getElementById('levelup-close'),function(){
+    document.getElementById('levelup-modal').classList.remove('active');
+    renderGamifyHome();
+  });
+  addTap(document.getElementById('back-btn'),function(){goHome();});
+  // コーチダッシュボード
+  addTap(document.getElementById('coach-back-btn'),function(){closeCoach();});
+  addTap(document.getElementById('coach-add-btn'),function(){addPlayer();});
+  addTap(document.getElementById('add-player-btn2'),function(){addPlayer();});
+  addTap(document.getElementById('player-detail-back'),function(){closePlayerDetail();});
+  var sportBackBtn=document.getElementById('sport-back-btn');
+  if(sportBackBtn) addTap(sportBackBtn,function(){goSportHome();});
+  addTap(document.getElementById('done-homebtn'),function(){goHome();});
+});
+</script>
+</body>
+</html>
