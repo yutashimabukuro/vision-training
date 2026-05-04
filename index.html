@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>VISION TRAINING — SPORTS ATHLETE EDITION</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#ff1e00;--red-dim:rgba(255,30,0,.12);
+  --cya:#00e5ff;--cya-dim:rgba(0,229,255,.1);
+  --ora:#ff7700;--grn:#00ff88;
+  --bg:#07070f;--card:#0f0f1c;
+  --bor:rgba(255,255,255,.06);--text:#eeeef8;--mut:#44445a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Barlow',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);
+  background-size:48px 48px;}
+
+/* ━━━ LAUNCHER ━━━ */
+#launcher{
+  position:fixed;inset:0;z-index:100;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .35s,transform .35s;padding:20px;overflow-y:auto;
+}
+#launcher.hide{opacity:0;pointer-events:none;transform:scale(.97);}
+
+.launch-glow{
+  position:fixed;width:700px;height:700px;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,30,0,.07) 0%,transparent 60%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:lglow 4s ease-in-out infinite;
+}
+@keyframes lglow{
+  0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1);}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.1);}
+}
+
+.launch-eye{
+  width:68px;height:68px;border:2px solid var(--red);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;margin-bottom:16px;
+  animation:leyeglow 2.5s ease-in-out infinite;
+}
+@keyframes leyeglow{
+  0%,100%{box-shadow:0 0 12px rgba(255,30,0,.5);}
+  50%{box-shadow:0 0 28px rgba(255,30,0,.9),inset 0 0 14px rgba(255,30,0,.2);}
+}
+.le-ring{
+  position:absolute;border-radius:50%;
+  border:1.5px solid rgba(255,30,0,.28);
+  animation:lring 2.4s ease-out infinite;
+}
+.le-ring:nth-child(1){width:88px;height:88px;}
+.le-ring:nth-child(2){width:112px;height:112px;animation-delay:.6s;}
+.le-ring:nth-child(3){width:136px;height:136px;animation-delay:1.2s;}
+@keyframes lring{0%{opacity:.7;}100%{opacity:0;transform:scale(1.1);}}
+.le-pupil{
+  width:22px;height:22px;background:var(--red);border-radius:50%;
+  box-shadow:0 0 10px rgba(255,30,0,1);z-index:1;
+}
+
+.ltag{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);
+  margin-bottom:3px;text-align:center;}
+.ltitle{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(36px,8vw,62px);line-height:.88;text-transform:uppercase;
+  text-align:center;letter-spacing:2px;margin-bottom:3px;
+}
+.ltitle .r{color:var(--red);text-shadow:0 0 10px rgba(255,30,0,.7);}
+.lsub{font-size:10px;letter-spacing:5px;text-transform:uppercase;
+  color:var(--mut);margin-bottom:22px;text-align:center;}
+.lneon{width:48px;height:2px;background:var(--red);
+  box-shadow:0 0 8px rgba(255,30,0,.8);margin:0 auto 22px;}
+
+/* APP CARDS */
+.app-cards{display:flex;gap:12px;width:100%;max-width:540px;}
+.app-card{
+  flex:1;border:1px solid var(--bor);background:var(--card);
+  cursor:pointer;transition:all .22s;position:relative;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.app-card:hover{border-color:rgba(255,255,255,.2);transform:translateY(-3px);
+  box-shadow:0 14px 44px rgba(0,0,0,.5);}
+.app-card:active{transform:scale(.98);}
+.acard-line{height:3px;width:100%;}
+.app-card.nt .acard-line{background:var(--red);box-shadow:0 0 7px rgba(255,30,0,.7);}
+.app-card.sg .acard-line{background:var(--cya);box-shadow:0 0 7px rgba(0,229,255,.7);}
+.acard-body{padding:16px 15px 50px;flex:1;}
+.acard-no{font-size:10px;letter-spacing:3px;color:var(--mut);
+  margin-bottom:8px;font-family:'Share Tech Mono',monospace;}
+.app-card.nt .acard-no{color:rgba(255,30,0,.5);}
+.app-card.sg .acard-no{color:rgba(0,229,255,.5);}
+.acard-title{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(20px,4.5vw,30px);line-height:.9;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;
+}
+.app-card.nt .acard-title{color:var(--red);text-shadow:0 0 8px rgba(255,30,0,.4);}
+.app-card.sg .acard-title{color:var(--cya);text-shadow:0 0 8px rgba(0,229,255,.4);}
+.acard-sub{font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--mut);margin-bottom:10px;}
+.acard-desc{font-size:11px;color:#777;line-height:1.6;}
+.acard-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px;}
+.atag{font-size:8px;letter-spacing:2px;text-transform:uppercase;
+  font-weight:600;padding:2px 7px;border:1px solid;}
+.app-card.nt .atag{border-color:rgba(255,30,0,.28);color:rgba(255,30,0,.65);}
+.app-card.sg .atag{border-color:rgba(0,229,255,.28);color:rgba(0,229,255,.65);}
+.acard-arr{
+  position:absolute;bottom:14px;right:14px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:20px;color:var(--mut);transition:color .2s,transform .2s;
+}
+.app-card:hover .acard-arr{transform:translateX(4px);}
+.app-card.nt:hover .acard-arr{color:var(--red);}
+.app-card.sg:hover .acard-arr{color:var(--cya);}
+
+/* IFRAME LAYER */
+#iframe-wrap{
+  position:fixed;inset:0;z-index:50;
+  display:none;flex-direction:column;
+}
+#iframe-wrap.active{display:flex;}
+#app-frame{
+  flex:1;width:100%;height:100%;border:none;
+  background:var(--bg);
+}
+
+/* GLOBAL BACK */
+.gback{
+  position:fixed;top:0;left:0;z-index:300;
+  background:rgba(7,7,15,.92);border:none;
+  border-right:1px solid var(--bor);border-bottom:1px solid var(--bor);
+  color:var(--mut);cursor:pointer;padding:9px 13px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  display:none;align-items:center;gap:5px;
+  transition:color .18s;backdrop-filter:blur(8px);z-index:400;
+}
+.gback.show{display:flex;}
+.gback:hover{color:var(--text);}
+
+/* Responsive */
+@media(max-width:480px){
+  .app-cards{flex-direction:column;max-height:70vh;overflow-y:auto;}
+  .acard-body{padding:13px 13px 44px;}
+}
+@media(min-width:768px){
+  .app-cards{max-width:600px;gap:18px;}
+  .acard-body{padding:20px 18px 52px;}
+  .acard-title{font-size:28px;}
+  .ltitle{font-size:56px;}
+}
+
+.app-card.cf .acard-line{animation:nline 3s ease-in-out infinite;}
+.app-card.cf .acard-title{animation:ecol 3s ease-in-out infinite;text-shadow:none;}
+.app-card.cf .acard-no{animation:pcol 3s ease-in-out infinite;color:rgba(255,30,0,.5);}
+.app-card.cf .atag{border-color:rgba(255,200,0,.28);color:rgba(255,200,0,.65);}
+.app-card.cf:hover .acard-arr{color:#ffdd00;}
+
+/* Arrow Step card */
+.app-card.as .acard-line{animation:arrowline 2s ease-in-out infinite;}
+@keyframes arrowline{
+  0%,100%{background:var(--cya);box-shadow:0 0 6px rgba(0,229,255,.6);}
+  25%{background:var(--grn);box-shadow:0 0 6px rgba(0,255,136,.6);}
+  50%{background:var(--red);box-shadow:0 0 6px rgba(255,30,0,.6);}
+  75%{background:var(--ora);box-shadow:0 0 6px rgba(255,119,0,.6);}
+}
+.app-card.as .acard-title{color:var(--text);animation:arrowtitle 2s ease-in-out infinite;}
+@keyframes arrowtitle{0%,100%{text-shadow:0 0 8px rgba(0,229,255,.5);}50%{text-shadow:0 0 8px rgba(255,30,0,.5);}}
+.app-card.as .acard-no{color:rgba(0,229,255,.45);}
+.app-card.as .atag{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
+.app-card.as:hover .acard-arr{color:var(--cya);}
+
+.app-card.ra .acard-line{background:var(--cya);box-shadow:0 0 7px rgba(0,229,255,.7);}
+.app-card.ra .acard-title{color:var(--cya);text-shadow:0 0 8px rgba(0,229,255,.5);}
+.app-card.ra .acard-no{color:rgba(0,229,255,.5);}
+.app-card.ra .atag{border-color:rgba(0,229,255,.3);color:rgba(0,229,255,.65);}
+.app-card.ra:hover .acard-arr{color:var(--cya);}
+.app-card.ra::after{
+  content:'AI CAM';position:absolute;top:10px;right:10px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:8px;letter-spacing:2px;
+  background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.3);
+  color:var(--cya);padding:2px 6px;
+}
+</style>
+</head>
+<body>
+
+<!-- LAUNCHER -->
+<div id="launcher">
+  <div class="launch-glow"></div>
+  <div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+    <div class="launch-eye">
+      <div class="le-ring"></div>
+      <div class="le-ring"></div>
+      <div class="le-ring"></div>
+      <div class="le-pupil"></div>
+    </div>
+    <div class="ltag">Sports Vision Training</div>
+    <div class="ltitle"><span class="r">VISION</span> TRAINING</div>
+    <div class="lsub">Select Your Training</div>
+    <div class="lneon"></div>
+
+    <div class="app-cards">
+      <!-- NUMBER TOUCH -->
+      <div class="app-card nt" onclick="launchApp('nt')">
+        <div class="acard-line"></div>
+        <div class="acard-body">
+          <div class="acard-no">01 / NUMBER</div>
+          <div class="acard-title">NUMBER<br>TOUCH</div>
+          <div class="acard-sub">Scan · Sequence · Speed</div>
+          <div class="acard-desc">
+            1〜50の数字を順番にタップ。視野スキャン力と眼球運動速度を鍛える。
+          </div>
+          <div class="acard-tags">
+            <span class="atag">1→50</span>
+            <span class="atag">50→1</span>
+            <span class="atag">A→Z</span>
+            <span class="atag">AI Feedback</span>
+          </div>
+        </div>
+        <div class="acard-arr">›</div>
+      </div>
+
+      <!-- SHIGAN -->
+      <div class="app-card sg" onclick="launchApp('sg')">
+        <div class="acard-line"></div>
+        <div class="acard-body">
+          <div class="acard-no">02 / 視眼</div>
+          <div class="acard-title">視眼<br>SHIGAN</div>
+          <div class="acard-sub">Peripheral · React · Judge</div>
+          <div class="acard-desc">
+            中央を見ながら周辺視野で反応。偶数・奇数判断で認知反応速度も強化。
+          </div>
+          <div class="acard-tags">
+            <span class="atag">周辺視野</span>
+            <span class="atag">偶数打ち</span>
+            <span class="atag">奇数打ち</span>
+            <span class="atag">AI Feedback</span>
+          </div>
+        </div>
+        <div class="acard-arr">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IFRAME (app runs here) -->
+<div id="iframe-wrap">
+  <iframe id="app-frame" src="" allow="autoplay"></iframe>
+</div>
+
+<!-- GLOBAL BACK -->
+<button class="gback" id="gback" onclick="backToLauncher()">
+  ‹ MENU
+</button>
+
+<script>
+const APP_URLS = {
+  nt: 'number-touch.html',
+  sg: 'shigan.html',
+  cf: 'color-flash.html',
+  as: 'arrow-step.html',
+  ra: 'reactive-agility.html',
+};
+
+function launchApp(app) {
+  const frame = document.getElementById('app-frame');
+  frame.src = APP_URLS[app];
+  document.getElementById('launcher').classList.add('hide');
+  document.getElementById('iframe-wrap').classList.add('active');
+  document.getElementById('gback').classList.add('show');
+}
+
+function backToLauncher() {
+  // Reset iframe
+  document.getElementById('app-frame').src = '';
+  document.getElementById('iframe-wrap').classList.remove('active');
+  document.getElementById('gback').classList.remove('show');
+  document.getElementById('launcher').classList.remove('hide');
+}
+
+// Listen for "back to menu" messages from iframes
+window.addEventListener('message', (e) => {
+  if (e.data === 'backToMenu') backToLauncher();
+});
+
+document.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
+</script>
+</body>
+</html>

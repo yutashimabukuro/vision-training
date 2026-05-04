@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>カラーフラッシュ — VISION TRAINING</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+<style>
+:root{
+  --red:#ff1e00;--red-dim:rgba(255,30,0,.12);
+  --cya:#00e5ff;--cya-dim:rgba(0,229,255,.1);
+  --ora:#ff7700;--grn:#00ff88;
+  --bg:#07070f;--card:#0f0f1c;
+  --bor:rgba(255,255,255,.06);--text:#eeeef8;--mut:#44445a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Barlow',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);
+  background-size:48px 48px;}
+
+.scr{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;transition:opacity .3s,transform .3s;}
+.scr.hide{opacity:0;pointer-events:none;transform:scale(.97);}
+
+/* ══════════════════ MENU ══════════════════ */
+#menu{background:var(--bg);overflow-y:auto;padding:16px 18px 32px;justify-content:flex-start;align-items:stretch;}
+
+.menu-inner{max-width:560px;margin:0 auto;width:100%;display:flex;flex-direction:column;align-items:center;}
+
+.eye-wrap{width:62px;height:62px;position:relative;display:flex;align-items:center;
+  justify-content:center;margin:8px auto 12px;flex-shrink:0;}
+.eye-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);
+  animation:rpulse 2.4s ease-out infinite;}
+.eye-ring:nth-child(1){width:62px;height:62px;}
+.eye-ring:nth-child(2){width:82px;height:82px;animation-delay:.5s;}
+.eye-ring:nth-child(3){width:102px;height:102px;animation-delay:1s;}
+@keyframes rpulse{0%{opacity:.7;}100%{opacity:0;transform:scale(1.1);}}
+.eye-core{width:40px;height:40px;border:2px solid var(--text);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;z-index:1;
+  animation:ecol 3s ease-in-out infinite;}
+@keyframes ecol{0%{border-color:#ff1e00;box-shadow:0 0 14px rgba(255,30,0,.6);}
+  25%{border-color:#00e5ff;box-shadow:0 0 14px rgba(0,229,255,.6);}
+  50%{border-color:#00ff88;box-shadow:0 0 14px rgba(0,255,136,.6);}
+  75%{border-color:#ff7700;box-shadow:0 0 14px rgba(255,119,0,.6);}
+  100%{border-color:#ff1e00;box-shadow:0 0 14px rgba(255,30,0,.6);}
+}
+.eye-pupil{width:14px;height:14px;border-radius:50%;animation:pcol 3s ease-in-out infinite;}
+@keyframes pcol{0%,100%{background:#ff1e00;}25%{background:#00e5ff;}50%{background:#00ff88;}75%{background:#ff7700;}}
+
+.menu-tag{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:2px;text-align:center;}
+.menu-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(34px,7vw,56px);line-height:.88;text-transform:uppercase;text-align:center;
+  letter-spacing:2px;margin-bottom:3px;}
+.menu-sub{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:16px;text-align:center;}
+.neon-line{width:48px;height:2px;margin:0 auto 16px;animation:nline 3s ease-in-out infinite;}
+@keyframes nline{0%,100%{background:var(--red);box-shadow:0 0 8px rgba(255,30,0,.8);}
+  33%{background:var(--cya);box-shadow:0 0 8px rgba(0,229,255,.8);}
+  66%{background:var(--grn);box-shadow:0 0 8px rgba(0,255,136,.8);}
+}
+
+.sec-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;align-self:flex-start;}
+
+/* ── COLOR SETUP ── */
+.color-setup{width:100%;background:var(--card);border:1px solid var(--bor);padding:14px;margin-bottom:14px;}
+.color-setup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.color-setup-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:2px;text-transform:uppercase;}
+.cs-add-btn{background:none;border:1px solid var(--bor);color:var(--mut);cursor:pointer;
+  padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;transition:all .2s;}
+.cs-add-btn:hover{border-color:rgba(255,255,255,.3);color:var(--text);}
+
+.color-chips{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;}
+.color-chip{
+  width:48px;height:48px;border-radius:4px;cursor:pointer;position:relative;
+  border:2px solid transparent;transition:all .2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.color-chip.active{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,.4);}
+.color-chip .chip-del{
+  position:absolute;top:-6px;right:-6px;width:16px;height:16px;
+  background:var(--bg);border:1px solid var(--bor);border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  font-size:10px;color:var(--mut);cursor:pointer;
+}
+.color-chip:hover .chip-del{display:flex;}
+.color-chip .chip-label{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:9px;
+  letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,.7);
+  text-shadow:0 1px 2px rgba(255,255,255,.3);
+}
+.chip-add{
+  width:48px;height:48px;border:2px dashed var(--bor);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--mut);transition:all .2s;border-radius:4px;
+}
+.chip-add:hover{border-color:rgba(255,255,255,.3);color:var(--text);}
+
+/* Color picker modal */
+.color-modal{
+  position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.8);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.color-modal.show{display:flex;}
+.color-modal-box{
+  background:var(--card);border:1px solid var(--bor);padding:20px;
+  max-width:340px;width:90%;
+}
+.cm-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:16px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.preset-colors{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;}
+.preset-col{width:100%;aspect-ratio:1;border-radius:4px;cursor:pointer;
+  border:2px solid transparent;transition:all .15s;}
+.preset-col:hover{transform:scale(1.08);border-color:rgba(255,255,255,.5);}
+.cm-name-row{display:flex;gap:8px;margin-bottom:12px;}
+.cm-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--bor);
+  color:var(--text);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;}
+.cm-input:focus{border-color:rgba(255,255,255,.3);}
+.cm-preview{width:44px;height:44px;border-radius:4px;flex-shrink:0;}
+.cm-btns{display:flex;gap:8px;}
+.cm-btn{flex:1;padding:11px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.cm-btn.ok{background:var(--text);color:var(--bg);}
+.cm-btn.ok:hover{background:#fff;}
+.cm-btn.cancel{background:transparent;color:var(--mut);border:1px solid var(--bor);}
+.cm-btn.cancel:hover{color:var(--text);}
+
+/* ── SPORT PRESETS ── */
+.sport-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.sport-btn{padding:7px 14px;border:1px solid var(--bor);background:none;color:var(--mut);
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;transition:all .2s;}
+.sport-btn:hover{border-color:rgba(255,255,255,.25);color:var(--text);}
+.sport-btn.on{border-color:var(--cya);color:var(--cya);background:var(--cya-dim);}
+
+/* ── SETTINGS ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:14px;}
+.setting-group{background:var(--card);border:1px solid var(--bor);padding:12px;}
+.sg-lbl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:8px;}
+.seg-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.seg-btn{padding:7px 10px;border:1px solid var(--bor);background:none;color:var(--mut);
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:1px;transition:all .2s;flex:1;text-align:center;}
+.seg-btn:hover{border-color:rgba(255,255,255,.2);}
+.seg-btn.on{border-color:var(--red);color:var(--red);background:var(--red-dim);}
+
+/* Setup Mode Cards */
+.setup-mode-btn{
+  flex:1;min-width:90px;padding:10px 8px;
+  border:1px solid var(--bor);background:var(--card);
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all .2s;font-family:'Barlow Condensed',sans-serif;
+}
+.setup-mode-btn:hover{border-color:rgba(255,255,255,.2);}
+.setup-mode-btn.on{
+  border-color:var(--text);background:rgba(255,255,255,.06);
+  box-shadow:0 0 12px rgba(255,255,255,.1);
+}
+.smb-icon{
+  font-family:'Share Tech Mono',monospace;font-size:13px;
+  color:var(--mut);letter-spacing:2px;
+}
+.setup-mode-btn.on .smb-icon{color:var(--text);}
+.smb-name{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);
+}
+.setup-mode-btn.on .smb-name{color:var(--text);}
+.smb-desc{
+  font-size:9px;color:var(--mut);text-align:center;line-height:1.4;
+}
+.setup-mode-btn.on .smb-desc{color:rgba(255,255,255,.5);}
+
+/* Setup instruction banner in game */
+.setup-banner{
+  width:100%;padding:6px 16px;flex-shrink:0;
+  background:rgba(255,255,255,.03);border-bottom:1px solid var(--bor);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.35);text-align:center;
+}
+.tone-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.tone-lbl{font-size:12px;color:#aaa;}
+.toggle-sw{position:relative;width:40px;height:22px;cursor:pointer;}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute;}
+.sw-track{position:absolute;inset:0;background:var(--bor);border-radius:11px;transition:.2s;}
+.toggle-sw input:checked ~ .sw-track{background:var(--cya);}
+.sw-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;
+  background:#fff;border-radius:50%;transition:.2s;}
+.toggle-sw input:checked ~ .sw-track ~ .sw-thumb,
+.toggle-sw input:checked + .sw-track + .sw-thumb{left:21px;}
+
+.start-btn{background:var(--text);border:none;color:var(--bg);cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:16px;letter-spacing:4px;text-transform:uppercase;padding:15px 52px;
+  clip-path:polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);
+  transition:all .2s;animation:sbcol 3s ease-in-out infinite;}
+@keyframes sbcol{
+  0%,100%{background:var(--text);}
+  33%{background:#c8fffe;}
+  66%{background:#ffe8c8;}
+}
+.start-btn:hover{transform:scale(1.02);}
+.start-btn:active{transform:scale(.97);}
+
+/* ══════════════════ COUNTDOWN ══════════════════ */
+#countdown{background:var(--bg);}
+.cd-num{font-family:'Share Tech Mono',monospace;font-size:148px;line-height:1;
+  animation:cdpop .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes cdpop{from{transform:scale(1.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.cd-lbl{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--mut);margin-top:8px;}
+
+/* ══════════════════ GAME ══════════════════ */
+#game{flex-direction:column;background:var(--bg);padding:0;}
+
+/* HUD */
+.hud{width:100%;display:flex;align-items:center;padding:8px 16px 6px;gap:12px;
+  border-bottom:1px solid var(--bor);flex-shrink:0;position:relative;z-index:5;
+  background:rgba(7,7,15,.96);}
+.hud-item{display:flex;flex-direction:column;}
+.hud-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.hud-val{font-family:'Share Tech Mono',monospace;font-size:28px;line-height:1.05;}
+.hud-val.timer{color:var(--text);transition:color .3s;}
+.hud-val.timer.warn{color:var(--red);text-shadow:0 0 10px rgba(255,30,0,.8);animation:blnk .6s ease-in-out infinite;}
+@keyframes blnk{0%,100%{opacity:1;}50%{opacity:.5;}}
+.hud-val.hits{color:var(--cya);text-shadow:0 0 8px rgba(0,229,255,.5);}
+.hud-div{width:1px;height:28px;background:var(--bor);flex-shrink:0;}
+.hud-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.hud-mode{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;}
+.hud-prog{position:absolute;bottom:0;left:0;height:2px;transition:width 1s linear;
+  animation:progcol 3s ease-in-out infinite;}
+@keyframes progcol{0%,100%{background:var(--red);}33%{background:var(--cya);}66%{background:var(--grn);}
+}
+
+@media(max-height:560px),(max-width:360px){
+  .hud{padding:5px 10px 4px;gap:7px;}
+  .hud-lbl{font-size:6px;}
+  .hud-val{font-size:18px;}
+  .hud-div{height:18px;}
+}
+@media(min-width:768px){
+  .hud{padding:10px 20px 8px;gap:16px;}
+  .hud-lbl{font-size:9px;}
+  .hud-val{font-size:34px;}
+  .hud-div{height:36px;}
+}
+
+/* ── FLASH ARENA ── */
+.arena{flex:1;position:relative;overflow:hidden;width:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+/* BIG COLOR FLASH */
+.flash-bg{
+  position:absolute;inset:0;opacity:0;
+  transition:opacity .12s;pointer-events:none;
+}
+
+.flash-display{
+  position:relative;z-index:5;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+
+/* Color name - big bold text */
+.color-name{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(52px,14vw,110px);line-height:1;
+  text-transform:uppercase;letter-spacing:3px;
+  text-align:center;
+  animation:cname-pop .2s cubic-bezier(.34,1.56,.64,1);
+  position:relative;z-index:6;
+}
+@keyframes cname-pop{from{transform:scale(1.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* Color swatch circle */
+.color-swatch{
+  width:clamp(100px,22vw,180px);
+  height:clamp(100px,22vw,180px);
+  border-radius:50%;
+  border:4px solid rgba(255,255,255,.3);
+  box-shadow:0 0 40px rgba(255,255,255,.2),inset 0 0 30px rgba(255,255,255,.1);
+  animation:swatch-pop .2s cubic-bezier(.34,1.56,.64,1);
+  position:relative;z-index:6;
+}
+@keyframes swatch-pop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* TAP indicator */
+.tap-instr{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:clamp(14px,3vw,20px);letter-spacing:4px;text-transform:uppercase;
+  color:rgba(255,255,255,.5);z-index:6;
+  animation:pulse-fade 1s ease-in-out infinite;
+}
+@keyframes pulse-fade{0%,100%{opacity:.4;}50%{opacity:.9;}}
+
+/* RT popup */
+.rt-popup{position:absolute;pointer-events:none;z-index:20;
+  font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:700;
+  animation:rtpop .9s ease forwards;}
+@keyframes rtpop{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-36px);}}
+
+/* Tap anywhere overlay */
+.tap-overlay{position:absolute;inset:0;z-index:15;cursor:pointer;}
+
+/* WAITING state */
+.waiting-cross{
+  width:3px;height:60px;background:rgba(255,255,255,.15);
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.waiting-cross::after{
+  content:'';position:absolute;width:60px;height:3px;
+  background:rgba(255,255,255,.15);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.waiting-text{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:18px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-top:48px;text-align:center;
+}
+
+/* HIT flash */
+.hit-flash{position:fixed;inset:0;pointer-events:none;z-index:100;
+  animation:hflash .3s ease forwards;}
+@keyframes hflash{0%{opacity:.5;}100%{opacity:0;}}
+.miss-flash{position:fixed;inset:0;pointer-events:none;z-index:100;
+  background:rgba(255,30,0,.12);animation:mflash .22s ease forwards;}
+@keyframes mflash{0%{opacity:1;}100%{opacity:0;}}
+
+/* Streak badge */
+.streak-badge{position:absolute;top:16px;left:50%;transform:translateX(-50%);
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:14px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--text);text-shadow:0 0 10px rgba(255,255,255,.5);
+  animation:sbadge .5s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:20;}
+@keyframes sbadge{from{transform:translateX(-50%) scale(0);}to{transform:translateX(-50%) scale(1);}}
+
+/* RETURN prompt */
+.return-prompt{
+  position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);z-index:6;white-space:nowrap;
+}
+
+/* ══════════════════ RESULT ══════════════════ */
+#result{background:var(--bg);padding:0;justify-content:flex-start;overflow-y:auto;}
+.res-wrap{width:100%;max-width:540px;margin:0 auto;padding:22px 18px 40px;display:flex;flex-direction:column;}
+.res-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.res-ring{width:66px;height:66px;flex-shrink:0;border:2px solid;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:10px;letter-spacing:2px;animation:rpop .5s cubic-bezier(.34,1.56,.64,1);
+  animation:rpop .5s cubic-bezier(.34,1.56,.64,1),ecol 3s .5s ease-in-out infinite;}
+@keyframes rpop{from{transform:scale(0);}to{transform:scale(1);}}
+.res-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(32px,7vw,50px);line-height:.9;text-transform:uppercase;
+  animation:fup .4s .1s ease both;}
+.res-mode-lbl{font-size:10px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;
+  margin-top:4px;animation:fup .4s .15s ease both;}
+.best-badge{display:none;background:var(--text);color:var(--bg);padding:3px 10px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:4px;animation:fup .4s .2s ease both;align-self:flex-start;}
+.best-badge.show{display:inline-block;}
+.res-score-block{display:flex;align-items:flex-end;gap:10px;margin-bottom:6px;animation:fup .4s .18s ease both;}
+.res-score{font-family:'Share Tech Mono',monospace;font-size:76px;line-height:1;
+  animation:ecol 3s ease-in-out infinite;}
+.res-score-unit{font-size:11px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;padding-bottom:8px;}
+.res-stats{display:flex;gap:7px;margin-bottom:16px;animation:fup .4s .24s ease both;flex-wrap:wrap;}
+.rs{background:var(--card);border:1px solid var(--bor);padding:9px 12px;flex:1;text-align:center;min-width:70px;}
+.rs-l{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:3px;}
+.rs-v{font-family:'Share Tech Mono',monospace;font-size:19px;}
+.res-divider{height:1px;background:var(--bor);margin:2px 0 14px;}
+.level-card{border:1px solid var(--bor);padding:13px;margin-bottom:14px;
+  background:var(--card);position:relative;overflow:hidden;animation:fup .4s .3s ease both;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.level-card.lv1::before{background:var(--mut);}
+.level-card.lv2::before{background:#44aaff;}
+.level-card.lv3::before{background:var(--ora);}
+.level-card.lv4::before{background:var(--red);box-shadow:0 0 5px rgba(255,30,0,.6);}
+.level-card.lv5::before{background:var(--cya);box-shadow:0 0 5px rgba(0,229,255,.6);}
+.lv-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.lv-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.lv-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;}
+.lv-dots{display:flex;gap:4px;}
+.lv-dot{width:8px;height:8px;border-radius:50%;background:var(--bor);}
+.lv-dot.fill{background:var(--text);}
+.lv-desc{font-size:12px;color:#aaa;line-height:1.6;}
+.cmp-section{margin-bottom:14px;animation:fup .4s .36s ease both;}
+.cmp-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+.cmp-row{margin-bottom:8px;}
+.cmp-row-head{display:flex;justify-content:space-between;margin-bottom:3px;}
+.cmp-label{font-size:12px;color:var(--text);font-weight:500;}
+.cmp-val{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--mut);}
+.cmp-val.you{color:var(--cya);}
+.cmp-track{height:5px;background:var(--bor);overflow:hidden;}
+.cmp-fill{height:100%;transition:width 1s .5s ease;}
+.cmp-fill.you-bar{background:var(--cya);box-shadow:0 0 5px rgba(0,229,255,.5);}
+.benefit-section{margin-bottom:14px;animation:fup .4s .42s ease both;}
+.benefit-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.benefit-item{background:var(--card);border:1px solid var(--bor);padding:10px;display:flex;flex-direction:column;gap:4px;}
+.benefit-icon-row{display:flex;align-items:center;gap:6px;}
+.benefit-icon{width:24px;height:24px;border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--cya);font-family:'Barlow Condensed',sans-serif;font-weight:700;}
+.benefit-name{font-size:12px;font-weight:600;color:var(--text);}
+.benefit-desc{font-size:10px;color:var(--mut);line-height:1.5;}
+.ai-trainer-box{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.02);
+  margin-bottom:18px;overflow:hidden;animation:fup .4s .48s ease both;}
+.ai-trainer-header{display:flex;align-items:center;gap:9px;padding:9px 12px;
+  border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);}
+.ai-trainer-icon{display:flex;gap:4px;align-items:center;}
+.ai-icon-dot{width:6px;height:6px;border-radius:50%;animation:aidot 1.4s ease-in-out infinite;}
+.ai-icon-dot:nth-child(1){background:var(--red);animation-delay:0s;}
+.ai-icon-dot:nth-child(2){background:var(--cya);animation-delay:.2s;}
+.ai-icon-dot:nth-child(3){background:var(--grn);animation-delay:.4s;}
+@keyframes aidot{0%,100%{opacity:.3;transform:scale(.7);}50%{opacity:1;transform:scale(1);}}
+.ai-trainer-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:1px;}
+.ai-trainer-name{font-size:12px;font-weight:600;color:var(--text);}
+.ai-status{margin-left:auto;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.ai-pulse{width:6px;height:6px;border-radius:50%;background:var(--cya);animation:aipulse 1.2s ease-in-out infinite;}
+.ai-pulse.done{background:var(--grn);animation:none;}
+@keyframes aipulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+#aiStatusText{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);}
+.ai-trainer-body{padding:11px 12px;}
+.ai-loading{display:flex;gap:5px;align-items:flex-end;height:24px;}
+.ai-loading-bar{width:3px;border-radius:2px;background:var(--cya);opacity:.4;animation:aibar 1s ease-in-out infinite;}
+.ai-loading-bar:nth-child(1){height:13px;}
+.ai-loading-bar:nth-child(2){height:20px;animation-delay:.2s;}
+.ai-loading-bar:nth-child(3){height:10px;animation-delay:.4s;}
+@keyframes aibar{0%,100%{opacity:.2;transform:scaleY(.6);}50%{opacity:.7;transform:scaleY(1);}}
+.ai-content{font-size:13px;color:#ccc;line-height:1.8;display:none;}
+.ai-section{margin-bottom:11px;}
+.ai-section:last-child{margin-bottom:0;}
+.ai-section-head{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cya);
+  margin-bottom:3px;display:flex;align-items:center;gap:5px;}
+.ai-section-head::before{content:'';width:12px;height:1px;background:var(--cya);}
+.ai-section-content{font-size:13px;color:#ccc;line-height:1.8;}
+.ai-cursor{display:inline-block;width:2px;height:12px;background:var(--cya);
+  margin-left:2px;vertical-align:middle;animation:cblink .7s ease-in-out infinite;}
+@keyframes cblink{0%,100%{opacity:1;}50%{opacity:0;}}
+.res-btns{display:flex;gap:9px;animation:fup .4s .52s ease both;}
+.res-btn{flex:1;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.res-btn.white{background:var(--text);color:var(--bg);
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+.res-btn.white:hover{background:#fff;}
+.res-btn.out{background:transparent;color:var(--text);border:1px solid var(--bor);}
+.res-btn.out:hover{border-color:rgba(255,255,255,.3);}
+@keyframes fup{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* animations used by JS */
+@keyframes swatch-pop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes cname-pop{from{transform:scale(1.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes pulse-fade{0%,100%{opacity:.4;}50%{opacity:1;}}
+@keyframes donepulse{
+  0%{box-shadow:0 0 0 0 rgba(255,255,255,.4);}
+  70%{box-shadow:0 0 0 24px rgba(255,255,255,0);}
+  100%{box-shadow:0 0 0 0 rgba(255,255,255,.4);}
+}
+@keyframes hflash{0%{opacity:.35;}100%{opacity:0;}}
+@keyframes mflash{0%{opacity:1;}100%{opacity:0;}}
+@keyframes tflash{0%{opacity:1;}100%{opacity:0;}}
+@keyframes rtpop{0%{opacity:1;transform:translate(-50%,-50%);}100%{opacity:0;transform:translate(-50%,calc(-50% - 40px));}}
+@keyframes sbadge{from{transform:translateX(-50%) scale(0);}to{transform:translateX(-50%) scale(1);}}
+</style>
+</head>
+<body>
+
+<!-- ══ MENU ══ -->
+<div class="scr" id="menu">
+  <div class="menu-inner">
+    <div class="eye-wrap">
+      <div class="eye-ring"></div><div class="eye-ring"></div><div class="eye-ring"></div>
+      <div class="eye-core"><div class="eye-pupil"></div></div>
+    </div>
+    <div class="menu-tag">Vision Training</div>
+    <div class="menu-title">COLOR FLASH</div>
+    <div class="menu-sub">Reaction × Step × Vision</div>
+    <div class="neon-line"></div>
+
+    <!-- SPORT PRESETS -->
+    <div class="sec-lbl">Sport Preset</div>
+    <div class="sport-presets" id="sportPresets">
+      <button class="sport-btn on" onclick="applySport('custom',this)">CUSTOM</button>
+      <button class="sport-btn" onclick="applySport('soccer',this)">SOCCER</button>
+      <button class="sport-btn" onclick="applySport('basketball',this)">BASKETBALL</button>
+      <button class="sport-btn" onclick="applySport('volleyball',this)">VOLLEYBALL</button>
+      <button class="sport-btn" onclick="applySport('baseball',this)">BASEBALL</button>
+      <button class="sport-btn" onclick="applySport('tennis',this)">TENNIS</button>
+      <button class="sport-btn" onclick="applySport('martial',this)">MARTIAL</button>
+    </div>
+
+    <!-- COLOR SETUP -->
+    <div class="sec-lbl">Color Setup <span style="color:var(--mut);font-size:9px;">(使用するマーカー色を設定)</span></div>
+    <div class="color-setup">
+      <div class="color-chips" id="colorChips"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="settings-grid">
+      <div class="setting-group">
+        <div class="sg-lbl">Time</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="setVal('time',30,this)">30s</button>
+          <button class="seg-btn on" onclick="setVal('time',60,this)">1m</button>
+          <button class="seg-btn" onclick="setVal('time',120,this)">2m</button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="sg-lbl">Speed</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="setVal('speed','slow',this)">SLOW</button>
+          <button class="seg-btn on" onclick="setVal('speed','normal',this)">NORM</button>
+          <button class="seg-btn" onclick="setVal('speed','fast',this)">FAST</button>
+        </div>
+      </div>
+      <div class="setting-group" style="grid-column:1/-1;">
+        <div class="sg-lbl">Setup Mode — 設置方法</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="setup-mode-btn on" onclick="setSetupMode('floor',this)">
+            <div class="smb-icon">FLOOR</div>
+            <div class="smb-name">床タップ</div>
+            <div class="smb-desc">タブレットを床に置き<br>足でタップ</div>
+          </button>
+          <button class="setup-mode-btn" onclick="setSetupMode('hand',this)">
+            <div class="smb-icon">HAND</div>
+            <div class="smb-name">手タップ</div>
+            <div class="smb-desc">三脚・壁設置で<br>手でタップ</div>
+          </button>
+          <button class="setup-mode-btn" onclick="setSetupMode('free',this)">
+            <div class="smb-icon">FREE</div>
+            <div class="smb-name">フリー</div>
+            <div class="smb-desc">設置場所を問わず<br>どこでもOK</div>
+          </button>
+          <button class="setup-mode-btn" onclick="setSetupMode('cam',this)">
+            <div class="smb-icon">AI CAM</div>
+            <div class="smb-name">カメラ検知</div>
+            <div class="smb-desc">定位置に戻ったら<br>自動で次の色へ</div>
+          </button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="sg-lbl">Sound</div>
+        <div class="tone-row">
+          <span class="tone-lbl">Beep on flash</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="soundToggle" checked>
+            <div class="sw-track"></div>
+            <div class="sw-thumb"></div>
+          </label>
+        </div>
+        <div class="tone-row">
+          <span class="tone-lbl">Voice color</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="voiceToggle">
+            <div class="sw-track"></div>
+            <div class="sw-thumb"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="startCountdown()">START</button>
+  </div>
+</div>
+
+<!-- COLOR PICKER MODAL -->
+<div class="color-modal" id="colorModal">
+  <div class="color-modal-box">
+    <div class="cm-title">マーカー色を追加</div>
+    <div class="preset-colors" id="presetColors"></div>
+    <div class="cm-name-row">
+      <input class="cm-input" type="text" id="cmName" placeholder="色の名前 (例: 赤)">
+      <div class="cm-preview" id="cmPreview"></div>
+    </div>
+    <div class="cm-btns">
+      <button class="cm-btn cancel" onclick="closeModal()">キャンセル</button>
+      <button class="cm-btn ok" onclick="confirmColor()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COUNTDOWN ══ -->
+<div class="scr hide" id="countdown">
+  <div class="cd-num" id="cdNum">3</div>
+  <div class="cd-lbl" id="cdSub">準備して！</div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div class="scr hide" id="game">
+  <div class="hud">
+    <div class="hud-item">
+      <div class="hud-lbl">Time</div>
+      <div class="hud-val timer" id="hudTimer">1:00</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Hits</div>
+      <div class="hud-val hits" id="hudHits">0</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Miss</div>
+      <div class="hud-val" style="font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--red);" id="hudMiss">0</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Streak</div>
+      <div class="hud-val" style="font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--ora);" id="hudStreak">0</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-mode" id="hudMode">TAP</div>
+    </div>
+    <div class="hud-prog" id="hudProg" style="width:100%"></div>
+  </div>
+  <!-- Camera layer (AI CAM mode only) -->
+  <div id="camLayer" style="display:none;position:fixed;inset:0;z-index:8;pointer-events:none;">
+    <video id="cfCamVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:.25;"></video>
+    <canvas id="cfCamCanvas" style="position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);opacity:.4;"></canvas>
+    <!-- Zone box -->
+    <div id="cfZoneBox" style="position:absolute;border:3px solid rgba(0,229,255,.6);box-shadow:0 0 16px rgba(0,229,255,.4);transition:border-color .15s;display:none;"></div>
+    <!-- Position badge -->
+    <div id="cfPosBadge" style="position:absolute;top:10px;left:10px;background:rgba(7,7,15,.8);padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:6px;">
+      <div id="cfPosDot" style="width:8px;height:8px;border-radius:50%;background:var(--mut);transition:background .2s;"></div>
+      <span id="cfPosLabel" style="color:var(--mut);">LOADING</span>
+    </div>
+  </div>
+
+  <div class="setup-banner" id="setupBanner">マーカーをタッチ → 画面をタップ</div>
+
+  <div class="arena" id="arena" onclick="onArenaTap()" style="cursor:pointer;">
+
+    <!-- 色表示エリア（全画面タップで完了） -->
+    <div id="colorDisplay" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:5;pointer-events:none;">
+      <div id="colorBg" style="position:absolute;inset:0;opacity:0;transition:opacity .15s;pointer-events:none;"></div>
+      <div id="colorSwatch" style="position:relative;z-index:2;border-radius:50%;border:4px solid rgba(255,255,255,.25);"></div>
+      <div id="colorName" style="position:relative;z-index:2;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(56px,15vw,120px);line-height:1;text-transform:uppercase;letter-spacing:3px;text-align:center;"></div>
+      <div id="tapHint" style="position:relative;z-index:2;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(13px,3vw,18px);letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.35);animation:pulse-fade 1.2s ease-in-out infinite;margin-top:8px;"></div>
+    </div>
+
+    <!-- 待機状態 -->
+    <div id="waitingState" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:12px;pointer-events:none;">
+      <div style="position:relative;width:56px;height:56px;">
+        <div style="position:absolute;width:2px;height:100%;background:rgba(255,255,255,.15);left:50%;transform:translateX(-50%);"></div>
+        <div style="position:absolute;width:100%;height:2px;background:rgba(255,255,255,.15);top:50%;transform:translateY(-50%);"></div>
+      </div>
+      <div id="waitingText" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.2);">定位置でスタンバイ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div class="scr hide" id="result">
+  <div class="res-wrap">
+    <div class="res-header">
+      <div class="res-ring" id="resRing">DONE</div>
+      <div>
+        <div class="res-title" id="resTitle">COMPLETE</div>
+        <div class="res-mode-lbl" id="resModeLbl">TAP · 1 MIN</div>
+      </div>
+    </div>
+    <div class="best-badge" id="bestBadge">NEW BEST</div>
+    <div class="res-score-block">
+      <div class="res-score" id="resScore">0</div>
+      <div class="res-score-unit">hits</div>
+    </div>
+    <div class="res-stats" id="resStats"></div>
+    <div class="res-divider"></div>
+    <div class="level-card" id="levelCard">
+      <div class="lv-row">
+        <div><div class="lv-tag">Reaction Level</div><div class="lv-name" id="lvName">--</div></div>
+        <div class="lv-dots" id="lvDots"></div>
+      </div>
+      <div class="lv-desc" id="lvDesc"></div>
+    </div>
+    <div class="cmp-section">
+      <div class="cmp-title">Comparison — 1 min benchmark</div>
+      <div id="cmpRows"></div>
+    </div>
+    <div class="res-divider"></div>
+    <div class="benefit-section">
+      <div class="benefit-title">What this trains</div>
+      <div class="benefit-grid" id="benefitGrid"></div>
+    </div>
+    <div class="ai-trainer-box">
+      <div class="ai-trainer-header">
+        <div class="ai-trainer-icon">
+          <div class="ai-icon-dot"></div><div class="ai-icon-dot"></div><div class="ai-icon-dot"></div>
+        </div>
+        <div>
+          <div class="ai-trainer-tag">AI Vision Trainer</div>
+          <div class="ai-trainer-name">パーソナルフィードバック</div>
+        </div>
+        <div class="ai-status">
+          <div class="ai-pulse" id="aiPulse"></div>
+          <span id="aiStatusText">生成中...</span>
+        </div>
+      </div>
+      <div class="ai-trainer-body">
+        <div class="ai-loading" id="aiLoading">
+          <div class="ai-loading-bar"></div>
+          <div class="ai-loading-bar"></div>
+          <div class="ai-loading-bar"></div>
+        </div>
+        <div class="ai-content" id="aiContent"></div>
+      </div>
+    </div>
+    <div class="res-btns">
+      <button class="res-btn out" onclick="goMenu()">MENU</button>
+      <button class="res-btn white" onclick="startCountdown()">RETRY</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  COLOR PRESETS
+// ━━━━━━━━━━━━━━━━━━━━━━
+const PRESET_PALETTE = [
+  {hex:'#ff1e00',name:'赤'}, {hex:'#ff7700',name:'橙'}, {hex:'#ffdd00',name:'黄'},
+  {hex:'#00e52b',name:'緑'}, {hex:'#00e5ff',name:'青'}, {hex:'#cc44ff',name:'紫'},
+  {hex:'#ff44aa',name:'桃'}, {hex:'#ffffff',name:'白'}, {hex:'#00a0ff',name:'水'},
+  {hex:'#ff0080',name:'紅'}, {hex:'#7fff00',name:'黄緑'}, {hex:'#ff9900',name:'金'},
+];
+
+const SPORT_PRESETS = {
+  custom:     [{hex:'#ff1e00',name:'赤'},{hex:'#00e5ff',name:'青'},{hex:'#00ff88',name:'緑'},{hex:'#ffdd00',name:'黄'}],
+  soccer:     [{hex:'#ff1e00',name:'赤'},{hex:'#ffdd00',name:'黄'},{hex:'#00e52b',name:'緑'},{hex:'#00a0ff',name:'青'},{hex:'#ff7700',name:'橙'}],
+  basketball: [{hex:'#ff7700',name:'橙'},{hex:'#ffffff',name:'白'},{hex:'#ff1e00',name:'赤'},{hex:'#00e5ff',name:'青'}],
+  volleyball: [{hex:'#00a0ff',name:'青'},{hex:'#ffdd00',name:'黄'},{hex:'#ff1e00',name:'赤'},{hex:'#00e52b',name:'緑'}],
+  baseball:   [{hex:'#ff1e00',name:'赤'},{hex:'#00a0ff',name:'青'},{hex:'#ffdd00',name:'黄'},{hex:'#00ff88',name:'緑'}],
+  tennis:     [{hex:'#7fff00',name:'黄緑'},{hex:'#ffdd00',name:'黄'},{hex:'#ff7700',name:'橙'},{hex:'#ff1e00',name:'赤'}],
+  martial:    [{hex:'#ff1e00',name:'赤'},{hex:'#00a0ff',name:'青'},{hex:'#ff9900',name:'金'},{hex:'#ffffff',name:'白'}],
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  BENCHMARKS (1 min, TAP mode, NORMAL speed)
+// ━━━━━━━━━━━━━━━━━━━━━━
+const LEVELS = [
+  {name:'BEGINNER',   min:0,  max:14, cls:'lv1', dots:1, color:'#666',
+    desc:'カラー反応の基礎を習得中。色の認識→反応のサイクルを体に覚えさせよう。'},
+  {name:'AVERAGE',    min:15, max:24, cls:'lv2', dots:2, color:'#44aaff',
+    desc:'一般レベル。色の判断と身体反応の連動が安定してきている。'},
+  {name:'ATHLETE',    min:25, max:34, cls:'lv3', dots:3, color:'var(--ora)',
+    desc:'スポーツ選手レベル！視覚刺激への反応速度が高く、判断も素早い。'},
+  {name:'PRO LEVEL',  min:35, max:44, cls:'lv4', dots:4, color:'var(--red)',
+    desc:'プロレベルの反応速度！研究上のエリートアスリート（160-210ms）に近い域。'},
+  {name:'ELITE',      min:45, max:999,cls:'lv5', dots:5, color:'var(--cya)',
+    desc:'エリートレベル。この反応速度はトップ競技選手のみが到達できる域。'},
+];
+const REFS = [
+  {label:'一般人（平均）',     score:18, color:'rgba(255,255,255,.2)'},
+  {label:'部活生・学生選手',   score:28, color:'rgba(255,119,0,.55)'},
+  {label:'プロ・代表選手',     score:38, color:'rgba(255,30,0,.65)'},
+];
+const BENEFITS = [
+  {icon:'EYE', name:'色彩識別速度', desc:'色を見た瞬間に識別して反応する視覚処理速度'},
+  {icon:'RXN', name:'視覚反応速度', desc:'視覚刺激から身体動作までのタイムラグを短縮'},
+  {icon:'STP', name:'ステップワーク', desc:'足の素早い切り返し・方向転換能力の強化'},
+  {icon:'CON', name:'集中力維持',  desc:'連続する刺激に対して集中力を保ち続ける力'},
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  STATE
+// ━━━━━━━━━━━━━━━━━━━━━━
+let activeColors = [...SPORT_PRESETS.custom];
+let selectedTime = 60;
+let selectedSpeed = 'normal';
+let selectedMode = 'tap'; // 旧互換
+let setupMode = 'floor';  // 'floor' | 'hand' | 'free'
+
+const SETUP_TEXT = {
+  floor: {
+    banner:  '色を見て → そのマーカーへ足でステップ → 画面を足でタップ',
+    hint:    'そのマーカーへ！足でタップ',
+    hud:     'FLOOR TAP',
+    waiting: '定位置で待機（床のタブレット）',
+  },
+  hand: {
+    banner:  '色を見て → そのマーカーをタッチ → 戻って画面をタップ',
+    hint:    'そのマーカーをタッチ → タップ',
+    hud:     'HAND TAP',
+    waiting: '定位置で待機',
+  },
+  free: {
+    banner:  '色を見て → マーカーへ → 戻って画面をタップ',
+    hint:    'マーカーへ → タップ',
+    hud:     'FREE',
+    waiting: '定位置でスタンバイ',
+  },
+  cam: {
+    banner:  '色を見て → マーカーへ → 定位置に戻るとAIが自動で次の色へ！',
+    hint:    'マーカーへ → 戻れば自動検知！',
+    hud:     'AI CAM',
+    waiting: 'カメラで定位置を検知中...',
+  },
+};
+
+// ── カメラ / MediaPipe ──
+let cfStream=null, cfPose=null, cfCamera=null;
+let cfZoneActive=false, cfBodyPresent=false;
+let cfZone={cx:.5,cy:.5,r:.18};
+let cfCamPhase='idle'; // 'color'=色表示中(待機) | 'away'=離れた | 'return'=戻り待ち
+
+function setSetupMode(mode, btn) {
+  setupMode = mode;
+  selectedMode = mode === 'floor' ? 'step' : 'tap';
+  btn.closest('div').querySelectorAll('.setup-mode-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // Stop camera if switching away from cam mode
+  if(mode !== 'cam') stopCfCamera();
+}
+let useSound = true;
+let useVoice = false;
+const bestScores = {};
+
+const SPEED_MS = { slow:3000, normal:2000, fast:1200 }; // 旧互換用（未使用）
+
+// Game state
+let timer=0, timerInt=null, score=0, miss=0, streak=0, bestStreak=0;
+let gameRunning=false;
+let rtTimes=[];
+let currentColorIdx=-1, flashTimeout=null, litAt=0;
+
+// Audio context
+let audioCtx=null;
+function getAudio(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function beep(freq=880, dur=80, vol=0.3) {
+  try{
+    const ac=getAudio();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value=freq; g.gain.value=vol;
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur/1000);
+    o.stop(ac.currentTime+dur/1000);
+  }catch{}
+}
+
+// ━━━ MENU LOGIC ━━━
+function showScr(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.add('hide'));
+  document.getElementById(id).classList.remove('hide');
+  window.scrollTo(0,0);
+}
+function goMenu(){
+  clearInterval(timerInt); clearTimeout(flashTimeout);
+  stopCfCamera();
+  gameRunning=false; showScr('menu');
+}
+function setVal(key,val,btn){
+  btn.closest('.seg-btns').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(key==='time') selectedTime=val;
+  else if(key==='speed') selectedSpeed=val;
+  else if(key==='mode') selectedMode=val;
+}
+function applySport(sport,btn){
+  document.querySelectorAll('.sport-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(SPORT_PRESETS[sport]){ activeColors=[...SPORT_PRESETS[sport]]; renderChips(); }
+}
+
+// ━━━ COLOR CHIPS ━━━
+function renderChips(){
+  const el=document.getElementById('colorChips'); el.innerHTML='';
+  activeColors.forEach((c,i)=>{
+    const chip=document.createElement('div');
+    chip.className='color-chip active';
+    chip.style.background=c.hex;
+    chip.innerHTML=`<span class="chip-label">${c.name}</span>
+      <div class="chip-del" onclick="removeColor(${i});event.stopPropagation()">×</div>`;
+    el.appendChild(chip);
+  });
+  const addBtn=document.createElement('div');
+  addBtn.className='chip-add'; addBtn.textContent='+';
+  addBtn.onclick=openModal;
+  el.appendChild(addBtn);
+}
+function removeColor(i){
+  if(activeColors.length<=2) return;
+  activeColors.splice(i,1); renderChips();
+  document.querySelectorAll('.sport-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.sport-btn').classList.add('on');
+}
+
+// ━━━ COLOR PICKER MODAL ━━━
+let modalSelectedHex='#ff1e00';
+function openModal(){
+  const pc=document.getElementById('presetColors'); pc.innerHTML='';
+  PRESET_PALETTE.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='preset-col'; d.style.background=p.hex; d.title=p.name;
+    d.onclick=()=>{ modalSelectedHex=p.hex; document.getElementById('cmName').value=p.name;
+      document.getElementById('cmPreview').style.background=p.hex; };
+    pc.appendChild(d);
+  });
+  modalSelectedHex='#ff1e00';
+  document.getElementById('cmPreview').style.background=modalSelectedHex;
+  document.getElementById('cmName').value='';
+  document.getElementById('colorModal').classList.add('show');
+}
+function closeModal(){ document.getElementById('colorModal').classList.remove('show'); }
+function confirmColor(){
+  const name=document.getElementById('cmName').value.trim()||'Color';
+  activeColors.push({hex:modalSelectedHex,name});
+  renderChips(); closeModal();
+  document.querySelectorAll('.sport-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.sport-btn').classList.add('on');
+}
+
+// ━━━ COUNTDOWN ━━━
+function startCountdown(){
+  if(activeColors.length<2) return;
+  showScr('countdown');
+  let c=3;
+  const cdNum=document.getElementById('cdNum'), cdSub=document.getElementById('cdSub');
+  const tick=()=>{
+    cdNum.textContent=c;
+    cdNum.style.color=activeColors[c%activeColors.length]?.hex||'#fff';
+    cdNum.style.textShadow=`0 0 30px ${activeColors[c%activeColors.length]?.hex||'#fff'}80`;
+    cdSub.textContent=c===3?'定位置に立ってください':c===2?'準備...':'集中！';
+    cdNum.style.animation='none'; cdNum.offsetHeight;
+    cdNum.style.animation='cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+  };
+  tick();
+  const intv=setInterval(()=>{
+    c--;
+    if(c<=0){ clearInterval(intv);
+      cdNum.textContent='GO'; cdNum.style.color='#fff'; cdNum.style.textShadow='0 0 30px rgba(255,255,255,.8)';
+      cdSub.textContent='タッチ！';
+      cdNum.style.animation='none'; cdNum.offsetHeight;
+      cdNum.style.animation='cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+      setTimeout(()=>startGame(),650);
+    } else tick();
+  }, 900);
+}
+
+// ━━━ GAME ━━━
+// フロー: 色が表示される → マーカーをタッチ/ステップ → 画面をタップ → 次の色
+// シンプル: 画面全体タップで計測・次へ
+
+const TIMEOUT_MS = { slow:5000, normal:3500, fast:2000 };
+let gameActive = false; // 色が表示されていてタップ待ち状態
+
+function startGame(){
+  score=0;miss=0;streak=0;bestStreak=0;rtTimes=[];currentColorIdx=-1;
+  gameActive=false; timer=selectedTime; gameRunning=true;
+  useSound=document.getElementById('soundToggle').checked;
+  useVoice=document.getElementById('voiceToggle').checked;
+
+  ['hudHits','hudMiss','hudStreak'].forEach(id=>document.getElementById(id).textContent='0');
+  const st = SETUP_TEXT[setupMode];
+  document.getElementById('hudMode').textContent = st.hud;
+  document.getElementById('setupBanner').textContent = st.banner;
+  const wt = document.getElementById('waitingText');
+  if(wt) wt.textContent = st.waiting;
+
+  // CAM MODE: カメラを起動
+  if(setupMode === 'cam'){
+    startCfCamera();
+  } else {
+    stopCfCamera();
+  }
+  document.getElementById('hudProg').style.cssText='width:100%;transition:width 1s linear;';
+  showScr('game');
+  setArenaState('wait');
+  updateTimerDisp();
+  timerInt=setInterval(()=>{
+    timer--;
+    updateTimerDisp();
+    document.getElementById('hudProg').style.width=(timer/selectedTime*100)+'%';
+    if(timer<=0) endGame();
+  },1000);
+  setTimeout(()=>showNextColor(), 500);
+}
+
+// ─ アリーナ状態切り替え ─
+function setArenaState(state){
+  const cd = document.getElementById('colorDisplay');
+  const ws = document.getElementById('waitingState');
+  if(state==='color'){
+    cd.style.display='flex'; ws.style.display='none';
+  } else {
+    cd.style.display='none'; ws.style.display='flex';
+  }
+}
+
+// ─ 色を表示（タップ待ち開始）─
+function showNextColor(){
+  if(!gameRunning) return;
+  clearTimeout(flashTimeout);
+  gameActive=false;
+
+  // 同じ色が続かないようにランダム選択
+  let idx;
+  do { idx=Math.floor(Math.random()*activeColors.length); }
+  while(activeColors.length>1 && idx===currentColorIdx);
+  currentColorIdx=idx;
+  const col=activeColors[idx];
+  litAt=Date.now();
+  cfCamPhase='idle'; // CAMモード: 色が出たらidleにリセット
+
+  // スウォッチ
+  const sw=document.getElementById('colorSwatch');
+  const size='clamp(110px,24vw,200px)';
+  sw.style.cssText=`width:${size};height:${size};background:${col.hex};border-radius:50%;
+    border:4px solid rgba(255,255,255,.3);
+    box-shadow:0 0 60px ${col.hex}70,0 0 120px ${col.hex}30,inset 0 0 30px rgba(255,255,255,.1);
+    animation:none;`;
+  sw.offsetHeight; sw.style.animation='swatch-pop .2s cubic-bezier(.34,1.56,.64,1)';
+
+  // 色名
+  const cn=document.getElementById('colorName');
+  cn.textContent=col.name; cn.style.color=col.hex;
+  cn.style.textShadow=`0 0 30px ${col.hex}`;
+  cn.style.animation='none'; cn.offsetHeight;
+  cn.style.animation='cname-pop .2s cubic-bezier(.34,1.56,.64,1)';
+
+  // ヒント（設置モードに応じて変える）
+  const hint=document.getElementById('tapHint');
+  hint.textContent = SETUP_TEXT[setupMode].hint;
+
+  // 背景ほんのりフラッシュ
+  const bg=document.getElementById('colorBg');
+  bg.style.background=col.hex; bg.style.opacity='0.1';
+  setTimeout(()=>{ if(bg) bg.style.opacity='0'; },500);
+
+  setArenaState('color');
+  gameActive=true;
+
+  // 音声
+  if(useSound) beep(440+idx*80,120);
+  if(useVoice && 'speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance(col.name);
+    u.lang='ja-JP'; u.rate=1.3; speechSynthesis.speak(u);
+  }
+
+  // タイムアウト（時間内にタップしなかった = ミス）
+  flashTimeout=setTimeout(()=>{
+    if(!gameRunning||!gameActive) return;
+    gameActive=false;
+    miss++; streak=0;
+    document.getElementById('hudMiss').textContent=miss;
+    document.getElementById('hudStreak').textContent='0';
+    // タイムアウト表示
+    const te=document.createElement('div');
+    te.style.cssText=`position:fixed;inset:0;border:4px solid var(--red);pointer-events:none;z-index:100;animation:tflash .4s ease forwards;`;
+    document.body.appendChild(te); setTimeout(()=>te.remove(),400);
+    beep(200,200,0.3);
+    setArenaState('wait');
+    setTimeout(()=>showNextColor(), 400);
+  }, TIMEOUT_MS[selectedSpeed]);
+}
+
+// ─ 画面タップ（マーカーに触れた後に押す）─
+function onArenaTap(){
+  if(!gameRunning||!gameActive) return;
+  if(setupMode==='cam') return; // CAMモードはカメラが自動検知
+  registerHit();
+}
+
+// ── CAM MODE: 定位置検知でregisterHit ──
+function cfOnBodyReturn(){
+  if(!gameRunning||!gameActive||setupMode!=='cam') return;
+  cfCamPhase='idle';
+  registerHit();
+}
+
+function registerHit(){
+  gameActive=false;
+  clearTimeout(flashTimeout);
+
+  const rt=Date.now()-litAt;
+  rtTimes.push(rt);
+  score++; streak++;
+  if(streak>bestStreak) bestStreak=streak;
+
+  document.getElementById('hudHits').textContent=score;
+  document.getElementById('hudStreak').textContent=streak;
+
+  const col=activeColors[currentColorIdx];
+  const hf=document.createElement('div');
+  hf.style.cssText=`position:fixed;inset:0;pointer-events:none;z-index:100;background:${col.hex}28;animation:hflash .28s ease forwards;`;
+  document.body.appendChild(hf); setTimeout(()=>hf.remove(),300);
+
+  const arena=document.getElementById('arena');
+  const rt_el=document.createElement('div');
+  const rtColor=rt<800?'var(--grn)':rt<1500?'var(--ora)':'var(--mut)';
+  rt_el.style.cssText=`position:absolute;pointer-events:none;z-index:30;
+    font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;color:${rtColor};
+    left:50%;top:45%;transform:translate(-50%,-50%);
+    animation:rtpop .85s ease forwards;`;
+  rt_el.textContent=rt+'ms';
+  arena.appendChild(rt_el); setTimeout(()=>rt_el.remove(),900);
+
+  beep(880,55,0.18);
+  if(streak>0&&streak%5===0) showStreakBadge(streak);
+
+  setArenaState('wait');
+  setTimeout(()=>showNextColor(),180);
+}
+
+function showStreakBadge(n){
+  const arena=document.getElementById('arena');
+  const b=document.createElement('div');
+  b.style.cssText=`position:absolute;top:18px;left:50%;transform:translateX(-50%);
+    font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;
+    letter-spacing:3px;text-transform:uppercase;color:#fff;
+    text-shadow:0 0 12px rgba(255,255,255,.6);
+    animation:sbadge .5s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:25;white-space:nowrap;`;
+  b.textContent=n+' STREAK!'; arena.appendChild(b);
+  setTimeout(()=>b.remove(),1200);
+}
+function spawnFlash(cls){
+  const f=document.createElement('div'); f.className=cls;
+  document.body.appendChild(f); setTimeout(()=>f.remove(),250);
+}
+function updateTimerDisp(){
+  const m=Math.floor(timer/60),s=timer%60;
+  const el=document.getElementById('hudTimer');
+  el.textContent=m+':'+String(s).padStart(2,'0');
+  el.className='hud-val timer'+(timer<=10?' warn':'');
+}
+
+// 旧関数（互換のため残す）
+function onArenaTouch(){ onArenaTap(); }
+function onDoneTap(){ onArenaTap(); }
+
+// ━━━ END ━━━
+function endGame(){
+  clearInterval(timerInt); clearTimeout(flashTimeout);
+  gameRunning=false;
+
+  const key=selectedMode+'_'+selectedSpeed+'_'+selectedTime;
+  if(!bestScores[key]) bestScores[key]=0;
+  const isNew=score>bestScores[key]; if(isNew) bestScores[key]=score;
+
+  const total=score+miss;
+  const acc=total>0?Math.round(score/total*100):0;
+  const avgRT=rtTimes.length>0?Math.round(rtTimes.reduce((a,b)=>a+b,0)/rtTimes.length):0;
+  const bestRT=rtTimes.length>0?Math.min(...rtTimes):0;
+  const scoreNorm=selectedTime>0?Math.round(score*60/selectedTime):score;
+
+  const lvData=LEVELS.find(l=>scoreNorm>=l.min&&scoreNorm<=l.max)||LEVELS[LEVELS.length-1];
+
+  const modeLabel=selectedMode==='step'?'STEP':'TAP';
+  const speedLabel={slow:'SLOW',normal:'NORMAL',fast:'FAST'}[selectedSpeed];
+  const timeLabel={30:'30 SEC',60:'1 MIN',120:'2 MIN'}[selectedTime];
+
+  document.getElementById('resModeLbl').textContent=`${modeLabel} · ${speedLabel} · ${timeLabel}`;
+  document.getElementById('resScore').textContent=score;
+  document.getElementById('bestBadge').className='best-badge'+(isNew?' show':'');
+
+  // Level
+  const lvCard=document.getElementById('levelCard');
+  lvCard.className='level-card '+lvData.cls;
+  document.getElementById('lvName').textContent=lvData.name;
+  document.getElementById('lvName').style.color=lvData.color;
+  document.getElementById('lvDesc').textContent=lvData.desc;
+  const dotsEl=document.getElementById('lvDots'); dotsEl.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const d=document.createElement('div');
+    d.className='lv-dot'+(i<=lvData.dots?' fill':'');
+    dotsEl.appendChild(d);
+  }
+
+  // Stats
+  const statsEl=document.getElementById('resStats'); statsEl.innerHTML='';
+  [{l:'Miss',v:miss,c:'var(--red)'},{l:'Accuracy',v:acc+'%',c:'var(--cya)'},
+   {l:'Avg RT',v:avgRT?avgRT+'ms':'--',c:'var(--ora)'},{l:'Best RT',v:bestRT?bestRT+'ms':'--',c:'var(--grn)'},
+   {l:'Streak',v:bestStreak,c:'#fff'},{l:'P.Best',v:bestScores[key],c:'var(--mut)'}
+  ].forEach(s=>{
+    const d=document.createElement('div'); d.className='rs';
+    d.innerHTML=`<div class="rs-l">${s.l}</div><div class="rs-v" style="color:${s.c}">${s.v}</div>`;
+    statsEl.appendChild(d);
+  });
+
+  // Compare
+  const cmpRows=document.getElementById('cmpRows'); cmpRows.innerHTML='';
+  const maxS=Math.max(score,40);
+  const yourPct=Math.min(100,Math.round(score/maxS*100));
+  const yr=document.createElement('div'); yr.className='cmp-row';
+  yr.innerHTML=`<div class="cmp-row-head"><span class="cmp-label">あなた</span><span class="cmp-val you">${score}</span></div>
+    <div class="cmp-track"><div class="cmp-fill you-bar" id="yourBar" style="width:0%"></div></div>`;
+  cmpRows.appendChild(yr);
+  REFS.forEach(ref=>{
+    const pct=Math.min(100,Math.round(ref.score/maxS*100));
+    const row=document.createElement('div'); row.className='cmp-row';
+    row.innerHTML=`<div class="cmp-row-head"><span class="cmp-label" style="color:#888">${ref.label}</span><span class="cmp-val">${ref.score}〜</span></div>
+      <div class="cmp-track"><div class="cmp-fill ref-bar" style="width:0%;background:${ref.color}" data-pct="${pct}"></div></div>`;
+    cmpRows.appendChild(row);
+  });
+
+  // Benefits
+  const bg2=document.getElementById('benefitGrid'); bg2.innerHTML='';
+  BENEFITS.forEach(b=>{
+    const el=document.createElement('div'); el.className='benefit-item';
+    el.innerHTML=`<div class="benefit-icon-row"><div class="benefit-icon">${b.icon}</div><div class="benefit-name">${b.name}</div></div><div class="benefit-desc">${b.desc}</div>`;
+    bg2.appendChild(el);
+  });
+
+  setTimeout(()=>{
+    showScr('result');
+    setTimeout(()=>{
+      document.getElementById('yourBar').style.width=yourPct+'%';
+      document.querySelectorAll('.cmp-fill.ref-bar').forEach(el=>{ el.style.width=el.dataset.pct+'%'; });
+    },200);
+    callAITrainer({score,miss,acc,avgRT,bestRT,bestStreak,scoreNorm,lvData,setupMode,selectedSpeed,selectedTime,colorCount:activeColors.length});
+  },380);
+}
+
+// ━━━ AI TRAINER ━━━
+async function callAITrainer({score,miss,acc,avgRT,bestRT,bestStreak,scoreNorm,lvData,setupMode,selectedSpeed,selectedTime,colorCount}){
+  const setupNames = {
+    floor:'床タップモード（タブレットを床に置き、足でタップ）',
+    hand: '手タップモード（三脚・壁設置で、手でタップ）',
+    free: 'フリーモード',
+  };
+  const modeN = setupNames[setupMode] || setupNames.free;
+  const speedN={slow:'遅め（3秒）',normal:'標準（2秒）',fast:'速い（1.2秒）'}[selectedSpeed];
+  const timeN={30:'30秒',60:'1分',120:'2分'}[selectedTime];
+  const missRate=(score+miss)>0?Math.round(miss/(score+miss)*100):0;
+  let rtComment='';
+  if(avgRT>0){
+    if(avgRT<300) rtComment='エリートアスリートレベルの反応速度';
+    else if(avgRT<400) rtComment='競技選手レベルの反応速度';
+    else if(avgRT<500) rtComment='一般〜スポーツ経験者レベル';
+    else rtComment='一般人の平均レベル';
+  }
+
+  const stepHint = setupMode==='floor'
+    ? '足のステップ、重心移動、足でのタップのコツを含めて。'
+    : setupMode==='hand'
+    ? '手の動き、マーカーへのタッチから戻るまでの効率的な体の使い方を含めて。'
+    : '体の動きを最小限に素早く反応するコツを含めて。';
+
+  const prompt=`あなたはスポーツビジョントレーニング専門のAIトレーナーです。
+「カラーフラッシュ」トレーニング結果を分析してパーソナルフィードバックを提供してください。
+
+【トレーニング内容】
+色が画面に表示される → そのマーカーへ移動してタップ → 次の色へ
+使用色数: ${colorCount}色 / 設置: ${modeN} / 速度: ${speedN} / 時間: ${timeN}
+
+【結果】
+- ヒット: ${score}回（1分換算: ${scoreNorm}回）
+- ミス: ${miss}回（ミス率 ${missRate}%）
+- 正確性: ${acc}%
+- 平均反応時間: ${avgRT?avgRT+'ms（'+rtComment+'）':'データなし'}
+- 最速反応: ${bestRT?bestRT+'ms':'--'}
+- 最大連続ヒット: ${bestStreak}回
+- レベル: ${lvData.name}
+
+以下3セクションを日本語で。各30〜60文字。マークダウンなし。
+
+【今回の分析】
+→ ヒット・ミス・反応時間から現状の強みと課題を具体的に。
+
+【反応と体の使い方アドバイス】
+→ 色を見てから体が動くまでの改善ポイントを実践的に。${stepHint}
+
+【次のステップ】
+→ 次回のトレーニング目標を数値込みで1文で。
+
+各セクションは「【セクション名】」で始めてください。`;
+
+  const aiContent=document.getElementById('aiContent');
+  const aiLoading=document.getElementById('aiLoading');
+  const aiPulse=document.getElementById('aiPulse');
+  const aiStatusText=document.getElementById('aiStatusText');
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,stream:true,
+        messages:[{role:'user',content:prompt}]})
+    });
+    if(!resp.ok) throw new Error();
+    aiLoading.style.display='none'; aiContent.style.display='block';
+    aiContent.innerHTML='<span class="ai-cursor"></span>';
+    const reader=resp.body.getReader(); const dec=new TextDecoder();
+    let buf='',full='';
+    while(true){
+      const {done,value}=await reader.read(); if(done) break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n'); buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const data=line.slice(6).trim(); if(data==='[DONE]') continue;
+        try{
+          const j=JSON.parse(data);
+          if(j.type==='content_block_delta'&&j.delta?.text){
+            full+=j.delta.text;
+            aiContent.innerHTML=fmtAI(full)+'<span class="ai-cursor"></span>';
+            const wrap=document.querySelector('.res-wrap'); if(wrap) wrap.scrollTop=wrap.scrollHeight;
+          }
+        }catch{}
+      }
+    }
+    aiContent.innerHTML=fmtAI(full);
+    aiStatusText.textContent='完了'; aiPulse.classList.add('done');
+  }catch{
+    aiLoading.style.display='none'; aiContent.style.display='block';
+    aiContent.innerHTML=fmtAI(`【今回の分析】\n${lvData.desc}\n\n【反応と体の使い方アドバイス】\n色が表示されたら迷わず即反応。「見てから考える」を「見た瞬間に動く」に変えよう。\n\n【次のステップ】\n次回はミス率${Math.max(0,missRate-5)}%以下を目指して挑戦しましょう。`);
+    aiStatusText.textContent='オフライン'; aiPulse.style.background='var(--ora)'; aiPulse.style.animation='none';
+  }
+}
+function fmtAI(text){
+  const secs=text.split(/(?=【)/).filter(Boolean);
+  if(!secs.length) return `<div class="ai-section-content">${text.replace(/\n/g,'<br>')}</div>`;
+  return secs.map(s=>{
+    const m=s.match(/^【(.+?)】\n?([\s\S]*)/);
+    if(!m) return `<div class="ai-section-content">${s.replace(/\n/g,'<br>')}</div>`;
+    return `<div class="ai-section"><div class="ai-section-head">${m[1]}</div><div class="ai-section-content">${m[2].trim().replace(/\n/g,'<br>')}</div></div>`;
+  }).join('');
+}
+
+// ━━━ AI CAM: MediaPipe Pose ━━━
+async function startCfCamera(){
+  const camLayer=document.getElementById('camLayer');
+  camLayer.style.display='block';
+  try{
+    cfStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false
+    });
+    const video=document.getElementById('cfCamVideo');
+    video.srcObject=cfStream;
+    await video.play();
+
+    const canvas=document.getElementById('cfCamCanvas');
+    video.addEventListener('loadedmetadata',()=>{
+      canvas.width=video.videoWidth;
+      canvas.height=video.videoHeight;
+    });
+
+    cfPose=new Pose({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+    cfPose.setOptions({modelComplexity:1,smoothLandmarks:true,
+      enableSegmentation:false,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+    cfPose.onResults(r=>cfOnPoseResults(r,canvas));
+
+    cfCamera=new Camera(video,{
+      onFrame:async()=>{ if(cfPose) await cfPose.send({image:video}); },
+      width:640,height:480
+    });
+    cfCamera.start();
+    updateCfPosUI('loading','LOADING');
+  }catch(e){
+    console.warn('Camera error:',e);
+    camLayer.style.display='none';
+  }
+}
+
+function stopCfCamera(){
+  if(cfCamera){cfCamera.stop();cfCamera=null;}
+  if(cfStream){cfStream.getTracks().forEach(t=>t.stop());cfStream=null;}
+  if(cfPose){cfPose.close();cfPose=null;}
+  cfZoneActive=false; cfBodyPresent=false;
+  const camLayer=document.getElementById('camLayer');
+  if(camLayer) camLayer.style.display='none';
+}
+
+function cfOnPoseResults(results, canvas){
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!results.poseLandmarks){
+    cfBodyPresent=false; updateCfPosUI('out','OUT'); return;
+  }
+  const lm=results.poseLandmarks;
+  const pts=[lm[11],lm[12],lm[23],lm[24]];
+  const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
+  const bcx=(Math.min(...xs)+Math.max(...xs))/2;
+  const bcy=(Math.min(...ys)+Math.max(...ys))/2;
+
+  // 初回: ゾーンを自動設定
+  if(!cfZoneActive){
+    cfZone={cx:bcx,cy:bcy,r:.18};
+    cfZoneActive=true;
+    updateCfZoneBox();
+    updateCfPosUI('in','IN ZONE');
+  }
+
+  const dist=Math.sqrt((bcx-cfZone.cx)**2+(bcy-cfZone.cy)**2);
+  const isIn=dist<cfZone.r;
+
+  // 骨格を薄く描画
+  ctx.save();
+  ctx.fillStyle='rgba(0,229,255,.5)';
+  [11,12,23,24,25,26,27,28].forEach(i=>{
+    const p=lm[i];
+    ctx.beginPath();
+    ctx.arc(p.x*canvas.width,p.y*canvas.height,5,0,Math.PI*2);
+    ctx.fill();
+  });
+  ctx.restore();
+
+  if(isIn!==cfBodyPresent){
+    cfBodyPresent=isIn;
+    updateCfPosUI(isIn?'in':'out', isIn?'IN ZONE':'OUT');
+    const zone=document.getElementById('cfZoneBox');
+    if(zone) zone.style.borderColor=isIn?'rgba(0,229,255,.7)':'rgba(255,30,0,.7)';
+    // CAMモードでゲーム中: 戻ってきたら自動でHIT
+    if(isIn && gameRunning && gameActive && cfCamPhase==='away'){
+      cfOnBodyReturn();
+    }
+    // 離れたらphaseをawayに
+    if(!isIn && gameRunning && gameActive && cfCamPhase==='idle'){
+      cfCamPhase='away';
+    }
+  }
+}
+
+function cfOnBodyReturn(){
+  if(!gameRunning||!gameActive||setupMode!=='cam') return;
+  cfCamPhase='idle';
+  registerHit();
+}
+
+function updateCfPosUI(state, label){
+  const dot=document.getElementById('cfPosDot');
+  const lbl=document.getElementById('cfPosLabel');
+  if(!dot||!lbl) return;
+  const colors={in:'var(--grn)',out:'var(--red)',loading:'var(--mut)'};
+  dot.style.background=colors[state]||'var(--mut)';
+  dot.style.boxShadow=state==='in'?'0 0 8px rgba(0,255,136,.8)':
+    state==='out'?'0 0 8px rgba(255,30,0,.8)':'none';
+  lbl.textContent=label;
+  lbl.style.color=colors[state]||'var(--mut)';
+}
+
+function updateCfZoneBox(){
+  const arena=document.getElementById('arena');
+  const zb=document.getElementById('cfZoneBox');
+  if(!zb||!arena) return;
+  const aw=arena.offsetWidth, ah=arena.offsetHeight;
+  const bx=(cfZone.cx-cfZone.r)*aw;
+  const by=(cfZone.cy-cfZone.r)*ah;
+  const bs=cfZone.r*2*Math.min(aw,ah);
+  zb.style.cssText+=`;left:${bx}px;top:${by}px;width:${bs}px;height:${bs}px;display:block;`;
+}
+
+// showNextColorでCAMモード時のphase管理
+const _origShowNextColor = showNextColor;
+
+// ━━━ INIT ━━━
+renderChips();
+document.getElementById('soundToggle').addEventListener('change',e=>useSound=e.target.checked);
+document.getElementById('voiceToggle').addEventListener('change',e=>useVoice=e.target.checked);
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+</script>
+</body>
+</html>

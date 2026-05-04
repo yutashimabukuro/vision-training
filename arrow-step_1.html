@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ARROW STEP — VISION TRAINING</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070f; --card:#0f0f1c; --bor:rgba(255,255,255,.06);
+  --text:#eeeef8; --mut:#44445a;
+  --red:#ff1e00; --cya:#00e5ff; --ora:#ff7700; --grn:#00ff88;
+  /* Arrow direction colors */
+  --up:#00e5ff; --dn:#ff7700; --lt:#ff1e00; --rt:#00ff88;
+  --ul:#cc44ff; --ur:#ffdd00; --dl:#ff44aa; --dr:#44ffcc;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Barlow',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);
+  background-size:48px 48px;}
+
+.scr{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;transition:opacity .3s,transform .3s;}
+.scr.hide{opacity:0;pointer-events:none;transform:scale(.97);}
+
+/* ══════════════ MENU ══════════════ */
+#menu{background:var(--bg);overflow-y:auto;padding:14px 18px 28px;
+  justify-content:flex-start;align-items:stretch;}
+.menu-inner{max-width:520px;margin:0 auto;width:100%;display:flex;flex-direction:column;align-items:center;}
+
+/* Animated arrow logo */
+.arrow-logo{
+  width:80px;height:80px;position:relative;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;
+}
+.arrow-logo-sym{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:52px;line-height:1;
+  animation:arrowcol 2s ease-in-out infinite;
+}
+@keyframes arrowcol{
+  0%,100%{color:var(--cya);text-shadow:0 0 20px rgba(0,229,255,.8);}
+  25%{color:var(--grn);text-shadow:0 0 20px rgba(0,255,136,.8);}
+  50%{color:var(--red);text-shadow:0 0 20px rgba(255,30,0,.8);}
+  75%{color:var(--ora);text-shadow:0 0 20px rgba(255,119,0,.8);}
+}
+
+/* Logo arrow cycles direction */
+.arrow-logo-ring{position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.1);animation:spin 8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.menu-tag{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:2px;text-align:center;}
+.menu-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(34px,7vw,56px);line-height:.88;text-transform:uppercase;
+  text-align:center;letter-spacing:2px;margin-bottom:3px;
+  color:var(--text);}
+.menu-sub{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:14px;text-align:center;}
+.neon-line{width:48px;height:2px;margin:0 auto 14px;background:var(--text);
+  box-shadow:0 0 8px rgba(255,255,255,.5);animation:linecol 2s ease-in-out infinite;}
+@keyframes linecol{
+  0%,100%{background:var(--cya);box-shadow:0 0 8px rgba(0,229,255,.8);}
+  25%{background:var(--grn);box-shadow:0 0 8px rgba(0,255,136,.8);}
+  50%{background:var(--red);box-shadow:0 0 8px rgba(255,30,0,.8);}
+  75%{background:var(--ora);box-shadow:0 0 8px rgba(255,119,0,.8);}
+}
+.sec-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:8px;align-self:flex-start;}
+
+/* DIRECTION MODE */
+.dir-mode-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-bottom:14px;
+}
+.dir-mode-card{
+  border:1px solid var(--bor);background:var(--card);
+  cursor:pointer;padding:12px 14px;
+  display:flex;flex-direction:column;gap:5px;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.dir-mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s;}
+.dir-mode-card:hover{border-color:rgba(255,255,255,.18);}
+.dir-mode-card.on{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.05);}
+.dir-mode-card.on::before{opacity:1;}
+.dir-mode-card.d4::before{background:linear-gradient(90deg,var(--cya),var(--grn),var(--red),var(--ora));}
+.dir-mode-card.d8::before{background:linear-gradient(90deg,var(--cya),var(--pur),var(--red),var(--grn),var(--ora),var(--ul));}
+.dmc-arrows{font-size:22px;letter-spacing:2px;line-height:1;}
+.dmc-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--text);}
+.dmc-desc{font-size:10px;color:var(--mut);line-height:1.4;}
+
+/* SETUP MODE */
+.setup-grid{display:flex;gap:7px;width:100%;margin-bottom:14px;}
+.setup-card{
+  flex:1;border:1px solid var(--bor);background:var(--card);
+  cursor:pointer;padding:10px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all .2s;
+}
+.setup-card:hover{border-color:rgba(255,255,255,.18);}
+.setup-card.on{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.05);}
+.sc-icon{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--mut);letter-spacing:2px;}
+.setup-card.on .sc-icon{color:var(--text);}
+.sc-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);}
+.setup-card.on .sc-name{color:var(--text);}
+.sc-desc{font-size:9px;color:var(--mut);text-align:center;line-height:1.3;}
+
+/* SETTINGS ROW */
+.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-bottom:14px;}
+.setting-group{background:var(--card);border:1px solid var(--bor);padding:10px 12px;}
+.sg-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:7px;}
+.seg-btns{display:flex;gap:5px;}
+.seg-btn{flex:1;padding:7px 6px;border:1px solid var(--bor);background:none;color:var(--mut);
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:1px;transition:all .2s;text-align:center;}
+.seg-btn:hover{border-color:rgba(255,255,255,.2);}
+.seg-btn.on{border-color:rgba(255,255,255,.4);color:var(--text);background:rgba(255,255,255,.06);}
+
+/* TONE SWITCH */
+.tone-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.tone-lbl{font-size:11px;color:#aaa;}
+.toggle-sw{position:relative;width:38px;height:20px;cursor:pointer;}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute;}
+.sw-track{position:absolute;inset:0;background:var(--bor);border-radius:10px;transition:.2s;}
+.toggle-sw input:checked ~ .sw-track{background:var(--cya);}
+.sw-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-sw input:checked ~ .sw-track ~ .sw-thumb{left:20px;}
+
+.start-btn{
+  background:var(--text);border:none;color:var(--bg);cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:16px;letter-spacing:4px;text-transform:uppercase;padding:15px 52px;
+  clip-path:polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);
+  transition:all .2s;animation:startcol 2s ease-in-out infinite;
+}
+@keyframes startcol{
+  0%,100%{background:var(--text);}
+  50%{background:#c8fffe;}
+}
+.start-btn:active{transform:scale(.97);}
+
+/* ══════════════ COUNTDOWN ══════════════ */
+#countdown{background:var(--bg);}
+.cd-num{font-family:'Share Tech Mono',monospace;font-size:140px;line-height:1;
+  animation:cdpop .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes cdpop{from{transform:scale(1.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.cd-lbl{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--mut);margin-top:8px;}
+
+/* ══════════════ GAME ══════════════ */
+#game{flex-direction:column;background:var(--bg);padding:0;}
+
+/* HUD */
+.hud{width:100%;display:flex;align-items:center;padding:7px 14px 5px;gap:10px;
+  border-bottom:1px solid var(--bor);flex-shrink:0;position:relative;z-index:5;
+  background:rgba(7,7,15,.96);}
+.hud-item{display:flex;flex-direction:column;}
+.hud-lbl{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.hud-val{font-family:'Share Tech Mono',monospace;font-size:28px;line-height:1.05;}
+.hud-val.timer{color:var(--text);transition:color .3s;}
+.hud-val.timer.warn{color:var(--red);text-shadow:0 0 10px rgba(255,30,0,.8);animation:blnk .6s ease-in-out infinite;}
+@keyframes blnk{0%,100%{opacity:1;}50%{opacity:.5;}}
+.hud-val.hits{color:var(--cya);text-shadow:0 0 8px rgba(0,229,255,.5);}
+.hud-div{width:1px;height:26px;background:var(--bor);flex-shrink:0;}
+.hud-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.hud-badge{padding:3px 8px;border:1px solid rgba(255,255,255,.2);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.5);text-transform:uppercase;}
+.hud-prog{position:absolute;bottom:0;left:0;height:2px;transition:width 1s linear;
+  animation:progcol 2s ease-in-out infinite;}
+@keyframes progcol{
+  0%,100%{background:var(--cya);box-shadow:0 0 5px rgba(0,229,255,.6);}
+  33%{background:var(--grn);box-shadow:0 0 5px rgba(0,255,136,.6);}
+  66%{background:var(--red);box-shadow:0 0 5px rgba(255,30,0,.6);}
+}
+
+/* SETUP BANNER */
+.setup-banner{
+  width:100%;padding:6px 16px;flex-shrink:0;
+  background:rgba(255,255,255,.03);border-bottom:1px solid var(--bor);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);text-align:center;
+}
+
+/* ── ARENA ── */
+.arena{flex:1;position:relative;overflow:hidden;width:100%;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;}
+
+/* ── ARROW DISPLAY ── */
+.arrow-display{
+  position:absolute;inset:0;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;z-index:5;pointer-events:none;
+}
+
+/* Background zone hint (subtle gradient in direction) */
+.arrow-bg{
+  position:absolute;inset:0;opacity:0;transition:opacity .15s;pointer-events:none;
+}
+
+/* The arrow symbol - MASSIVE */
+.arrow-sym{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(140px,35vw,260px);line-height:1;
+  position:relative;z-index:2;
+  animation:arrow-pop .18s cubic-bezier(.34,1.56,.64,1);
+  /* color set by JS */
+}
+@keyframes arrow-pop{
+  from{transform:scale(0.3);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+/* Direction label */
+.arrow-dir-label{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:clamp(14px,3.5vw,22px);letter-spacing:6px;text-transform:uppercase;
+  position:relative;z-index:2;
+  /* color set by JS */
+  opacity:.7;
+  animation:arrow-pop .18s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* TAP hint */
+.arrow-tap-hint{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:clamp(12px,2.5vw,16px);letter-spacing:4px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);position:relative;z-index:2;
+  animation:pulse-fade 1.2s ease-in-out infinite;
+  margin-top:6px;
+}
+@keyframes pulse-fade{0%,100%{opacity:.25;}50%{opacity:.8;}}
+
+/* 8方向の矢印のためのコンパスローズ（待機時） */
+.compass{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:clamp(160px,40vw,260px);height:clamp(160px,40vw,260px);
+  opacity:.08;pointer-events:none;
+}
+.compass-ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(255,255,255,.5);
+}
+.compass-dir{
+  position:absolute;font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(16px,3.5vw,24px);color:rgba(255,255,255,.5);
+}
+
+/* RT popup */
+.rt-popup{
+  position:absolute;pointer-events:none;z-index:20;
+  font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:700;
+  left:50%;top:44%;transform:translate(-50%,-50%);
+  animation:rtpop .85s ease forwards;
+}
+@keyframes rtpop{0%{opacity:1;transform:translate(-50%,-50%);}100%{opacity:0;transform:translate(-50%,calc(-50% - 50px));}}
+
+/* HIT/MISS/TIMEOUT flashes */
+.hit-flash{position:fixed;inset:0;pointer-events:none;z-index:100;animation:hfl .28s ease forwards;}
+@keyframes hfl{0%{opacity:.4;}100%{opacity:0;}}
+.miss-flash{position:fixed;inset:0;pointer-events:none;z-index:100;
+  background:rgba(255,30,0,.1);animation:mfl .22s ease forwards;}
+@keyframes mfl{0%{opacity:1;}100%{opacity:0;}}
+.timeout-border{position:fixed;inset:0;pointer-events:none;z-index:100;
+  border:5px solid var(--red);animation:tfl .4s ease forwards;opacity:0;}
+@keyframes tfl{0%{opacity:1;}100%{opacity:0;}}
+
+/* Streak badge */
+.streak-badge{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:16px;letter-spacing:3px;text-transform:uppercase;
+  color:#fff;text-shadow:0 0 14px rgba(255,255,255,.7);
+  animation:sbadge .5s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:20;white-space:nowrap;
+}
+@keyframes sbadge{from{transform:translateX(-50%) scale(0);}to{transform:translateX(-50%) scale(1);}}
+
+/* Waiting state */
+.wait-state{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;
+}
+.wait-cross{position:relative;width:50px;height:50px;}
+.wait-cross::before{content:'';position:absolute;width:2px;height:100%;
+  background:rgba(255,255,255,.12);left:50%;transform:translateX(-50%);}
+.wait-cross::after{content:'';position:absolute;width:100%;height:2px;
+  background:rgba(255,255,255,.12);top:50%;transform:translateY(-50%);}
+.wait-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.18);}
+
+/* ── DIRECTION INDICATOR PAD (8方向タッチパッド) ── */
+.dir-pad{
+  position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+  width:clamp(180px,44vw,260px);height:clamp(180px,44vw,260px);
+  display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;
+  gap:3px;z-index:8;opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.dir-pad.visible{opacity:1;pointer-events:auto;}
+.dp-btn{
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(14px,3.5vw,20px);
+  color:rgba(255,255,255,.3);transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.dp-btn:active{background:rgba(255,255,255,.15)!important;color:#fff!important;}
+.dp-btn.center{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);}
+.dp-btn.inactive{opacity:0;pointer-events:none;}
+
+/* ══════════════ RESULT ══════════════ */
+#result{background:var(--bg);padding:0;justify-content:flex-start;overflow-y:auto;}
+.res-wrap{width:100%;max-width:540px;margin:0 auto;padding:20px 18px 40px;display:flex;flex-direction:column;}
+.res-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.res-ring{width:66px;height:66px;flex-shrink:0;border:2px solid rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.6);
+  animation:rpop .5s cubic-bezier(.34,1.56,.64,1),arrowcol 2s .5s ease-in-out infinite;}
+@keyframes rpop{from{transform:scale(0);}to{transform:scale(1);}}
+.res-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(32px,7vw,50px);line-height:.9;text-transform:uppercase;
+  color:var(--text);animation:fup .4s .1s ease both;}
+.res-mode-lbl{font-size:10px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;margin-top:4px;animation:fup .4s .15s ease both;}
+.best-badge{display:none;background:var(--text);color:var(--bg);padding:3px 10px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:4px;align-self:flex-start;animation:fup .4s .2s ease both;}
+.best-badge.show{display:inline-block;}
+.res-score-block{display:flex;align-items:flex-end;gap:10px;margin-bottom:6px;animation:fup .4s .18s ease both;}
+.res-score{font-family:'Share Tech Mono',monospace;font-size:76px;line-height:1;
+  color:var(--text);animation:arrowcol 2s ease-in-out infinite;}
+.res-score-unit{font-size:11px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;padding-bottom:8px;}
+.res-stats{display:flex;gap:7px;margin-bottom:16px;animation:fup .4s .24s ease both;flex-wrap:wrap;}
+.rs{background:var(--card);border:1px solid var(--bor);padding:9px 12px;flex:1;text-align:center;min-width:70px;}
+.rs-l{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:3px;}
+.rs-v{font-family:'Share Tech Mono',monospace;font-size:18px;}
+.res-divider{height:1px;background:var(--bor);margin:2px 0 14px;}
+
+/* Level card */
+.level-card{border:1px solid var(--bor);padding:13px;margin-bottom:14px;
+  background:var(--card);position:relative;overflow:hidden;animation:fup .4s .3s ease both;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;animation:linecol 2s ease-in-out infinite;}
+.lv-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.lv-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.lv-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;}
+.lv-dots{display:flex;gap:4px;}
+.lv-dot{width:8px;height:8px;border-radius:50%;background:var(--bor);}
+.lv-dot.fill{background:var(--text);}
+.lv-desc{font-size:12px;color:#aaa;line-height:1.6;}
+
+/* Compare */
+.cmp-section{margin-bottom:14px;animation:fup .4s .36s ease both;}
+.cmp-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+.cmp-row{margin-bottom:8px;}
+.cmp-row-head{display:flex;justify-content:space-between;margin-bottom:3px;}
+.cmp-label{font-size:12px;color:var(--text);font-weight:500;}
+.cmp-val{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--mut);}
+.cmp-val.you{color:var(--cya);}
+.cmp-track{height:5px;background:var(--bor);overflow:hidden;}
+.cmp-fill{height:100%;transition:width 1s .5s ease;}
+.cmp-fill.you-bar{background:var(--cya);box-shadow:0 0 5px rgba(0,229,255,.5);}
+
+/* Benefits */
+.benefit-section{margin-bottom:14px;animation:fup .4s .42s ease both;}
+.benefit-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.benefit-item{background:var(--card);border:1px solid var(--bor);padding:10px;display:flex;flex-direction:column;gap:4px;}
+.benefit-icon-row{display:flex;align-items:center;gap:6px;}
+.benefit-icon{width:24px;height:24px;border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--cya);font-family:'Barlow Condensed',sans-serif;font-weight:700;}
+.benefit-name{font-size:12px;font-weight:600;color:var(--text);}
+.benefit-desc{font-size:10px;color:var(--mut);line-height:1.5;}
+
+/* AI Trainer */
+.ai-trainer-box{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.02);
+  margin-bottom:18px;overflow:hidden;animation:fup .4s .48s ease both;}
+.ai-trainer-header{display:flex;align-items:center;gap:9px;padding:9px 12px;
+  border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);}
+.ai-trainer-icon{display:flex;gap:4px;align-items:center;}
+.ai-icon-dot{width:6px;height:6px;border-radius:50%;animation:aidot 1.4s ease-in-out infinite;}
+.ai-icon-dot:nth-child(1){background:var(--cya);animation-delay:0s;}
+.ai-icon-dot:nth-child(2){background:var(--grn);animation-delay:.2s;}
+.ai-icon-dot:nth-child(3){background:var(--red);animation-delay:.4s;}
+@keyframes aidot{0%,100%{opacity:.3;transform:scale(.7);}50%{opacity:1;transform:scale(1);}}
+.ai-trainer-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:1px;}
+.ai-trainer-name{font-size:12px;font-weight:600;color:var(--text);}
+.ai-status{margin-left:auto;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.ai-pulse{width:6px;height:6px;border-radius:50%;background:var(--cya);animation:aipulse 1.2s ease-in-out infinite;}
+.ai-pulse.done{background:var(--grn);animation:none;}
+@keyframes aipulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+#aiStatusText{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);}
+.ai-trainer-body{padding:11px 12px;}
+.ai-loading{display:flex;gap:5px;align-items:flex-end;height:24px;}
+.ai-loading-bar{width:3px;border-radius:2px;background:var(--cya);opacity:.4;animation:aibar 1s ease-in-out infinite;}
+.ai-loading-bar:nth-child(1){height:13px;}
+.ai-loading-bar:nth-child(2){height:20px;animation-delay:.2s;}
+.ai-loading-bar:nth-child(3){height:10px;animation-delay:.4s;}
+@keyframes aibar{0%,100%{opacity:.2;transform:scaleY(.6);}50%{opacity:.7;transform:scaleY(1);}}
+.ai-content{font-size:13px;color:#ccc;line-height:1.8;display:none;}
+.ai-section{margin-bottom:11px;}
+.ai-section:last-child{margin-bottom:0;}
+.ai-section-head{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cya);
+  margin-bottom:3px;display:flex;align-items:center;gap:5px;}
+.ai-section-head::before{content:'';width:12px;height:1px;background:var(--cya);}
+.ai-section-content{font-size:13px;color:#ccc;line-height:1.8;}
+.ai-cursor{display:inline-block;width:2px;height:12px;background:var(--cya);
+  margin-left:2px;vertical-align:middle;animation:cblink .7s ease-in-out infinite;}
+@keyframes cblink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+.res-btns{display:flex;gap:9px;animation:fup .4s .52s ease both;}
+.res-btn{flex:1;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.res-btn.white{background:var(--text);color:var(--bg);
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+.res-btn.white:hover{background:#fff;}
+.res-btn.out{background:transparent;color:var(--text);border:1px solid var(--bor);}
+.res-btn.out:hover{border-color:rgba(255,255,255,.3);}
+@keyframes fup{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* Responsive */
+@media(max-width:480px){
+  #menu{padding:10px 14px 24px;}
+  .dir-mode-grid{grid-template-columns:1fr 1fr;}
+  .settings-row{grid-template-columns:1fr 1fr;}
+}
+@media(min-width:768px){
+  .hud{padding:10px 20px 8px;gap:14px;}
+  .hud-lbl{font-size:9px;}
+  .hud-val{font-size:34px;}
+  .hud-div{height:34px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ MENU ══ -->
+<div class="scr" id="menu">
+  <div class="menu-inner">
+    <div class="arrow-logo">
+      <div class="arrow-logo-ring"></div>
+      <div class="arrow-logo-sym" id="logoSym">↑</div>
+    </div>
+    <div class="menu-tag">Vision Training</div>
+    <div class="menu-title">ARROW STEP</div>
+    <div class="menu-sub">Direction · Reaction · Step</div>
+    <div class="neon-line"></div>
+
+    <!-- DIRECTION MODE -->
+    <div class="sec-lbl">Direction Mode</div>
+    <div class="dir-mode-grid">
+      <div class="dir-mode-card d4 on" onclick="setDirMode(4,this)">
+        <div class="dmc-arrows">↑ ↓ ← →</div>
+        <div class="dmc-name">4 Direction</div>
+        <div class="dmc-desc">上下左右の基本4方向。初級〜中級向け。</div>
+      </div>
+      <div class="dir-mode-card d8" onclick="setDirMode(8,this)">
+        <div class="dmc-arrows">↖ ↑ ↗<br>← · →<br>↙ ↓ ↘</div>
+        <div class="dmc-name">8 Direction</div>
+        <div class="dmc-desc">斜め含む8方向。上級・実戦特化。</div>
+      </div>
+    </div>
+
+    <!-- SETUP MODE -->
+    <div class="sec-lbl">Setup Mode</div>
+    <div class="setup-grid">
+      <div class="setup-card on" onclick="setSetup('floor',this)">
+        <div class="sc-icon">FLOOR</div>
+        <div class="sc-name">床タップ</div>
+        <div class="sc-desc">床置きで<br>足でタップ</div>
+      </div>
+      <div class="setup-card" onclick="setSetup('hand',this)">
+        <div class="sc-icon">HAND</div>
+        <div class="sc-name">手タップ</div>
+        <div class="sc-desc">三脚・壁で<br>手でタップ</div>
+      </div>
+      <div class="setup-card" onclick="setSetup('pad',this)">
+        <div class="sc-icon">PAD</div>
+        <div class="sc-name">方向パッド</div>
+        <div class="sc-desc">画面下の<br>方向ボタンで入力</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="settings-row">
+      <div class="setting-group">
+        <div class="sg-lbl">Time</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="setVal('time',30,this)">30s</button>
+          <button class="seg-btn on" onclick="setVal('time',60,this)">1m</button>
+          <button class="seg-btn" onclick="setVal('time',120,this)">2m</button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="sg-lbl">Speed</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="setVal('speed','slow',this)">SLOW</button>
+          <button class="seg-btn on" onclick="setVal('speed','normal',this)">NORM</button>
+          <button class="seg-btn" onclick="setVal('speed','fast',this)">FAST</button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="sg-lbl">Sound</div>
+        <div class="tone-row" style="margin-top:2px;">
+          <span class="tone-lbl">Beep</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="soundToggle" checked>
+            <div class="sw-track"></div><div class="sw-thumb"></div>
+          </label>
+        </div>
+        <div class="tone-row">
+          <span class="tone-lbl">Voice</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="voiceToggle">
+            <div class="sw-track"></div><div class="sw-thumb"></div>
+          </label>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="sg-lbl">Interval</div>
+        <div class="seg-btns">
+          <button class="seg-btn on" onclick="setVal('interval','random',this)">RAND</button>
+          <button class="seg-btn" onclick="setVal('interval','fixed',this)">FIX</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="startCountdown()">START</button>
+  </div>
+</div>
+
+<!-- ══ COUNTDOWN ══ -->
+<div class="scr hide" id="countdown">
+  <div class="cd-num" id="cdNum">3</div>
+  <div class="cd-lbl" id="cdSub">準備して！</div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div class="scr hide" id="game">
+  <div class="hud">
+    <div class="hud-item">
+      <div class="hud-lbl">Time</div>
+      <div class="hud-val timer" id="hudTimer">1:00</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Hits</div>
+      <div class="hud-val hits" id="hudHits">0</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Miss</div>
+      <div class="hud-val" style="font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--red);" id="hudMiss">0</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Streak</div>
+      <div class="hud-val" style="font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--ora);" id="hudStreak">0</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-badge" id="hudBadge">4DIR</div>
+    </div>
+    <div class="hud-prog" id="hudProg" style="width:100%"></div>
+  </div>
+  <div class="setup-banner" id="setupBanner">矢印の方向へ → 画面タップ</div>
+
+  <div class="arena" id="arena" onclick="onArenaTap()">
+    <!-- arrow display -->
+    <div id="arrowDisplay" class="arrow-display">
+      <div class="arrow-bg" id="arrowBg"></div>
+      <div class="arrow-sym" id="arrowSym">↑</div>
+      <div class="arrow-dir-label" id="arrowLabel">UP</div>
+      <div class="arrow-tap-hint" id="arrowHint">ステップ → タップ</div>
+    </div>
+    <!-- waiting -->
+    <div id="waitState">
+      <div class="compass" id="compass"></div>
+      <div class="wait-state">
+        <div class="wait-cross"></div>
+        <div class="wait-text" id="waitText">定位置でスタンバイ</div>
+      </div>
+    </div>
+    <!-- direction pad (pad mode only) -->
+    <div class="dir-pad" id="dirPad"></div>
+  </div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div class="scr hide" id="result">
+  <div class="res-wrap">
+    <div class="res-header">
+      <div class="res-ring">DONE</div>
+      <div>
+        <div class="res-title">COMPLETE</div>
+        <div class="res-mode-lbl" id="resModeLbl">4DIR · NORMAL · 1 MIN</div>
+      </div>
+    </div>
+    <div class="best-badge" id="bestBadge">NEW BEST</div>
+    <div class="res-score-block">
+      <div class="res-score" id="resScore">0</div>
+      <div class="res-score-unit">reactions</div>
+    </div>
+    <div class="res-stats" id="resStats"></div>
+    <div class="res-divider"></div>
+    <div class="level-card" id="levelCard">
+      <div class="lv-row">
+        <div><div class="lv-tag">Reaction Level</div><div class="lv-name" id="lvName">--</div></div>
+        <div class="lv-dots" id="lvDots"></div>
+      </div>
+      <div class="lv-desc" id="lvDesc"></div>
+    </div>
+    <div class="cmp-section">
+      <div class="cmp-title">Comparison — 1 min benchmark</div>
+      <div id="cmpRows"></div>
+    </div>
+    <div class="res-divider"></div>
+    <div class="benefit-section">
+      <div class="benefit-title">What this trains</div>
+      <div class="benefit-grid" id="benefitGrid"></div>
+    </div>
+    <div class="ai-trainer-box">
+      <div class="ai-trainer-header">
+        <div class="ai-trainer-icon">
+          <div class="ai-icon-dot"></div><div class="ai-icon-dot"></div><div class="ai-icon-dot"></div>
+        </div>
+        <div>
+          <div class="ai-trainer-tag">AI Vision Trainer</div>
+          <div class="ai-trainer-name">パーソナルフィードバック</div>
+        </div>
+        <div class="ai-status">
+          <div class="ai-pulse" id="aiPulse"></div>
+          <span id="aiStatusText">生成中...</span>
+        </div>
+      </div>
+      <div class="ai-trainer-body">
+        <div class="ai-loading" id="aiLoading">
+          <div class="ai-loading-bar"></div><div class="ai-loading-bar"></div><div class="ai-loading-bar"></div>
+        </div>
+        <div class="ai-content" id="aiContent"></div>
+      </div>
+    </div>
+    <div class="res-btns">
+      <button class="res-btn out" onclick="goMenu()">MENU</button>
+      <button class="res-btn white" onclick="startCountdown()">RETRY</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  DIRECTION DATA
+// ━━━━━━━━━━━━━━━━━━━━━━
+const DIRS4 = [
+  { sym:'↑', label:'UP',        key:'up', color:'var(--up)',  bg:'rgba(0,229,255,.06)',   voice:'上' },
+  { sym:'↓', label:'DOWN',      key:'dn', color:'var(--dn)',  bg:'rgba(255,119,0,.06)',   voice:'下' },
+  { sym:'←', label:'LEFT',      key:'lt', color:'var(--lt)',  bg:'rgba(255,30,0,.06)',    voice:'左' },
+  { sym:'→', label:'RIGHT',     key:'rt', color:'var(--rt)',  bg:'rgba(0,255,136,.06)',   voice:'右' },
+];
+const DIRS8 = [
+  ...DIRS4,
+  { sym:'↖', label:'UP-LEFT',   key:'ul', color:'var(--ul)',  bg:'rgba(204,68,255,.06)',  voice:'左上' },
+  { sym:'↗', label:'UP-RIGHT',  key:'ur', color:'var(--ur)',  bg:'rgba(255,221,0,.06)',   voice:'右上' },
+  { sym:'↙', label:'DOWN-LEFT', key:'dl', color:'var(--dl)',  bg:'rgba(255,68,170,.06)',  voice:'左下' },
+  { sym:'↘', label:'DOWN-RIGHT',key:'dr', color:'var(--dr)',  bg:'rgba(68,255,204,.06)',  voice:'右下' },
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  BENCHMARKS
+// ━━━━━━━━━━━━━━━━━━━━━━
+const LEVELS = {
+  4:[
+    {name:'BEGINNER',  min:0,  max:14, dots:1, desc:'方向判断の基礎を構築中。矢印を見た瞬間に体が動く感覚を育てよう。'},
+    {name:'AVERAGE',   min:15, max:24, dots:2, desc:'一般レベル。視覚から動作への変換が安定してきている。'},
+    {name:'ATHLETE',   min:25, max:35, dots:3, desc:'スポーツ選手レベル！方向判断と体の反応が素早くリンクしている。'},
+    {name:'PRO LEVEL', min:36, max:46, dots:4, desc:'プロ選手級の方向反応速度。視覚処理→動作への無駄がない。'},
+    {name:'ELITE',     min:47, max:999,dots:5, desc:'エリートレベル！この反応速度は世界トップクラスの競技選手の域。'},
+  ],
+  8:[
+    {name:'BEGINNER',  min:0,  max:11, dots:1, desc:'8方向は高難度。斜め方向の感覚を体に染み込ませよう。'},
+    {name:'AVERAGE',   min:12, max:19, dots:2, desc:'8方向で標準域。斜め方向への反応が身についてきた。'},
+    {name:'ATHLETE',   min:20, max:28, dots:3, desc:'8方向でスポーツ選手レベル！全方位への即反応が鋭い。'},
+    {name:'PRO LEVEL', min:29, max:38, dots:4, desc:'8方向でプロ級。どの方向にも迷いなく即反応できている。'},
+    {name:'ELITE',     min:39, max:999,dots:5, desc:'8方向エリート！全方位瞬時反応はトップアスリートの証。'},
+  ],
+};
+const REFS = {
+  4:[
+    {label:'一般人（平均）',   score:18, color:'rgba(255,255,255,.2)'},
+    {label:'部活生・学生選手', score:28, color:'rgba(0,229,255,.4)'},
+    {label:'プロ・代表選手',   score:40, color:'rgba(255,255,255,.7)'},
+  ],
+  8:[
+    {label:'一般人（平均）',   score:13, color:'rgba(255,255,255,.2)'},
+    {label:'部活生・学生選手', score:22, color:'rgba(0,229,255,.4)'},
+    {label:'プロ・代表選手',   score:32, color:'rgba(255,255,255,.7)'},
+  ],
+};
+const BENEFITS = [
+  {icon:'DIR', name:'方向判断速度',  desc:'矢印を見た瞬間に正しい方向を判断する視覚処理速度'},
+  {icon:'STP', name:'ステップワーク',desc:'素早い足の踏み換え・切り返し・方向転換能力の強化'},
+  {icon:'RXN', name:'視覚反応速度',  desc:'見てから動くまでのタイムラグを徹底的に短縮する'},
+  {icon:'ANT', name:'予測・先読み',  desc:'次の方向を予測しながら動く、スポーツ特有の感覚'},
+];
+const TIMEOUT_MS = {slow:4000, normal:2800, fast:1800};
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  STATE
+// ━━━━━━━━━━━━━━━━━━━━━━
+let dirMode    = 4;       // 4 or 8
+let setupMode  = 'floor'; // 'floor'|'hand'|'pad'
+let selectedTime   = 60;
+let selectedSpeed  = 'normal';
+let selectedInterval = 'random';
+let useSound   = true;
+let useVoice   = false;
+const bestScores = {};
+
+let timer=0, timerInt=null, score=0, miss=0, streak=0, bestStreak=0;
+let gameRunning=false, gameActive=false;
+let rtTimes=[], curDirIdx=-1, prevDirIdx=-1, litAt=0, flashTimeout=null;
+
+const SETUP_INFO = {
+  floor: { banner:'矢印を見て → そのマーカーへ足でステップ → 床のタブレットを足でタップ', hint:'ステップ → 足でタップ', wait:'定位置でスタンバイ（床タブレット）' },
+  hand:  { banner:'矢印を見て → その方向へ動作 → 戻って画面をタップ', hint:'動作 → 手でタップ', wait:'定位置でスタンバイ' },
+  pad:   { banner:'矢印を見て → 画面下のパッドをタップ', hint:'下のパッドをタップ', wait:'画面下のパッドで入力' },
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  MENU LOGIC
+// ━━━━━━━━━━━━━━━━━━━━━━
+function showScr(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.add('hide'));
+  document.getElementById(id).classList.remove('hide');
+  window.scrollTo(0,0);
+}
+function goMenu(){ clearInterval(timerInt); clearTimeout(flashTimeout); gameRunning=false; showScr('menu'); }
+
+function setDirMode(n, btn){
+  dirMode=n;
+  btn.closest('.dir-mode-grid').querySelectorAll('.dir-mode-card').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function setSetup(mode, btn){
+  setupMode=mode;
+  btn.closest('.setup-grid').querySelectorAll('.setup-card').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function setVal(key, val, btn){
+  btn.closest('.seg-btns').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(key==='time')     selectedTime=val;
+  if(key==='speed')    selectedSpeed=val;
+  if(key==='interval') selectedInterval=val;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  COUNTDOWN
+// ━━━━━━━━━━━━━━━━━━━━━━
+function startCountdown(){
+  showScr('countdown');
+  const dirs = dirMode===4 ? DIRS4 : DIRS8;
+  let c=3;
+  const cdNum=document.getElementById('cdNum'), cdSub=document.getElementById('cdSub');
+  const tick=()=>{
+    const d=dirs[c%dirs.length];
+    cdNum.textContent=c; cdNum.style.color=d.color; cdNum.style.textShadow=`0 0 30px ${d.color}`;
+    cdSub.textContent=c===3?'定位置に立ってください':c===2?'集中して...':'矢印を見ろ！';
+    cdNum.style.animation='none'; cdNum.offsetHeight;
+    cdNum.style.animation='cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+  };
+  tick();
+  const intv=setInterval(()=>{
+    c--;
+    if(c<=0){
+      clearInterval(intv);
+      cdNum.textContent='GO'; cdNum.style.color='#fff'; cdNum.style.textShadow='0 0 30px rgba(255,255,255,.9)';
+      cdSub.textContent='矢印の方向へ！';
+      cdNum.style.animation='none'; cdNum.offsetHeight;
+      cdNum.style.animation='cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+      setTimeout(()=>startGame(), 650);
+    } else tick();
+  }, 900);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  GAME START
+// ━━━━━━━━━━━━━━━━━━━━━━
+function startGame(){
+  score=0;miss=0;streak=0;bestStreak=0;rtTimes=[];curDirIdx=-1;prevDirIdx=-1;
+  gameActive=false; timer=selectedTime; gameRunning=true;
+  useSound=document.getElementById('soundToggle').checked;
+  useVoice=document.getElementById('voiceToggle').checked;
+
+  ['hudHits','hudMiss','hudStreak'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('hudBadge').textContent = dirMode===4?'4DIR':'8DIR';
+  document.getElementById('hudProg').style.cssText='width:100%;transition:width 1s linear;';
+
+  const info = SETUP_INFO[setupMode];
+  document.getElementById('setupBanner').textContent = info.banner;
+  document.getElementById('waitText').textContent    = info.wait;
+
+  // Direction pad setup
+  buildDirPad();
+
+  showScr('game');
+  setArenaState('wait');
+  updateTimerDisp();
+  timerInt=setInterval(()=>{
+    timer--;
+    updateTimerDisp();
+    document.getElementById('hudProg').style.width=(timer/selectedTime*100)+'%';
+    if(timer<=0) endGame();
+  },1000);
+  setTimeout(()=>showNextArrow(), 500);
+}
+
+// Build compass rose
+function buildCompass(){
+  const c=document.getElementById('compass');
+  c.innerHTML='<div class="compass-ring"></div>';
+  const W=c.offsetWidth, H=c.offsetHeight;
+  const dirs=[{s:'↑',x:50,y:4},{s:'↓',x:50,y:84},{s:'←',x:4,y:50},{s:'→',x:84,y:50}];
+  if(dirMode===8){
+    dirs.push({s:'↖',x:10,y:10},{s:'↗',x:84,y:10},{s:'↙',x:10,y:84},{s:'↘',x:84,y:84});
+  }
+  dirs.forEach(d=>{
+    const el=document.createElement('div');
+    el.className='compass-dir';
+    el.style.cssText=`left:${d.x}%;top:${d.y}%;transform:translate(-50%,-50%);`;
+    el.textContent=d.s;
+    c.appendChild(el);
+  });
+}
+
+// Build direction pad (pad mode)
+function buildDirPad(){
+  const pad=document.getElementById('dirPad');
+  pad.innerHTML='';
+  pad.classList.toggle('visible', setupMode==='pad');
+
+  if(setupMode!=='pad') return;
+
+  // 3x3 grid, 8-direction layout
+  const layout = dirMode===8
+    ? [
+        {d:'ul',s:'↖'},{d:'up',s:'↑'},{d:'ur',s:'↗'},
+        {d:'lt',s:'←'},{d:'',  s:''} ,{d:'rt',s:'→'},
+        {d:'dl',s:'↙'},{d:'dn',s:'↓'},{d:'dr',s:'↘'},
+      ]
+    : [
+        {d:'',s:''},{d:'up',s:'↑'},{d:'',s:''},
+        {d:'lt',s:'←'},{d:'',s:''},{d:'rt',s:'→'},
+        {d:'',s:''},{d:'dn',s:'↓'},{d:'',s:''},
+      ];
+
+  layout.forEach(cell=>{
+    const btn=document.createElement('div');
+    if(!cell.d){
+      btn.className='dp-btn inactive';
+    } else {
+      btn.className='dp-btn';
+      btn.textContent=cell.s;
+      btn.addEventListener('pointerdown', e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        onDirPadTap(cell.d);
+      });
+    }
+    pad.appendChild(btn);
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  ARENA STATE
+// ━━━━━━━━━━━━━━━━━━━━━━
+function setArenaState(state){
+  const ad=document.getElementById('arrowDisplay');
+  const ws=document.getElementById('waitState');
+  if(state==='arrow'){
+    ad.style.display='flex'; ws.style.display='none';
+    if(setupMode==='pad') document.getElementById('dirPad').classList.add('visible');
+  } else {
+    ad.style.display='none'; ws.style.display='block';
+    buildCompass();
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  SHOW NEXT ARROW
+// ━━━━━━━━━━━━━━━━━━━━━━
+function showNextArrow(){
+  if(!gameRunning) return;
+  clearTimeout(flashTimeout);
+  gameActive=false;
+
+  const dirs = dirMode===4 ? DIRS4 : DIRS8;
+  let idx;
+  do { idx=Math.floor(Math.random()*dirs.length); }
+  while(dirs.length>1 && idx===prevDirIdx);
+  prevDirIdx=idx; curDirIdx=idx;
+  const dir=dirs[idx];
+  litAt=Date.now();
+
+  // Update arrow display
+  const sym=document.getElementById('arrowSym');
+  sym.textContent=dir.sym; sym.style.color=dir.color;
+  sym.style.textShadow=`0 0 40px ${dir.color},0 0 80px ${dir.color}40`;
+  sym.style.animation='none'; sym.offsetHeight;
+  sym.style.animation='arrow-pop .18s cubic-bezier(.34,1.56,.64,1)';
+
+  const lbl=document.getElementById('arrowLabel');
+  lbl.textContent=dir.label; lbl.style.color=dir.color;
+  lbl.style.animation='none'; lbl.offsetHeight;
+  lbl.style.animation='arrow-pop .18s cubic-bezier(.34,1.56,.64,1)';
+
+  document.getElementById('arrowHint').textContent = SETUP_INFO[setupMode].hint;
+
+  // BG tint
+  const bg=document.getElementById('arrowBg');
+  bg.style.background=`radial-gradient(ellipse at center, ${dir.bg} 0%, transparent 70%)`;
+  bg.style.opacity='1'; setTimeout(()=>{ if(bg) bg.style.opacity='0.5'; },300);
+
+  setArenaState('arrow');
+  gameActive=true;
+
+  // Sound
+  if(useSound) beep(330+idx*55, 120);
+  if(useVoice && 'speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance(dir.voice);
+    u.lang='ja-JP'; u.rate=1.4; speechSynthesis.speak(u);
+  }
+
+  // Random or fixed interval timeout
+  const base=TIMEOUT_MS[selectedSpeed];
+  const timeout = selectedInterval==='random'
+    ? base * (0.7 + Math.random()*0.6) // 70%〜130%のランダム幅
+    : base;
+
+  flashTimeout=setTimeout(()=>{
+    if(!gameRunning||!gameActive) return;
+    gameActive=false;
+    miss++; streak=0;
+    document.getElementById('hudMiss').textContent=miss;
+    document.getElementById('hudStreak').textContent='0';
+    // Timeout border flash
+    const tb=document.createElement('div'); tb.className='timeout-border';
+    document.body.appendChild(tb); setTimeout(()=>tb.remove(),400);
+    beep(180,220,0.3);
+    setArenaState('wait');
+    const nextDelay = selectedInterval==='random' ? 300+Math.random()*400 : 400;
+    setTimeout(()=>showNextArrow(), nextDelay);
+  }, timeout);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  TAP HANDLERS
+// ━━━━━━━━━━━━━━━━━━━━━━
+
+// Arena tap (floor/hand mode)
+function onArenaTap(){
+  if(!gameRunning||!gameActive||setupMode==='pad') return;
+  registerHit();
+}
+
+// Direction pad tap (pad mode)
+function onDirPadTap(key){
+  if(!gameRunning||!gameActive) return;
+  const dirs = dirMode===4 ? DIRS4 : DIRS8;
+  const cur = dirs[curDirIdx];
+  if(cur.key===key){
+    registerHit();
+  } else {
+    // Wrong direction = miss
+    miss++; streak=0;
+    document.getElementById('hudMiss').textContent=miss;
+    document.getElementById('hudStreak').textContent='0';
+    const mf=document.createElement('div'); mf.className='miss-flash';
+    document.body.appendChild(mf); setTimeout(()=>mf.remove(),230);
+    beep(180,150,0.3);
+    // Update HUD
+    document.getElementById('hudMiss').textContent=miss;
+  }
+}
+
+function registerHit(){
+  gameActive=false;
+  clearTimeout(flashTimeout);
+  const rt=Date.now()-litAt;
+  rtTimes.push(rt);
+  score++; streak++;
+  if(streak>bestStreak) bestStreak=streak;
+
+  document.getElementById('hudHits').textContent=score;
+  document.getElementById('hudStreak').textContent=streak;
+
+  // Hit flash with direction color
+  const dirs=dirMode===4?DIRS4:DIRS8;
+  const col=dirs[curDirIdx].color;
+  const hf=document.createElement('div'); hf.className='hit-flash';
+  hf.style.background=col.startsWith('var')
+    ? 'rgba(255,255,255,.12)' : col+'25';
+  document.body.appendChild(hf); setTimeout(()=>hf.remove(),280);
+
+  // RT popup
+  const rt_el=document.createElement('div'); rt_el.className='rt-popup';
+  const rtColor=rt<500?'var(--grn)':rt<1000?'var(--ora)':'var(--mut)';
+  rt_el.style.color=rtColor;
+  rt_el.textContent=rt+'ms';
+  document.getElementById('arena').appendChild(rt_el);
+  setTimeout(()=>rt_el.remove(),900);
+
+  beep(880,55,0.18);
+  if(streak>0&&streak%5===0) showStreakBadge(streak);
+
+  setArenaState('wait');
+  const nextDelay = selectedInterval==='random' ? 200+Math.random()*300 : 250;
+  setTimeout(()=>showNextArrow(), nextDelay);
+}
+
+function showStreakBadge(n){
+  const arena=document.getElementById('arena');
+  const b=document.createElement('div'); b.className='streak-badge';
+  b.textContent=n+' STREAK!'; arena.appendChild(b);
+  setTimeout(()=>b.remove(),1200);
+}
+function updateTimerDisp(){
+  const m=Math.floor(timer/60),s=timer%60;
+  const el=document.getElementById('hudTimer');
+  el.textContent=m+':'+String(s).padStart(2,'0');
+  el.className='hud-val timer'+(timer<=10?' warn':'');
+}
+
+// Audio
+let audioCtx=null;
+function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function beep(freq=880,dur=80,vol=0.3){
+  try{
+    const ac=getAudio(), o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value=freq; g.gain.value=vol;
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur/1000);
+    o.stop(ac.currentTime+dur/1000);
+  }catch{}
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  END GAME
+// ━━━━━━━━━━━━━━━━━━━━━━
+function endGame(){
+  clearInterval(timerInt); clearTimeout(flashTimeout); gameRunning=false;
+
+  const key=`${dirMode}_${selectedSpeed}_${selectedTime}`;
+  if(!bestScores[key]) bestScores[key]=0;
+  const isNew=score>bestScores[key]; if(isNew) bestScores[key]=score;
+
+  const total=score+miss;
+  const acc=total>0?Math.round(score/total*100):0;
+  const avgRT=rtTimes.length>0?Math.round(rtTimes.reduce((a,b)=>a+b,0)/rtTimes.length):0;
+  const bestRT=rtTimes.length>0?Math.min(...rtTimes):0;
+  const scoreNorm=selectedTime>0?Math.round(score*60/selectedTime):score;
+
+  const levels=LEVELS[dirMode];
+  const lvData=levels.find(l=>scoreNorm>=l.min&&scoreNorm<=l.max)||levels[levels.length-1];
+  const refs=REFS[dirMode];
+
+  const speedLabel={slow:'SLOW',normal:'NORMAL',fast:'FAST'}[selectedSpeed];
+  const timeLabel={30:'30SEC',60:'1MIN',120:'2MIN'}[selectedTime];
+  document.getElementById('resModeLbl').textContent=`${dirMode}DIR · ${speedLabel} · ${timeLabel}`;
+  document.getElementById('resScore').textContent=score;
+  document.getElementById('bestBadge').className='best-badge'+(isNew?' show':'');
+
+  // Level card
+  document.getElementById('levelCard').className='level-card';
+  document.getElementById('lvName').textContent=lvData.name;
+  document.getElementById('lvDesc').textContent=lvData.desc;
+  const dotsEl=document.getElementById('lvDots'); dotsEl.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const d=document.createElement('div');
+    d.className='lv-dot'+(i<=lvData.dots?' fill':'');
+    dotsEl.appendChild(d);
+  }
+
+  // Stats
+  const statsEl=document.getElementById('resStats'); statsEl.innerHTML='';
+  [{l:'Miss',v:miss,c:'var(--red)'},{l:'Accuracy',v:acc+'%',c:'var(--cya)'},
+   {l:'Avg RT',v:avgRT?avgRT+'ms':'--',c:'var(--ora)'},{l:'Best RT',v:bestRT?bestRT+'ms':'--',c:'var(--grn)'},
+   {l:'Streak',v:bestStreak,c:'var(--text)'},{l:'P.Best',v:bestScores[key],c:'var(--mut)'}
+  ].forEach(s=>{
+    const d=document.createElement('div'); d.className='rs';
+    d.innerHTML=`<div class="rs-l">${s.l}</div><div class="rs-v" style="color:${s.c}">${s.v}</div>`;
+    statsEl.appendChild(d);
+  });
+
+  // Compare
+  const cmpRows=document.getElementById('cmpRows'); cmpRows.innerHTML='';
+  const maxS=Math.max(score,refs[refs.length-1].score+5);
+  const yourPct=Math.min(100,Math.round(score/maxS*100));
+  const yr=document.createElement('div'); yr.className='cmp-row';
+  yr.innerHTML=`<div class="cmp-row-head"><span class="cmp-label">あなた</span><span class="cmp-val you">${score}</span></div>
+    <div class="cmp-track"><div class="cmp-fill you-bar" id="yourBar" style="width:0%"></div></div>`;
+  cmpRows.appendChild(yr);
+  refs.forEach(ref=>{
+    const pct=Math.min(100,Math.round(ref.score/maxS*100));
+    const row=document.createElement('div'); row.className='cmp-row';
+    row.innerHTML=`<div class="cmp-row-head"><span class="cmp-label" style="color:#888">${ref.label}</span><span class="cmp-val">${ref.score}〜</span></div>
+      <div class="cmp-track"><div class="cmp-fill ref-bar" style="width:0%;background:${ref.color}" data-pct="${pct}"></div></div>`;
+    cmpRows.appendChild(row);
+  });
+
+  // Benefits
+  const bg2=document.getElementById('benefitGrid'); bg2.innerHTML='';
+  BENEFITS.forEach(b=>{
+    const el=document.createElement('div'); el.className='benefit-item';
+    el.innerHTML=`<div class="benefit-icon-row"><div class="benefit-icon">${b.icon}</div><div class="benefit-name">${b.name}</div></div><div class="benefit-desc">${b.desc}</div>`;
+    bg2.appendChild(el);
+  });
+
+  setTimeout(()=>{
+    showScr('result');
+    setTimeout(()=>{
+      document.getElementById('yourBar').style.width=yourPct+'%';
+      document.querySelectorAll('.cmp-fill.ref-bar').forEach(el=>{ el.style.width=el.dataset.pct+'%'; });
+    },200);
+    callAITrainer({score,miss,acc,avgRT,bestRT,bestStreak,scoreNorm,lvData,dirMode,setupMode,selectedSpeed,selectedTime});
+  },380);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━
+//  AI TRAINER
+// ━━━━━━━━━━━━━━━━━━━━━━
+async function callAITrainer({score,miss,acc,avgRT,bestRT,bestStreak,scoreNorm,lvData,dirMode,setupMode,selectedSpeed,selectedTime}){
+  const setupN={floor:'床タップ（足でステップ→タップ）',hand:'手タップ（動作→手でタップ）',pad:'方向パッド入力'}[setupMode];
+  const speedN={slow:'遅め（4秒）',normal:'標準（2.8秒）',fast:'速い（1.8秒）'}[selectedSpeed];
+  const timeN={30:'30秒',60:'1分',120:'2分'}[selectedTime];
+  const missRate=(score+miss)>0?Math.round(miss/(score+miss)*100):0;
+  let rtComment='';
+  if(avgRT>0){
+    if(avgRT<400)      rtComment='エリートアスリートに近い反応速度';
+    else if(avgRT<600) rtComment='競技選手レベルの反応速度';
+    else if(avgRT<900) rtComment='スポーツ経験者レベル';
+    else               rtComment='一般人の平均レベル';
+  }
+  const stepAdvice=setupMode==='floor'
+    ? '足のステップワーク、重心移動、床タップのコツを含めて。'
+    : setupMode==='hand'
+    ? '上半身・手の動き、素早い戻り動作のコツを含めて。'
+    : '画面パッドでの方向判断精度と速度のコツを含めて。';
+
+  const prompt = `あなたはスポーツビジョントレーニング専門のAIトレーナーです。
+「ARROW STEP」矢印方向反応トレーニングの結果を分析してください。
+
+【トレーニング内容】
+矢印が表示される → 即その方向にステップ・動作 → タップで完了
+方向数: ${dirMode}方向 / 設置: ${setupN} / 速度: ${speedN} / 時間: ${timeN}
+
+【結果】
+- ヒット: ${score}回（1分換算: ${scoreNorm}回）
+- ミス・タイムアウト: ${miss}回（ミス率 ${missRate}%）
+- 正確性: ${acc}%
+- 平均反応時間: ${avgRT?avgRT+'ms（'+rtComment+'）':'データなし'}
+- 最速反応: ${bestRT?bestRT+'ms':'--'}
+- 最大連続: ${bestStreak}回
+- レベル: ${lvData.name}
+
+以下3セクションを日本語で。各30〜60文字。マークダウンなし。
+
+【今回の分析】
+→ ヒット・ミス・反応時間からこの選手の強みと課題を具体的に。
+
+【反応と体の使い方アドバイス】
+→ 矢印を見てから体が動くまでの改善ポイントを実践的に。${stepAdvice}
+
+【次のステップ】
+→ 次のトレーニング目標を数値込みで1文で。
+
+各セクションは「【セクション名】」で始めてください。`;
+
+  const aiContent=document.getElementById('aiContent');
+  const aiLoading=document.getElementById('aiLoading');
+  const aiPulse=document.getElementById('aiPulse');
+  const aiStatusText=document.getElementById('aiStatusText');
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,stream:true,
+        messages:[{role:'user',content:prompt}]})
+    });
+    if(!resp.ok) throw new Error();
+    aiLoading.style.display='none'; aiContent.style.display='block';
+    aiContent.innerHTML='<span class="ai-cursor"></span>';
+    const reader=resp.body.getReader(); const dec=new TextDecoder();
+    let buf='',full='';
+    while(true){
+      const{done,value}=await reader.read(); if(done) break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n'); buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const data=line.slice(6).trim(); if(data==='[DONE]') continue;
+        try{
+          const j=JSON.parse(data);
+          if(j.type==='content_block_delta'&&j.delta?.text){
+            full+=j.delta.text;
+            aiContent.innerHTML=fmtAI(full)+'<span class="ai-cursor"></span>';
+            const wrap=document.querySelector('.res-wrap'); if(wrap) wrap.scrollTop=wrap.scrollHeight;
+          }
+        }catch{}
+      }
+    }
+    aiContent.innerHTML=fmtAI(full);
+    aiStatusText.textContent='完了'; aiPulse.classList.add('done');
+  }catch{
+    aiLoading.style.display='none'; aiContent.style.display='block';
+    aiContent.innerHTML=fmtAI(`【今回の分析】\n${lvData.desc}\n\n【反応と体の使い方アドバイス】\n矢印を見た瞬間に「考える」のではなく「体が自動で動く」感覚を目指そう。繰り返しで反射を作る。\n\n【次のステップ】\n次回は同じ設定でミス率${Math.max(0,missRate-5)}%以下を目指しましょう。`);
+    aiStatusText.textContent='オフライン'; aiPulse.style.background='var(--ora)'; aiPulse.style.animation='none';
+  }
+}
+function fmtAI(text){
+  const secs=text.split(/(?=【)/).filter(Boolean);
+  if(!secs.length) return `<div class="ai-section-content">${text.replace(/\n/g,'<br>')}</div>`;
+  return secs.map(s=>{
+    const m=s.match(/^【(.+?)】\n?([\s\S]*)/);
+    if(!m) return `<div class="ai-section-content">${s.replace(/\n/g,'<br>')}</div>`;
+    return `<div class="ai-section"><div class="ai-section-head">${m[1]}</div><div class="ai-section-content">${m[2].trim().replace(/\n/g,'<br>')}</div></div>`;
+  }).join('');
+}
+
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+
+// ── ロゴ矢印アニメーション ──
+const LOGO_SYMS=['↑','↗','→','↘','↓','↙','←','↖'];
+let logoIdx=0;
+setInterval(()=>{
+  logoIdx=(logoIdx+1)%LOGO_SYMS.length;
+  const el=document.getElementById('logoSym');
+  if(el) el.textContent=LOGO_SYMS[logoIdx];
+},500);
+</script>
+</body>
+</html>
