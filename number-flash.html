@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>NUMBER FLASH — VISION TRAINING</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070f;--card:#0f0f1c;--bor:rgba(255,255,255,.06);
+  --text:#eeeef8;--mut:#44445a;
+  --red:#ff1e00;--cya:#00e5ff;--ora:#ff7700;--grn:#00ff88;--pur:#cc44ff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Barlow',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);
+  background-size:48px 48px;}
+
+.scr{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;transition:opacity .3s,transform .3s;}
+.scr.hide{opacity:0;pointer-events:none;transform:scale(.97);}
+
+/* ══ MENU ══ */
+#menu{background:var(--bg);overflow-y:auto;padding:14px 18px 28px;
+  justify-content:flex-start;align-items:stretch;}
+.menu-inner{max-width:520px;margin:0 auto;width:100%;display:flex;flex-direction:column;align-items:center;}
+
+/* Logo */
+.nf-logo{
+  width:72px;height:72px;border:2px solid var(--cya);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+  animation:logoshine 2.5s ease-in-out infinite;position:relative;
+}
+@keyframes logoshine{
+  0%,100%{box-shadow:0 0 14px rgba(0,229,255,.4);border-color:var(--cya);}
+  33%{box-shadow:0 0 14px rgba(255,119,0,.4);border-color:var(--ora);}
+  66%{box-shadow:0 0 14px rgba(204,68,255,.4);border-color:var(--pur);}
+}
+.nf-logo-num{
+  font-family:'Share Tech Mono',monospace;font-weight:900;
+  font-size:32px;line-height:1;
+  animation:numcol 2.5s ease-in-out infinite;
+}
+@keyframes numcol{0%,100%{color:var(--cya);}33%{color:var(--ora);}66%{color:var(--pur);}
+}
+
+.menu-tag{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:2px;text-align:center;}
+.menu-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(34px,7vw,56px);line-height:.88;text-transform:uppercase;
+  text-align:center;letter-spacing:2px;margin-bottom:3px;}
+.menu-sub{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:14px;text-align:center;}
+.neon-line{width:48px;height:2px;background:var(--cya);box-shadow:0 0 8px rgba(0,229,255,.7);margin:0 auto 14px;}
+.sec-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:8px;align-self:flex-start;}
+
+/* HOW IT WORKS */
+.how-box{width:100%;background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.12);
+  padding:12px 14px;margin-bottom:14px;}
+.how-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--cya);margin-bottom:8px;}
+.how-steps{display:flex;flex-direction:column;gap:5px;}
+.how-step{display:flex;align-items:flex-start;gap:10px;}
+.hs-num{width:20px;height:20px;border:1.5px solid var(--cya);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;color:var(--cya);flex-shrink:0;}
+.hs-text{font-size:12px;color:#aaa;line-height:1.5;}
+.hs-text b{color:var(--text);}
+
+/* MODE CARDS */
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-bottom:14px;}
+.mode-card{border:1px solid var(--bor);background:var(--card);cursor:pointer;
+  padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all .2s;position:relative;overflow:hidden;}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:.2s;}
+.mode-card:hover{border-color:rgba(255,255,255,.2);}
+.mode-card.on{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05);}
+.mode-card.on::before{opacity:1;}
+.mode-card.mn::before{background:var(--cya);}
+.mode-card.me::before{background:var(--grn);}
+.mode-card.mo::before{background:var(--ora);}
+.mode-card.ma::before{background:var(--pur);}
+.mode-card.ms::before{background:var(--red);}
+.mc-sym{font-family:'Share Tech Mono',monospace;font-size:20px;line-height:1;letter-spacing:1px;}
+.mc-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);}
+.mode-card.on .mc-name{color:var(--text);}
+.mc-desc{font-size:10px;color:var(--mut);text-align:center;line-height:1.4;}
+
+/* SETTINGS */
+.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-bottom:14px;}
+.sg{background:var(--card);border:1px solid var(--bor);padding:10px 12px;}
+.sg-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:7px;}
+.seg-btns{display:flex;gap:5px;}
+.seg-btn{flex:1;padding:7px 4px;border:1px solid var(--bor);background:none;color:var(--mut);
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:1px;transition:all .2s;text-align:center;}
+.seg-btn.on{border-color:rgba(255,255,255,.35);color:var(--text);background:rgba(255,255,255,.06);}
+.tone-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.tone-lbl{font-size:11px;color:#aaa;}
+.toggle-sw{position:relative;width:38px;height:20px;cursor:pointer;}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute;}
+.sw-track{position:absolute;inset:0;background:var(--bor);border-radius:10px;transition:.2s;}
+.toggle-sw input:checked ~ .sw-track{background:var(--cya);}
+.sw-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-sw input:checked ~ .sw-track ~ .sw-thumb{left:20px;}
+
+.start-btn{background:var(--cya);border:none;color:var(--bg);cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:16px;letter-spacing:4px;text-transform:uppercase;padding:15px 52px;
+  clip-path:polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);
+  box-shadow:0 0 20px rgba(0,229,255,.5);transition:all .2s;}
+.start-btn:active{transform:scale(.97);}
+
+/* ══ COUNTDOWN ══ */
+#countdown{background:var(--bg);}
+.cd-num{font-family:'Share Tech Mono',monospace;font-size:140px;line-height:1;
+  color:var(--cya);text-shadow:0 0 26px rgba(0,229,255,.9);
+  animation:cdpop .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes cdpop{from{transform:scale(1.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.cd-lbl{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--mut);margin-top:8px;}
+
+/* ══ GAME ══ */
+#game{flex-direction:column;background:var(--bg);padding:0;}
+
+/* HUD */
+.hud{width:100%;display:flex;align-items:center;padding:7px 14px 5px;gap:10px;
+  border-bottom:1px solid var(--bor);flex-shrink:0;position:relative;z-index:5;
+  background:rgba(7,7,15,.96);}
+.hud-item{display:flex;flex-direction:column;}
+.hud-lbl{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.hud-val{font-family:'Share Tech Mono',monospace;font-size:28px;line-height:1.05;}
+.hud-val.timer{color:var(--text);transition:color .3s;}
+.hud-val.timer.warn{color:var(--red);text-shadow:0 0 10px rgba(255,30,0,.8);animation:blnk .6s ease-in-out infinite;}
+@keyframes blnk{0%,100%{opacity:1;}50%{opacity:.5;}}
+.hud-div{width:1px;height:26px;background:var(--bor);flex-shrink:0;}
+.hud-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;}
+.hud-badge{padding:3px 8px;border:1px solid rgba(255,255,255,.15);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.4);text-transform:uppercase;}
+.hud-prog{position:absolute;bottom:0;left:0;height:2px;background:var(--cya);
+  transition:width 1s linear;box-shadow:0 0 5px rgba(0,229,255,.6);}
+
+/* ARENA */
+.arena{flex:1;position:relative;overflow:hidden;width:100%;
+  display:flex;align-items:center;justify-content:center;min-height:0;}
+
+/* ── FLASH NUMBER ── */
+.flash-num-wrap{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  position:absolute;inset:0;z-index:5;pointer-events:none;
+}
+
+/* BIG NUMBER */
+.big-num{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(160px,40vw,320px);line-height:1;
+  text-align:center;
+  animation:numpop .2s cubic-bezier(.34,1.56,.64,1);
+  /* color set by mode/parity */
+}
+@keyframes numpop{from{transform:scale(.3);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* Math problem display */
+.math-problem{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(80px,22vw,180px);line-height:1;
+  text-align:center;color:var(--text);
+  animation:numpop .2s cubic-bezier(.34,1.56,.64,1);
+}
+.math-answer{
+  font-family:'Share Tech Mono',monospace;font-size:clamp(44px,11vw,80px);
+  color:var(--grn);text-align:center;
+  animation:numpop .25s .15s cubic-bezier(.34,1.56,.64,1) both;
+}
+.math-answer.hidden{opacity:0;}
+
+/* Foot hint (even/odd mode) */
+.foot-hint{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(22px,6vw,44px);letter-spacing:4px;text-transform:uppercase;
+  margin-top:12px;
+  animation:numpop .2s .15s cubic-bezier(.34,1.56,.64,1) both;
+}
+.foot-hint.right{color:var(--grn);}
+.foot-hint.left{color:var(--red);}
+
+/* Voice hint */
+.voice-hint{
+  position:absolute;bottom:70px;left:50%;transform:translateX(-50%);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(255,255,255,.25);z-index:6;white-space:nowrap;
+  animation:pulse-fade 1.2s ease-in-out infinite;
+}
+@keyframes pulse-fade{0%,100%{opacity:.2;}50%{opacity:.7;}}
+
+/* Waiting state */
+.wait-state{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;z-index:3;
+}
+.wait-cross{position:relative;width:50px;height:50px;}
+.wait-cross::before{content:'';position:absolute;width:2px;height:100%;
+  background:rgba(255,255,255,.1);left:50%;transform:translateX(-50%);}
+.wait-cross::after{content:'';position:absolute;width:100%;height:2px;
+  background:rgba(255,255,255,.1);top:50%;transform:translateY(-50%);}
+.wait-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.18);}
+
+/* BG pulse */
+.bg-pulse{position:absolute;inset:0;opacity:0;transition:opacity .12s;pointer-events:none;z-index:1;}
+
+/* RT popup */
+.rt-popup{position:absolute;pointer-events:none;z-index:20;
+  font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:700;
+  left:50%;top:60%;transform:translate(-50%,-50%);
+  animation:rtpop .85s ease forwards;}
+@keyframes rtpop{0%{opacity:1;transform:translate(-50%,-50%);}100%{opacity:0;transform:translate(-50%,calc(-50% - 40px));}}
+
+/* Hit/miss flashes */
+.hit-flash{position:fixed;inset:0;pointer-events:none;z-index:100;animation:hfl .28s ease forwards;}
+@keyframes hfl{0%{opacity:.35;}100%{opacity:0;}}
+.miss-flash{position:fixed;inset:0;pointer-events:none;z-index:100;
+  background:rgba(255,30,0,.1);animation:mfl .22s ease forwards;}
+@keyframes mfl{0%{opacity:1;}100%{opacity:0;}}
+
+/* Streak */
+.streak-badge{position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:15px;letter-spacing:3px;text-transform:uppercase;
+  color:#fff;text-shadow:0 0 12px rgba(255,255,255,.6);
+  animation:sbadge .5s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:20;white-space:nowrap;
+  background:rgba(7,7,15,.6);padding:3px 14px;}
+@keyframes sbadge{from{transform:translateX(-50%) scale(0);}to{transform:translateX(-50%) scale(1);}}
+
+/* ══ RESULT ══ */
+#result{background:var(--bg);padding:0;justify-content:flex-start;overflow-y:auto;}
+.res-wrap{width:100%;max-width:540px;margin:0 auto;padding:20px 18px 40px;display:flex;flex-direction:column;}
+.res-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.res-ring{width:64px;height:64px;flex-shrink:0;border:2px solid var(--cya);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:10px;letter-spacing:2px;color:var(--cya);
+  box-shadow:0 0 16px rgba(0,229,255,.45);animation:rpop .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes rpop{from{transform:scale(0);}to{transform:scale(1);}}
+.res-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(32px,7vw,50px);line-height:.9;text-transform:uppercase;
+  color:var(--cya);text-shadow:0 0 12px rgba(0,229,255,.6);animation:fup .4s .1s ease both;}
+.res-mode-lbl{font-size:10px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;margin-top:4px;animation:fup .4s .15s ease both;}
+.best-badge{display:none;background:var(--cya);color:var(--bg);padding:3px 10px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:4px;align-self:flex-start;animation:fup .4s .2s ease both;}
+.best-badge.show{display:inline-block;}
+.res-score-block{display:flex;align-items:flex-end;gap:10px;margin-bottom:6px;animation:fup .4s .18s ease both;}
+.res-score{font-family:'Share Tech Mono',monospace;font-size:76px;line-height:1;
+  color:var(--cya);text-shadow:0 0 14px rgba(0,229,255,.7);}
+.res-score-unit{font-size:11px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;padding-bottom:8px;}
+.res-stats{display:flex;gap:7px;margin-bottom:16px;animation:fup .4s .24s ease both;flex-wrap:wrap;}
+.rs{background:var(--card);border:1px solid var(--bor);padding:9px 12px;flex:1;text-align:center;min-width:70px;}
+.rs-l{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:3px;}
+.rs-v{font-family:'Share Tech Mono',monospace;font-size:18px;}
+.res-divider{height:1px;background:var(--bor);margin:2px 0 14px;}
+.level-card{border:1px solid var(--bor);padding:13px;margin-bottom:14px;
+  background:var(--card);position:relative;overflow:hidden;animation:fup .4s .3s ease both;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cya);box-shadow:0 0 6px rgba(0,229,255,.5);}
+.lv-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.lv-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.lv-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;color:var(--cya);}
+.lv-dots{display:flex;gap:4px;}
+.lv-dot{width:8px;height:8px;border-radius:50%;background:var(--bor);}
+.lv-dot.fill{background:var(--cya);}
+.lv-desc{font-size:12px;color:#aaa;line-height:1.6;}
+.cmp-section{margin-bottom:14px;animation:fup .4s .36s ease both;}
+.cmp-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+.cmp-row{margin-bottom:8px;}
+.cmp-row-head{display:flex;justify-content:space-between;margin-bottom:3px;}
+.cmp-label{font-size:12px;color:var(--text);font-weight:500;}
+.cmp-val{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--mut);}
+.cmp-val.you{color:var(--cya);}
+.cmp-track{height:5px;background:var(--bor);overflow:hidden;}
+.cmp-fill{height:100%;transition:width 1s .5s ease;}
+.cmp-fill.you-bar{background:var(--cya);box-shadow:0 0 5px rgba(0,229,255,.5);}
+.benefit-section{margin-bottom:14px;animation:fup .4s .42s ease both;}
+.benefit-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.benefit-item{background:var(--card);border:1px solid var(--bor);padding:10px;display:flex;flex-direction:column;gap:4px;}
+.benefit-icon-row{display:flex;align-items:center;gap:6px;}
+.benefit-icon{width:24px;height:24px;border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--cya);font-family:'Barlow Condensed',sans-serif;font-weight:700;}
+.benefit-name{font-size:12px;font-weight:600;color:var(--text);}
+.benefit-desc{font-size:10px;color:var(--mut);line-height:1.5;}
+.ai-trainer-box{border:1px solid rgba(0,229,255,.2);background:rgba(0,229,255,.03);
+  margin-bottom:18px;overflow:hidden;animation:fup .4s .48s ease both;}
+.ai-trainer-header{display:flex;align-items:center;gap:9px;padding:9px 12px;
+  border-bottom:1px solid rgba(0,229,255,.1);background:rgba(0,229,255,.05);}
+.ai-trainer-icon{display:flex;gap:4px;align-items:center;}
+.ai-icon-dot{width:6px;height:6px;border-radius:50%;animation:aidot 1.4s ease-in-out infinite;}
+.ai-icon-dot:nth-child(1){background:var(--cya);}
+.ai-icon-dot:nth-child(2){background:var(--grn);animation-delay:.2s;}
+.ai-icon-dot:nth-child(3){background:var(--pur);animation-delay:.4s;}
+@keyframes aidot{0%,100%{opacity:.3;transform:scale(.7);}50%{opacity:1;transform:scale(1);}}
+.ai-trainer-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--cya);margin-bottom:1px;}
+.ai-trainer-name{font-size:12px;font-weight:600;color:var(--text);}
+.ai-status{margin-left:auto;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.ai-pulse{width:6px;height:6px;border-radius:50%;background:var(--cya);animation:aipulse 1.2s ease-in-out infinite;}
+.ai-pulse.done{background:var(--grn);animation:none;}
+@keyframes aipulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+#aiStatusText{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);}
+.ai-trainer-body{padding:11px 12px;}
+.ai-loading{display:flex;gap:5px;align-items:flex-end;height:24px;}
+.ai-loading-bar{width:3px;border-radius:2px;background:var(--cya);opacity:.4;animation:aibar 1s ease-in-out infinite;}
+.ai-loading-bar:nth-child(1){height:13px;}
+.ai-loading-bar:nth-child(2){height:20px;animation-delay:.2s;}
+.ai-loading-bar:nth-child(3){height:10px;animation-delay:.4s;}
+@keyframes aibar{0%,100%{opacity:.2;transform:scaleY(.6);}50%{opacity:.7;transform:scaleY(1);}}
+.ai-content{font-size:13px;color:#ccc;line-height:1.8;display:none;}
+.ai-section{margin-bottom:11px;}
+.ai-section-head{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cya);
+  margin-bottom:3px;display:flex;align-items:center;gap:5px;}
+.ai-section-head::before{content:'';width:12px;height:1px;background:var(--cya);}
+.ai-section-content{font-size:13px;color:#ccc;line-height:1.8;}
+.ai-cursor{display:inline-block;width:2px;height:12px;background:var(--cya);
+  margin-left:2px;vertical-align:middle;animation:cblink .7s ease-in-out infinite;}
+@keyframes cblink{0%,100%{opacity:1;}50%{opacity:0;}}
+.res-btns{display:flex;gap:9px;animation:fup .4s .52s ease both;}
+.res-btn{flex:1;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.res-btn.cya{background:var(--cya);color:var(--bg);
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+  box-shadow:0 0 12px rgba(0,229,255,.4);}
+.res-btn.out{background:transparent;color:var(--text);border:1px solid var(--bor);}
+.res-btn.out:hover{border-color:rgba(255,255,255,.3);}
+@keyframes fup{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+@media(min-width:768px){
+  .hud{padding:10px 20px 8px;gap:14px;}
+  .hud-lbl{font-size:9px;}
+  .hud-val{font-size:34px;}
+  .hud-div{height:34px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ MENU ══ -->
+<div class="scr" id="menu">
+  <div class="menu-inner">
+    <div class="nf-logo">
+      <div class="nf-logo-num" id="logoNum">7</div>
+    </div>
+    <div class="menu-tag">Vision Training</div>
+    <div class="menu-title">NUMBER FLASH</div>
+    <div class="menu-sub">Scan · Vocalize · Decide</div>
+    <div class="neon-line"></div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-box">
+      <div class="how-title">How it works</div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="hs-num">1</div>
+          <div class="hs-text">大きな数字が表示される → <b>声に出して読む！</b></div>
+        </div>
+        <div class="how-step">
+          <div class="hs-num">2</div>
+          <div class="hs-text">ドリブル・ステップ・リフティングを<b>やりながら</b>続ける</div>
+        </div>
+        <div class="how-step">
+          <div class="hs-num">3</div>
+          <div class="hs-text">足し算・引き算モードは<b>答えを声に出す</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODES -->
+    <div class="sec-lbl">Game Mode</div>
+    <div class="mode-grid">
+      <div class="mode-card mn on" onclick="setMode('number',this)">
+        <div class="mc-sym" style="color:var(--cya);">0〜9</div>
+        <div class="mc-name">ナンバー</div>
+        <div class="mc-desc">数字をそのまま<br>声に出す</div>
+      </div>
+      <div class="mode-card me" onclick="setMode('even',this)">
+        <div class="mc-sym" style="color:var(--grn);">偶・奇</div>
+        <div class="mc-name">偶数/奇数</div>
+        <div class="mc-desc">Even=右足<br>Odd=左足</div>
+      </div>
+      <div class="mode-card ma" onclick="setMode('add',this)">
+        <div class="mc-sym" style="color:var(--pur);">A+B</div>
+        <div class="mc-name">たし算</div>
+        <div class="mc-desc">一桁+一桁の<br>答えを声に出す</div>
+      </div>
+      <div class="mode-card ms" onclick="setMode('sub',this)">
+        <div class="mc-sym" style="color:var(--red);">A−B</div>
+        <div class="mc-name">ひき算</div>
+        <div class="mc-desc">一桁−一桁の<br>答えを声に出す</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="settings-row">
+      <div class="sg">
+        <div class="sg-lbl">Time</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="setVal('time',30,this)">30s</button>
+          <button class="seg-btn on" onclick="setVal('time',60,this)">1m</button>
+          <button class="seg-btn" onclick="setVal('time',120,this)">2m</button>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sg-lbl">Speed</div>
+        <div class="seg-btns">
+          <button class="seg-btn" onclick="setVal('speed','slow',this)">SLOW</button>
+          <button class="seg-btn on" onclick="setVal('speed','normal',this)">NORM</button>
+          <button class="seg-btn" onclick="setVal('speed','fast',this)">FAST</button>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sg-lbl">Answer Display</div>
+        <div class="tone-row" style="margin-top:2px;">
+          <span class="tone-lbl">答えを表示</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="showAnswerToggle" checked>
+            <div class="sw-track"></div><div class="sw-thumb"></div>
+          </label>
+        </div>
+        <div class="tone-row">
+          <span class="tone-lbl">音声読み上げ</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="voiceToggle">
+            <div class="sw-track"></div><div class="sw-thumb"></div>
+          </label>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sg-lbl">Sound</div>
+        <div class="tone-row" style="margin-top:2px;">
+          <span class="tone-lbl">Beep</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="soundToggle" checked>
+            <div class="sw-track"></div><div class="sw-thumb"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="startCountdown()">START</button>
+  </div>
+</div>
+
+<!-- ══ COUNTDOWN ══ -->
+<div class="scr hide" id="countdown">
+  <div class="cd-num" id="cdNum">3</div>
+  <div class="cd-lbl" id="cdSub">準備して！</div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div class="scr hide" id="game">
+  <div class="hud">
+    <div class="hud-item">
+      <div class="hud-lbl">Time</div>
+      <div class="hud-val timer" id="hudTimer">1:00</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Count</div>
+      <div class="hud-val" style="font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--cya);" id="hudCount">0</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Speed</div>
+      <div class="hud-val" style="font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--ora);" id="hudSpeed">NORM</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-badge" id="hudBadge">NUMBER</div>
+    </div>
+    <div class="hud-prog" id="hudProg" style="width:100%"></div>
+  </div>
+
+  <div class="arena" id="arena">
+    <!-- bg pulse -->
+    <div class="bg-pulse" id="bgPulse"></div>
+
+    <!-- Number flash display -->
+    <div class="flash-num-wrap" id="flashWrap">
+      <div class="big-num" id="bigNum"></div>
+      <div class="math-problem" id="mathProblem" style="display:none;"></div>
+      <div class="math-answer hidden" id="mathAnswer" style="display:none;"></div>
+      <div class="foot-hint" id="footHint" style="display:none;"></div>
+    </div>
+
+    <!-- Voice hint -->
+    <div class="voice-hint" id="voiceHint">声に出して！</div>
+
+    <!-- Waiting -->
+    <div class="wait-state" id="waitState">
+      <div class="wait-cross"></div>
+      <div class="wait-text">スタンバイ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div class="scr hide" id="result">
+  <div class="res-wrap">
+    <div class="res-header">
+      <div class="res-ring">DONE</div>
+      <div>
+        <div class="res-title">COMPLETE</div>
+        <div class="res-mode-lbl" id="resModeLbl">NUMBER · 1 MIN</div>
+      </div>
+    </div>
+    <div class="best-badge" id="bestBadge">NEW BEST</div>
+    <div class="res-score-block">
+      <div class="res-score" id="resScore">0</div>
+      <div class="res-score-unit">flashes</div>
+    </div>
+    <div class="res-stats" id="resStats"></div>
+    <div class="res-divider"></div>
+    <div class="level-card" id="levelCard">
+      <div class="lv-row">
+        <div><div class="lv-tag">Cognitive Level</div><div class="lv-name" id="lvName">--</div></div>
+        <div class="lv-dots" id="lvDots"></div>
+      </div>
+      <div class="lv-desc" id="lvDesc"></div>
+    </div>
+    <div class="cmp-section">
+      <div class="cmp-title">Comparison — flashes / min</div>
+      <div id="cmpRows"></div>
+    </div>
+    <div class="res-divider"></div>
+    <div class="benefit-section">
+      <div class="benefit-title">What this trains</div>
+      <div class="benefit-grid" id="benefitGrid"></div>
+    </div>
+    <div class="ai-trainer-box">
+      <div class="ai-trainer-header">
+        <div class="ai-trainer-icon">
+          <div class="ai-icon-dot"></div><div class="ai-icon-dot"></div><div class="ai-icon-dot"></div>
+        </div>
+        <div>
+          <div class="ai-trainer-tag">AI Vision Trainer</div>
+          <div class="ai-trainer-name">パーソナルフィードバック</div>
+        </div>
+        <div class="ai-status">
+          <div class="ai-pulse" id="aiPulse"></div>
+          <span id="aiStatusText">生成中...</span>
+        </div>
+      </div>
+      <div class="ai-trainer-body">
+        <div class="ai-loading" id="aiLoading">
+          <div class="ai-loading-bar"></div><div class="ai-loading-bar"></div><div class="ai-loading-bar"></div>
+        </div>
+        <div class="ai-content" id="aiContent"></div>
+      </div>
+    </div>
+    <div class="res-btns">
+      <button class="res-btn out" onclick="goMenu()">MENU</button>
+      <button class="res-btn cya" onclick="startCountdown()">RETRY</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ━━━ CONFIG ━━━
+const SPEED_MS = {slow:3000, normal:2000, fast:1200};
+
+const LEVELS = [
+  {name:'BEGINNER',  min:0,  max:14, dots:1, desc:'認知処理の基礎を構築中。数字を見て声に出す習慣を体に染み込ませよう。'},
+  {name:'AVERAGE',   min:15, max:24, dots:2, desc:'標準レベル。視覚認知から発声・反応までの流れが安定してきた。'},
+  {name:'ATHLETE',   min:25, max:35, dots:3, desc:'スポーツ選手レベル！視覚処理と認知反応の速度が高い。'},
+  {name:'PRO LEVEL', min:36, max:46, dots:4, desc:'プロ選手級の認知速度。動きながら考える能力が際立っている。'},
+  {name:'ELITE',     min:47, max:999,dots:5, desc:'エリートレベル！動作中の認知処理速度は最上位アスリートの域。'},
+];
+const REFS = [
+  {label:'一般人（平均）',   score:16, color:'rgba(255,255,255,.2)'},
+  {label:'部活生・学生選手', score:26, color:'rgba(0,229,255,.4)'},
+  {label:'プロ・代表選手',   score:38, color:'rgba(255,255,255,.7)'},
+];
+const BENEFITS_MAP = {
+  number:[
+    {icon:'SCN', name:'視野スキャン',    desc:'何かをしながら数字をスキャンする能力'},
+    {icon:'COG', name:'認知処理速度',    desc:'見た瞬間に数字を認識・発声する処理速度'},
+    {icon:'ATN', name:'分割注意',        desc:'動作と認知を同時並行で行う脳の処理能力'},
+    {icon:'SPE', name:'言語反応速度',    desc:'視覚情報を即座に言語に変換するスピード'},
+  ],
+  even:[
+    {icon:'DEC', name:'瞬間判断力',      desc:'偶数・奇数を見た瞬間に判断する速度'},
+    {icon:'STP', name:'左右ステップ',    desc:'偶→右足、奇→左足の身体反応を自動化'},
+    {icon:'SEL', name:'選択的反応',      desc:'正しい足で正しいタイミングで動く能力'},
+    {icon:'ATN', name:'分割注意',        desc:'動作と判断を同時並行で行う処理能力'},
+  ],
+  add:[
+    {icon:'CAL', name:'暗算速度',        desc:'一桁の足し算を瞬時に計算する処理速度'},
+    {icon:'COG', name:'認知負荷',        desc:'動きながら計算する脳への同時要求を強化'},
+    {icon:'SCN', name:'視野集中力',      desc:'計算しながら周囲の情報も取り込む能力'},
+    {icon:'ATN', name:'実戦的判断力',    desc:'試合中の認知負荷下での素早い判断力'},
+  ],
+  sub:[
+    {icon:'CAL', name:'減算処理速度',    desc:'一桁の引き算を瞬時に解く処理速度'},
+    {icon:'COG', name:'認知負荷耐性',    desc:'運動中の高い認知負荷に耐える脳の力'},
+    {icon:'SCN', name:'複合注意力',      desc:'動作・視覚・計算を同時に行う分割注意'},
+    {icon:'ATN', name:'実戦的思考速度',  desc:'試合中のプレッシャー下での計算・判断力'},
+  ],
+};
+
+// ━━━ STATE ━━━
+let selectedMode = 'number';
+let selectedTime = 60;
+let selectedSpeed = 'normal';
+let showAnswer = true;
+let useVoice = false;
+let useSound = true;
+const bestScores = {};
+
+let timer=0, timerInt=null, flashCount=0;
+let gameRunning=false;
+let flashTimeout=null, answerTimeout=null;
+let currentNum=-1, currentProblem=null;
+
+// ━━━ MENU ━━━
+function showScr(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.add('hide'));
+  document.getElementById(id).classList.remove('hide');
+  window.scrollTo(0,0);
+}
+function goMenu(){ clearInterval(timerInt); clearTimeout(flashTimeout); clearTimeout(answerTimeout); gameRunning=false; showScr('menu'); }
+
+function setMode(m,btn){
+  selectedMode=m;
+  btn.closest('.mode-grid').querySelectorAll('.mode-card').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function setVal(key,val,btn){
+  btn.closest('.seg-btns').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(key==='time') selectedTime=val;
+  if(key==='speed') selectedSpeed=val;
+}
+
+// Logo number animation
+let logoN=0;
+setInterval(()=>{
+  logoN=(logoN+1)%10;
+  const el=document.getElementById('logoNum');
+  if(el) el.textContent=logoN;
+},600);
+
+// ━━━ COUNTDOWN ━━━
+function startCountdown(){
+  showScr('countdown');
+  showAnswer=document.getElementById('showAnswerToggle').checked;
+  useVoice=document.getElementById('voiceToggle').checked;
+  useSound=document.getElementById('soundToggle').checked;
+  let c=3;
+  const cdNum=document.getElementById('cdNum'), cdSub=document.getElementById('cdSub');
+  const tick=()=>{
+    cdNum.textContent=c; cdNum.style.color='var(--cya)';
+    cdSub.textContent=c===3?'ドリブル・ステップを開始！':c===2?'動きながら準備...':'数字を見て声に出せ！';
+    cdNum.style.animation='none'; cdNum.offsetHeight;
+    cdNum.style.animation='cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+  };
+  tick();
+  const intv=setInterval(()=>{
+    c--;
+    if(c<=0){
+      clearInterval(intv);
+      cdNum.textContent='GO'; cdNum.style.color='var(--grn)';
+      cdNum.style.animation='none'; cdNum.offsetHeight;
+      cdNum.style.animation='cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+      cdSub.textContent='声に出して！';
+      setTimeout(()=>startGame(),650);
+    } else tick();
+  },900);
+}
+
+// ━━━ GAME ━━━
+function startGame(){
+  flashCount=0; timer=selectedTime; gameRunning=true; currentNum=-1; currentProblem=null;
+  document.getElementById('hudCount').textContent='0';
+  document.getElementById('hudSpeed').textContent=selectedSpeed.toUpperCase().slice(0,4);
+  document.getElementById('hudBadge').textContent={
+    number:'NUM',even:'EVEN/ODD',add:'ADD',sub:'SUB'
+  }[selectedMode];
+  document.getElementById('hudProg').style.cssText='width:100%;transition:width 1s linear;';
+  document.getElementById('voiceHint').textContent={
+    number:'声に出して！',even:'偶数=右足 / 奇数=左足',
+    add:'答えを声に出して！',sub:'答えを声に出して！'
+  }[selectedMode];
+
+  showScr('game');
+  setGameState('wait');
+  updateTimerDisp();
+  timerInt=setInterval(()=>{
+    timer--;
+    updateTimerDisp();
+    document.getElementById('hudProg').style.width=(timer/selectedTime*100)+'%';
+    if(timer<=0) endGame();
+  },1000);
+  setTimeout(()=>showNextFlash(), 400);
+}
+
+function setGameState(state){
+  const fw=document.getElementById('flashWrap');
+  const ws=document.getElementById('waitState');
+  if(state==='flash'){ fw.style.display='flex'; ws.style.display='none'; }
+  else { fw.style.display='none'; ws.style.display='flex'; }
+}
+
+// ━━━ FLASH ━━━
+function showNextFlash(){
+  if(!gameRunning) return;
+  clearTimeout(flashTimeout); clearTimeout(answerTimeout);
+  flashCount++;
+  document.getElementById('hudCount').textContent=flashCount;
+
+  const dur=SPEED_MS[selectedSpeed];
+
+  if(selectedMode==='number'){
+    showNumberFlash(dur);
+  } else if(selectedMode==='even'){
+    showEvenOddFlash(dur);
+  } else if(selectedMode==='add'){
+    showMathFlash('add',dur);
+  } else {
+    showMathFlash('sub',dur);
+  }
+}
+
+// ── NUMBER モード ──
+function showNumberFlash(dur){
+  let n;
+  do { n=Math.floor(Math.random()*10); } while(n===currentNum);
+  currentNum=n;
+
+  const bigNum=document.getElementById('bigNum');
+  bigNum.textContent=n; bigNum.style.display='block';
+  bigNum.style.color='var(--text)';
+  bigNum.style.textShadow='0 0 30px rgba(255,255,255,.3)';
+  bigNum.style.animation='none'; bigNum.offsetHeight;
+  bigNum.style.animation='numpop .2s cubic-bezier(.34,1.56,.64,1)';
+
+  document.getElementById('mathProblem').style.display='none';
+  document.getElementById('mathAnswer').style.display='none';
+  document.getElementById('footHint').style.display='none';
+
+  // BG pulse
+  const bg=document.getElementById('bgPulse');
+  bg.style.background=`radial-gradient(ellipse at center,rgba(0,229,255,.06) 0%,transparent 70%)`;
+  bg.style.opacity='1'; setTimeout(()=>{ if(bg) bg.style.opacity='0'; },300);
+
+  setGameState('flash');
+  if(useVoice) speak(String(n));
+  if(useSound) beep(330+n*40,100);
+  flashTimeout=setTimeout(()=>{ setGameState('wait'); setTimeout(()=>showNextFlash(),150); }, dur);
+}
+
+// ── EVEN/ODD モード ──
+function showEvenOddFlash(dur){
+  let n;
+  do { n=Math.floor(Math.random()*10); } while(n===currentNum);
+  currentNum=n;
+  const isEven=n%2===0;
+
+  const bigNum=document.getElementById('bigNum');
+  bigNum.textContent=n; bigNum.style.display='block';
+  bigNum.style.color=isEven?'var(--grn)':'var(--red)';
+  bigNum.style.textShadow=isEven?'0 0 30px rgba(0,255,136,.5)':'0 0 30px rgba(255,30,0,.5)';
+  bigNum.style.animation='none'; bigNum.offsetHeight;
+  bigNum.style.animation='numpop .2s cubic-bezier(.34,1.56,.64,1)';
+
+  const foot=document.getElementById('footHint');
+  foot.textContent=isEven?'RIGHT FOOT →':'← LEFT FOOT';
+  foot.className='foot-hint '+(isEven?'right':'left');
+  foot.style.display='block';
+
+  document.getElementById('mathProblem').style.display='none';
+  document.getElementById('mathAnswer').style.display='none';
+
+  const bg=document.getElementById('bgPulse');
+  bg.style.background=isEven
+    ?'radial-gradient(ellipse at center,rgba(0,255,136,.05) 0%,transparent 70%)'
+    :'radial-gradient(ellipse at center,rgba(255,30,0,.05) 0%,transparent 70%)';
+  bg.style.opacity='1'; setTimeout(()=>{ if(bg) bg.style.opacity='0'; },300);
+
+  setGameState('flash');
+  if(useVoice) speak(isEven?n+'、右':''+n+'、左');
+  if(useSound) beep(isEven?440:330,100);
+  flashTimeout=setTimeout(()=>{ setGameState('wait'); setTimeout(()=>showNextFlash(),150); }, dur);
+}
+
+// ── MATH モード（足し算・引き算）──
+function showMathFlash(type,dur){
+  let a,b,answer,text;
+  if(type==='add'){
+    a=Math.floor(Math.random()*10);
+    b=Math.floor(Math.random()*10);
+    answer=a+b; text=`${a}＋${b}`;
+  } else {
+    a=Math.floor(Math.random()*10);
+    b=Math.floor(Math.random()*a); // b <= a to avoid negatives
+    answer=a-b; text=`${a}－${b}`;
+  }
+  currentProblem={a,b,answer,text};
+
+  document.getElementById('bigNum').style.display='none';
+  document.getElementById('footHint').style.display='none';
+
+  const mp=document.getElementById('mathProblem');
+  mp.textContent=text; mp.style.display='block';
+  mp.style.animation='none'; mp.offsetHeight;
+  mp.style.animation='numpop .2s cubic-bezier(.34,1.56,.64,1)';
+
+  // Show answer after delay (if enabled)
+  const ma=document.getElementById('mathAnswer');
+  ma.style.display='block';
+  ma.className='math-answer hidden';
+  ma.textContent='= '+answer;
+
+  const bg=document.getElementById('bgPulse');
+  const col=type==='add'?'rgba(204,68,255,.05)':'rgba(255,30,0,.05)';
+  bg.style.background=`radial-gradient(ellipse at center,${col} 0%,transparent 70%)`;
+  bg.style.opacity='1'; setTimeout(()=>{ if(bg) bg.style.opacity='0'; },300);
+
+  setGameState('flash');
+  if(useVoice) speak(text.replace('＋','+').replace('－','-'));
+  if(useSound) beep(type==='add'?440:330,100);
+
+  // Reveal answer after half the duration
+  if(showAnswer){
+    answerTimeout=setTimeout(()=>{
+      if(!gameRunning) return;
+      ma.className='math-answer';
+      ma.style.animation='none'; ma.offsetHeight;
+      ma.style.animation='numpop .25s .05s cubic-bezier(.34,1.56,.64,1) both';
+      if(useVoice) speak(String(answer));
+    }, dur*0.5);
+  }
+
+  flashTimeout=setTimeout(()=>{ setGameState('wait'); setTimeout(()=>showNextFlash(),200); }, dur);
+}
+
+// ━━━ UTILS ━━━
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function beep(freq=440,dur=80,vol=0.25){
+  if(!useSound) return;
+  try{
+    const ac=getAudio(),o=ac.createOscillator(),g=ac.createGain();
+    o.connect(g);g.connect(ac.destination);
+    o.frequency.value=freq;g.gain.value=vol;
+    o.start();g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur/1000);
+    o.stop(ac.currentTime+dur/1000);
+  }catch{}
+}
+function speak(text){
+  if(!useVoice||!('speechSynthesis' in window)) return;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='ja-JP'; u.rate=1.3; speechSynthesis.speak(u);
+}
+function updateTimerDisp(){
+  const m=Math.floor(timer/60),s=timer%60;
+  const el=document.getElementById('hudTimer');
+  el.textContent=m+':'+String(s).padStart(2,'0');
+  el.className='hud-val timer'+(timer<=10?' warn':'');
+}
+
+// ━━━ END GAME ━━━
+function endGame(){
+  clearInterval(timerInt); clearTimeout(flashTimeout); clearTimeout(answerTimeout);
+  gameRunning=false;
+
+  const key=selectedMode+'_'+selectedSpeed+'_'+selectedTime;
+  if(!bestScores[key]) bestScores[key]=0;
+  const isNew=flashCount>bestScores[key]; if(isNew) bestScores[key]=flashCount;
+  const scoreNorm=selectedTime>0?Math.round(flashCount*60/selectedTime):flashCount;
+
+  const lvData=LEVELS.find(l=>scoreNorm>=l.min&&scoreNorm<=l.max)||LEVELS[LEVELS.length-1];
+
+  const modeLabel={number:'NUMBER',even:'EVEN/ODD',add:'ADDITION',sub:'SUBTRACTION'}[selectedMode];
+  const speedLabel={slow:'SLOW',normal:'NORMAL',fast:'FAST'}[selectedSpeed];
+  const timeLabel={30:'30SEC',60:'1MIN',120:'2MIN'}[selectedTime];
+  document.getElementById('resModeLbl').textContent=`${modeLabel} · ${speedLabel} · ${timeLabel}`;
+  document.getElementById('resScore').textContent=flashCount;
+  document.getElementById('bestBadge').className='best-badge'+(isNew?' show':'');
+
+  // Level
+  document.getElementById('lvName').textContent=lvData.name;
+  document.getElementById('lvDesc').textContent=lvData.desc;
+  const dotsEl=document.getElementById('lvDots'); dotsEl.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const d=document.createElement('div');
+    d.className='lv-dot'+(i<=lvData.dots?' fill':'');
+    dotsEl.appendChild(d);
+  }
+
+  // Stats
+  const statsEl=document.getElementById('resStats'); statsEl.innerHTML='';
+  [{l:'Flashes',v:flashCount,c:'var(--cya)'},{l:'/ Min',v:scoreNorm,c:'var(--grn)'},
+   {l:'Speed',v:speedLabel,c:'var(--ora)'},{l:'P.Best',v:bestScores[key],c:'var(--mut)'}
+  ].forEach(s=>{
+    const d=document.createElement('div'); d.className='rs';
+    d.innerHTML=`<div class="rs-l">${s.l}</div><div class="rs-v" style="color:${s.c}">${s.v}</div>`;
+    statsEl.appendChild(d);
+  });
+
+  // Compare
+  const cmpRows=document.getElementById('cmpRows'); cmpRows.innerHTML='';
+  const maxS=Math.max(flashCount,REFS[REFS.length-1].score+5);
+  const yourPct=Math.min(100,Math.round(flashCount/maxS*100));
+  const yr=document.createElement('div'); yr.className='cmp-row';
+  yr.innerHTML=`<div class="cmp-row-head"><span class="cmp-label">あなた</span><span class="cmp-val you">${flashCount}</span></div>
+    <div class="cmp-track"><div class="cmp-fill you-bar" id="yourBar" style="width:0%"></div></div>`;
+  cmpRows.appendChild(yr);
+  REFS.forEach(ref=>{
+    const pct=Math.min(100,Math.round(ref.score/maxS*100));
+    const row=document.createElement('div'); row.className='cmp-row';
+    row.innerHTML=`<div class="cmp-row-head"><span class="cmp-label" style="color:#888">${ref.label}</span><span class="cmp-val">${ref.score}〜</span></div>
+      <div class="cmp-track"><div class="cmp-fill ref-bar" style="width:0%;background:${ref.color}" data-pct="${pct}"></div></div>`;
+    cmpRows.appendChild(row);
+  });
+
+  // Benefits
+  const bg2=document.getElementById('benefitGrid'); bg2.innerHTML='';
+  (BENEFITS_MAP[selectedMode]||BENEFITS_MAP.number).forEach(b=>{
+    const el=document.createElement('div'); el.className='benefit-item';
+    el.innerHTML=`<div class="benefit-icon-row"><div class="benefit-icon">${b.icon}</div><div class="benefit-name">${b.name}</div></div><div class="benefit-desc">${b.desc}</div>`;
+    bg2.appendChild(el);
+  });
+
+  setTimeout(()=>{
+    showScr('result');
+    setTimeout(()=>{
+      document.getElementById('yourBar').style.width=yourPct+'%';
+      document.querySelectorAll('.cmp-fill.ref-bar').forEach(el=>{ el.style.width=el.dataset.pct+'%'; });
+    },200);
+    callAITrainer({flashCount,scoreNorm,lvData,selectedMode,selectedSpeed,selectedTime,showAnswer});
+  },380);
+}
+
+// ━━━ AI TRAINER ━━━
+async function callAITrainer({flashCount,scoreNorm,lvData,selectedMode,selectedSpeed,selectedTime,showAnswer}){
+  const modeN={
+    number:'ナンバーモード（0〜9の数字を見て声に出す）',
+    even:'偶数/奇数モード（偶数→右足、奇数→左足で反応）',
+    add:'たし算モード（一桁+一桁の答えを声に出す）',
+    sub:'ひき算モード（一桁−一桁の答えを声に出す）',
+  }[selectedMode];
+  const speedN={slow:'遅め（3秒）',normal:'標準（2秒）',fast:'速い（1.2秒）'}[selectedSpeed];
+  const timeN={30:'30秒',60:'1分',120:'2分'}[selectedTime];
+
+  const prompt=`あなたはスポーツビジョントレーニング専門のAIトレーナーです。
+「NUMBER FLASH」認知処理×視野スキャントレーニングの結果を分析してください。
+
+【トレーニング内容】
+${modeN}
+速度: ${speedN} / 時間: ${timeN} / 答え表示: ${showAnswer?'あり':'なし'}
+
+【結果】
+- 表示回数: ${flashCount}回（1分換算: ${scoreNorm}回）
+- レベル: ${lvData.name}
+
+以下3セクションを日本語で。各30〜60文字。マークダウンなし。
+
+【今回の分析】
+→ フラッシュ数・モードからこの選手の認知処理速度の現状を具体的に。
+
+【目と脳の使い方アドバイス】
+→ ${selectedMode==='number'?'数字を見た瞬間に声に出すコツ。視線の広げ方・発声のタイミングを具体的に。':
+   selectedMode==='even'?'偶奇判断と足の反応をリンクさせるコツ。判断を速くする具体的な方法を。':
+   '計算速度を上げるコツ。動きながら計算する際の脳の使い方を具体的に。'}
+
+【次のステップ】
+→ 次回の具体的な目標を数値込みで1文で。
+
+各セクションは「【セクション名】」で始めてください。`;
+
+  const aiContent=document.getElementById('aiContent');
+  const aiLoading=document.getElementById('aiLoading');
+  const aiPulse=document.getElementById('aiPulse');
+  const aiStatusText=document.getElementById('aiStatusText');
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,stream:true,
+        messages:[{role:'user',content:prompt}]})
+    });
+    if(!resp.ok) throw new Error();
+    aiLoading.style.display='none'; aiContent.style.display='block';
+    aiContent.innerHTML='<span class="ai-cursor"></span>';
+    const reader=resp.body.getReader(); const dec=new TextDecoder();
+    let buf='',full='';
+    while(true){
+      const{done,value}=await reader.read(); if(done) break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n'); buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const data=line.slice(6).trim(); if(data==='[DONE]') continue;
+        try{
+          const j=JSON.parse(data);
+          if(j.type==='content_block_delta'&&j.delta?.text){
+            full+=j.delta.text;
+            aiContent.innerHTML=fmtAI(full)+'<span class="ai-cursor"></span>';
+            const wrap=document.querySelector('.res-wrap'); if(wrap) wrap.scrollTop=wrap.scrollHeight;
+          }
+        }catch{}
+      }
+    }
+    aiContent.innerHTML=fmtAI(full);
+    aiStatusText.textContent='完了'; aiPulse.classList.add('done');
+  }catch{
+    aiLoading.style.display='none'; aiContent.style.display='block';
+    aiContent.innerHTML=fmtAI(`【今回の分析】\n${lvData.desc}\n\n【目と脳の使い方アドバイス】\n数字が表示された瞬間に「考える」のではなく「見た瞬間に声に出る」反射を作ろう。繰り返しで自動化が進む。\n\n【次のステップ】\n次回は同じ設定で${scoreNorm+5}回/分以上を目指しましょう。`);
+    aiStatusText.textContent='オフライン'; aiPulse.style.background='var(--ora)'; aiPulse.style.animation='none';
+  }
+}
+function fmtAI(text){
+  const secs=text.split(/(?=【)/).filter(Boolean);
+  if(!secs.length) return `<div class="ai-section-content">${text.replace(/\n/g,'<br>')}</div>`;
+  return secs.map(s=>{
+    const m=s.match(/^【(.+?)】\n?([\s\S]*)/);
+    if(!m) return `<div class="ai-section-content">${s.replace(/\n/g,'<br>')}</div>`;
+    return `<div class="ai-section"><div class="ai-section-head">${m[1]}</div><div class="ai-section-content">${m[2].trim().replace(/\n/g,'<br>')}</div></div>`;
+  }).join('');
+}
+
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+</script>
+</body>
+</html>

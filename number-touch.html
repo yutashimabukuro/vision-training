@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>NUMBER TOUCH — VISION TRAINING</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#ff1e00; --red-dim:rgba(255,30,0,.12);
+  --cya:#00e5ff; --cya-dim:rgba(0,229,255,.1);
+  --ora:#ff7700; --bg:#07070f; --card:#0f0f1c;
+  --bor:rgba(255,255,255,.06); --text:#eeeef8; --mut:#44445a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:48px 48px;}
+
+.scr{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .28s,transform .28s;}
+.scr.hide{opacity:0;pointer-events:none;transform:scale(.97);}
+
+/* ══ MENU ══ */
+#menu{background:var(--bg);gap:0;padding:16px 20px;overflow-y:auto;}
+
+.eye-wrap{width:68px;height:68px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:14px;flex-shrink:0;}
+.eye-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,30,0,.32);animation:rpulse 2.4s ease-out infinite;}
+.eye-ring:nth-child(1){width:68px;height:68px;animation-delay:0s;}
+.eye-ring:nth-child(2){width:90px;height:90px;animation-delay:.5s;}
+.eye-ring:nth-child(3){width:114px;height:114px;animation-delay:1s;}
+@keyframes rpulse{0%{opacity:.8;}100%{opacity:0;transform:scale(1.12);}}
+.eye-core{width:44px;height:44px;border:2px solid var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;animation:eglow 2.5s ease-in-out infinite;}
+@keyframes eglow{0%,100%{box-shadow:0 0 12px rgba(255,30,0,.5);}50%{box-shadow:0 0 26px rgba(255,30,0,.9),inset 0 0 14px rgba(255,30,0,.2);}}
+.eye-pupil{width:16px;height:16px;background:var(--red);border-radius:50%;}
+
+.menu-tag{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:3px;}
+.menu-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(38px,9vw,64px);line-height:.9;text-transform:uppercase;text-align:center;letter-spacing:2px;color:var(--red);text-shadow:0 0 10px rgba(255,30,0,.7);margin-bottom:3px;}
+.menu-sub{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--mut);margin-bottom:18px;}
+.neon-line{width:50px;height:2px;background:var(--red);box-shadow:0 0 8px rgba(255,30,0,.8);margin-bottom:18px;}
+
+.sec-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+
+/* MODE BTNS */
+.mode-btns{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;justify-content:center;}
+.mode-btn{min-width:82px;padding:10px 10px;border:1px solid var(--bor);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .2s;font-family:'Barlow Condensed',sans-serif;}
+.mode-btn:hover{border-color:rgba(255,255,255,.18);}
+.mode-btn.on{border-color:var(--red);background:var(--red-dim);box-shadow:0 0 10px rgba(255,30,0,.22);}
+.mode-icon{font-family:'Share Tech Mono',monospace;font-size:17px;color:var(--mut);line-height:1;}
+.mode-btn.on .mode-icon{color:var(--red);}
+.mode-name{font-size:9px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;}
+.mode-btn.on .mode-name{color:var(--red);}
+
+/* TIME BTNS */
+.time-btns{display:flex;gap:8px;margin-bottom:22px;}
+.time-btn{width:74px;height:58px;border:1px solid var(--bor);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .2s;font-family:'Barlow Condensed',sans-serif;}
+.time-btn:hover{border-color:rgba(255,255,255,.18);}
+.time-btn.on{border-color:var(--cya);background:var(--cya-dim);box-shadow:0 0 10px rgba(0,229,255,.18);}
+.t-num{font-weight:900;font-size:21px;color:var(--text);}
+.time-btn.on .t-num{color:var(--cya);}
+.t-unit{font-size:9px;letter-spacing:2px;color:var(--mut);}
+.time-btn.on .t-unit{color:var(--cya);}
+
+.start-btn{background:var(--red);border:none;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:4px;text-transform:uppercase;padding:15px 54px;clip-path:polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);box-shadow:0 0 22px rgba(255,30,0,.5);transition:box-shadow .2s,transform .1s;}
+.start-btn:hover{box-shadow:0 0 32px rgba(255,30,0,.8);}
+.start-btn:active{transform:scale(.97);}
+
+/* ══ COUNTDOWN ══ */
+#countdown{background:var(--bg);gap:10px;}
+.cd-num{font-family:'Share Tech Mono',monospace;font-size:148px;line-height:1;color:var(--red);text-shadow:0 0 28px rgba(255,30,0,.9),0 0 70px rgba(255,30,0,.3);animation:cdpop .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes cdpop{from{transform:scale(1.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.cd-lbl{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--mut);}
+
+/* ══ GAME ══ */
+#game{flex-direction:column;justify-content:flex-start;background:var(--bg);padding:0;}
+
+.hud{width:100%;display:flex;align-items:center;padding:8px 14px 6px;gap:10px;border-bottom:1px solid var(--bor);flex-shrink:0;position:relative;z-index:5;background:rgba(7,7,15,.96);}
+.hud-item{display:flex;flex-direction:column;}
+.hud-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.hud-val{font-family:'Share Tech Mono',monospace;font-size:30px;line-height:1.05;}
+.hud-val.timer{color:var(--text);transition:color .3s;}
+.hud-val.timer.warn{color:var(--red);text-shadow:0 0 10px rgba(255,30,0,.8);animation:blnk .6s ease-in-out infinite;}
+@keyframes blnk{0%,100%{opacity:1;}50%{opacity:.5;}}
+.hud-val.scval{color:var(--cya);text-shadow:0 0 8px rgba(0,229,255,.55);}
+.hud-div{width:1px;height:32px;background:var(--bor);margin:0 2px;flex-shrink:0;}
+.hud-next{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;}
+.next-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.next-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:34px;line-height:1;color:var(--red);text-shadow:0 0 10px rgba(255,30,0,.8);}
+.hud-prog{position:absolute;bottom:0;left:0;height:2px;background:var(--red);transition:width 1s linear;box-shadow:0 0 5px rgba(255,30,0,.7);}
+
+@media(max-height:580px),(max-width:370px){
+  .hud{padding:5px 10px 4px;gap:7px;}
+  .hud-lbl{font-size:7px;letter-spacing:2px;}
+  .hud-val{font-size:19px;}
+  .hud-div{height:20px;}
+  .next-val{font-size:21px;}
+  .next-lbl{font-size:7px;}
+}
+
+.arena{flex:1;position:relative;overflow:hidden;width:100%;min-height:0;}
+
+/* ── NODES: numbers/letters only, NO circle ── */
+.node{
+  position:absolute;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  color:rgba(255,255,255,.88);
+  background:none;border:none;
+  transition:color .08s,transform .08s;
+  /* size set dynamically via JS */
+}
+.node:hover{color:#fff;transform:scale(1.14);}
+.node:active{transform:scale(.8)!important;}
+.node.done{color:rgba(0,229,255,.18);pointer-events:none;transform:scale(.86);}
+.node.wrong{color:var(--red)!important;animation:wfl .28s ease!important;}
+@keyframes wfl{0%,100%{transform:scale(1);}50%{transform:scale(1.22);}}
+
+/* Ripple */
+.ripple{position:fixed;border-radius:50%;pointer-events:none;animation:rout .44s ease-out forwards;z-index:50;}
+@keyframes rout{from{width:8px;height:8px;opacity:.85;transform:translate(-50%,-50%) scale(1);}to{width:72px;height:72px;opacity:0;transform:translate(-50%,-50%) scale(1);}}
+.miss-flash{position:fixed;inset:0;pointer-events:none;z-index:100;background:rgba(255,30,0,.07);animation:mf .22s ease forwards;}
+@keyframes mf{0%{opacity:1;}100%{opacity:0;}}
+
+/* ══ RESULT ══ */
+#result{
+  background:var(--bg);padding:0;
+  justify-content:flex-start;overflow-y:auto;
+}
+.res-wrap{
+  width:100%;max-width:540px;margin:0 auto;
+  padding:24px 20px 40px;display:flex;flex-direction:column;gap:0;
+}
+
+/* Header */
+.res-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.res-ring{
+  width:72px;height:72px;flex-shrink:0;border:2px solid var(--cya);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:11px;letter-spacing:2px;color:var(--cya);
+  box-shadow:0 0 18px rgba(0,229,255,.45);
+  animation:rpop .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes rpop{from{transform:scale(0);}to{transform:scale(1);}}
+.res-hinfo{flex:1;}
+.res-title{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(36px,8vw,56px);line-height:.9;text-transform:uppercase;
+  color:var(--cya);text-shadow:0 0 12px rgba(0,229,255,.6);
+  animation:fup .4s .1s ease both;
+}
+.res-mode-lbl{font-size:10px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;margin-top:4px;animation:fup .4s .15s ease both;}
+
+/* Score block */
+.res-score-block{
+  display:flex;align-items:flex-end;gap:10px;margin-bottom:6px;
+  animation:fup .4s .18s ease both;
+}
+.best-badge{
+  display:none;background:var(--red);color:#fff;padding:3px 10px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  box-shadow:0 0 8px rgba(255,30,0,.5);margin-bottom:4px;
+  animation:fup .4s .2s ease both;align-self:flex-start;
+}
+.best-badge.show{display:inline-block;}
+.res-score{
+  font-family:'Share Tech Mono',monospace;font-size:80px;line-height:1;
+  color:var(--red);text-shadow:0 0 16px rgba(255,30,0,.7);
+}
+.res-score-unit{font-size:11px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;padding-bottom:10px;}
+
+/* Quick stats row */
+.res-stats{display:flex;gap:8px;margin-bottom:20px;animation:fup .4s .24s ease both;}
+.rs{background:var(--card);border:1px solid var(--bor);padding:10px 14px;flex:1;text-align:center;}
+.rs-l{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:3px;}
+.rs-v{font-family:'Share Tech Mono',monospace;font-size:20px;}
+
+/* Divider */
+.res-divider{height:1px;background:var(--bor);margin:4px 0 18px;}
+
+/* LEVEL CARD */
+.level-card{
+  border:1px solid var(--bor);padding:16px;margin-bottom:18px;
+  background:var(--card);position:relative;overflow:hidden;
+  animation:fup .4s .3s ease both;
+}
+.level-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+}
+.level-card.lv1::before{background:var(--mut);}
+.level-card.lv2::before{background:#44aaff;}
+.level-card.lv3::before{background:var(--ora);}
+.level-card.lv4::before{background:var(--red);box-shadow:0 0 6px rgba(255,30,0,.6);}
+.level-card.lv5::before{background:var(--cya);box-shadow:0 0 6px rgba(0,229,255,.6);}
+
+.lv-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.lv-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);}
+.lv-name{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:22px;letter-spacing:1px;
+}
+.lv-emoji-row{display:flex;gap:4px;}
+.lv-dot{width:10px;height:10px;border-radius:50%;background:var(--bor);}
+.lv-dot.fill{background:var(--red);}
+.lv-dot.fill.cyan{background:var(--cya);}
+
+/* Compare bar */
+.cmp-section{margin-bottom:18px;animation:fup .4s .36s ease both;}
+.cmp-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:12px;}
+.cmp-row{margin-bottom:10px;}
+.cmp-row-head{display:flex;justify-content:space-between;margin-bottom:4px;}
+.cmp-label{font-size:12px;color:var(--text);font-weight:500;}
+.cmp-val{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--mut);}
+.cmp-val.you{color:var(--cya);}
+.cmp-track{height:6px;background:var(--bor);overflow:hidden;border-radius:1px;position:relative;}
+.cmp-fill{height:100%;border-radius:1px;transition:width 1s .5s ease;}
+.cmp-fill.you-bar{background:var(--cya);box-shadow:0 0 6px rgba(0,229,255,.5);}
+.cmp-fill.ref-bar{background:rgba(255,255,255,.18);}
+.cmp-you-marker{
+  position:absolute;top:-2px;width:2px;height:10px;
+  background:var(--cya);box-shadow:0 0 5px rgba(0,229,255,.8);
+  transition:left 1s .5s ease;
+}
+
+/* BENEFIT SECTION */
+.benefit-section{margin-bottom:22px;animation:fup .4s .42s ease both;}
+.benefit-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:12px;}
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.benefit-item{
+  background:var(--card);border:1px solid var(--bor);
+  padding:12px;display:flex;flex-direction:column;gap:6px;
+}
+.benefit-icon-row{display:flex;align-items:center;gap:8px;}
+.benefit-icon{
+  width:28px;height:28px;border:1px solid var(--bor);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;letter-spacing:0;color:var(--cya);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+}
+.benefit-name{font-size:13px;font-weight:600;color:var(--text);}
+.benefit-desc{font-size:11px;color:var(--mut);line-height:1.5;}
+
+/* ADVICE */
+.advice-box{
+  border:1px solid rgba(0,229,255,.15);border-left:3px solid var(--cya);
+  padding:14px;margin-bottom:22px;
+  background:rgba(0,229,255,.03);
+  animation:fup .4s .48s ease both;
+}
+.advice-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--cya);margin-bottom:6px;}
+.advice-text{font-size:13px;color:#ccc;line-height:1.7;}
+.advice-text b{color:var(--text);}
+
+/* AI TRAINER */
+.ai-trainer-box{
+  border:1px solid rgba(0,229,255,.2);
+  background:rgba(0,229,255,.03);
+  margin-bottom:22px;overflow:hidden;
+  animation:fup .4s .48s ease both;
+}
+.ai-trainer-header{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-bottom:1px solid rgba(0,229,255,.1);
+  background:rgba(0,229,255,.05);
+}
+.ai-trainer-icon{display:flex;gap:5px;align-items:center;}
+.ai-icon-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--cya);
+  animation:aidot 1.4s ease-in-out infinite;
+}
+.ai-icon-dot:nth-child(2){animation-delay:.2s;background:var(--red);}
+.ai-icon-dot:nth-child(3){animation-delay:.4s;background:var(--ora);}
+@keyframes aidot{0%,100%{opacity:.3;transform:scale(.7);}50%{opacity:1;transform:scale(1);}}
+.ai-trainer-tag{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--cya);margin-bottom:1px;}
+.ai-trainer-name{font-size:13px;font-weight:600;color:var(--text);}
+.ai-status{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.ai-pulse{
+  width:7px;height:7px;border-radius:50%;background:var(--cya);
+  animation:aipulse 1.2s ease-in-out infinite;
+}
+.ai-pulse.done{background:var(--grn);animation:none;}
+@keyframes aipulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+#aiStatusText{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);}
+.ai-trainer-body{padding:14px;}
+.ai-loading{display:flex;gap:6px;align-items:flex-end;height:28px;}
+.ai-loading-bar{
+  width:4px;border-radius:2px;background:var(--cya);opacity:.4;
+  animation:aibar 1s ease-in-out infinite;
+}
+.ai-loading-bar:nth-child(1){height:16px;}
+.ai-loading-bar:nth-child(2){height:24px;}
+.ai-loading-bar:nth-child(3){height:12px;}
+@keyframes aibar{0%,100%{opacity:.2;transform:scaleY(.6);}50%{opacity:.7;transform:scaleY(1);}}
+.ai-content{font-size:13px;color:#ccc;line-height:1.8;}
+.ai-content b,.ai-content strong{color:var(--text);}
+.ai-content .ai-section{margin-bottom:14px;}
+.ai-content .ai-section:last-child{margin-bottom:0;}
+.ai-section-head{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--cya);margin-bottom:5px;
+  display:flex;align-items:center;gap:6px;
+}
+.ai-section-head::before{
+  content:'';width:16px;height:1px;
+  background:var(--cya);box-shadow:0 0 4px rgba(0,229,255,.6);
+}
+.ai-section-content{font-size:13px;color:#ccc;line-height:1.8;margin-top:2px;}
+.ai-cursor{
+  display:inline-block;width:2px;height:14px;
+  background:var(--cya);margin-left:2px;vertical-align:middle;
+  animation:cursor-blink .7s ease-in-out infinite;
+}
+@keyframes cursor-blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* Buttons */
+.res-btns{display:flex;gap:10px;animation:fup .4s .52s ease both;}
+.res-btn{
+  flex:1;padding:14px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:13px;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;border:none;transition:all .2s;text-align:center;
+}
+.res-btn.red{
+  background:var(--red);color:#fff;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+  box-shadow:0 0 14px rgba(255,30,0,.4);
+}
+.res-btn.red:hover{box-shadow:0 0 24px rgba(255,30,0,.7);}
+.res-btn.out{background:transparent;color:var(--text);border:1px solid var(--bor);}
+.res-btn.out:hover{border-color:rgba(255,255,255,.25);}
+@keyframes fup{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- ══ MENU ══ -->
+<div class="scr" id="menu">
+  <div class="eye-wrap">
+    <div class="eye-ring"></div><div class="eye-ring"></div><div class="eye-ring"></div>
+    <div class="eye-core"><div class="eye-pupil"></div></div>
+  </div>
+  <div class="menu-tag">Vision Training</div>
+  <div class="menu-title">NUMBER<br>TOUCH</div>
+  <div class="menu-sub">Sports Athlete Edition</div>
+  <div class="neon-line"></div>
+
+  <div class="sec-lbl">Game Mode</div>
+  <div class="mode-btns">
+    <button class="mode-btn on" onclick="setMode('asc',this)">
+      <span class="mode-icon">1→50</span>
+      <span class="mode-name">NORMAL</span>
+    </button>
+    <button class="mode-btn" onclick="setMode('desc',this)">
+      <span class="mode-icon">50→1</span>
+      <span class="mode-name">REVERSE</span>
+    </button>
+    <button class="mode-btn" onclick="setMode('alpha',this)">
+      <span class="mode-icon">A→Z</span>
+      <span class="mode-name">ALPHA</span>
+    </button>
+  </div>
+
+  <div class="sec-lbl">Time Mode</div>
+  <div class="time-btns">
+    <button class="time-btn" onclick="setTime(30,this)">
+      <span class="t-num">30</span><span class="t-unit">SEC</span>
+    </button>
+    <button class="time-btn on" onclick="setTime(60,this)">
+      <span class="t-num">1</span><span class="t-unit">MIN</span>
+    </button>
+    <button class="time-btn" onclick="setTime(120,this)">
+      <span class="t-num">2</span><span class="t-unit">MIN</span>
+    </button>
+  </div>
+
+  <button class="start-btn" onclick="startCountdown()">START</button>
+</div>
+
+<!-- ══ COUNTDOWN ══ -->
+<div class="scr hide" id="countdown">
+  <div class="cd-lbl">Ready in</div>
+  <div class="cd-num" id="cdNum">3</div>
+  <div class="cd-lbl" id="cdSub">Get ready!</div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div class="scr hide" id="game">
+  <div class="hud">
+    <div class="hud-item">
+      <div class="hud-lbl">Time</div>
+      <div class="hud-val timer" id="hudTimer">1:00</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Score</div>
+      <div class="hud-val scval" id="hudScore">0</div>
+    </div>
+    <div class="hud-div"></div>
+    <div class="hud-item">
+      <div class="hud-lbl">Miss</div>
+      <div class="hud-val" style="font-family:'Share Tech Mono',monospace;font-size:30px;color:var(--mut);" id="hudMiss">0</div>
+    </div>
+    <div class="hud-next">
+      <div class="next-lbl">Next</div>
+      <div class="next-val" id="hudNext">1</div>
+    </div>
+    <div class="hud-prog" id="hudProg" style="width:100%"></div>
+  </div>
+  <div class="arena" id="arena"></div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div class="scr hide" id="result">
+  <div class="res-wrap">
+
+    <!-- Header -->
+    <div class="res-header">
+      <div class="res-ring">DONE</div>
+      <div class="res-hinfo">
+        <div class="res-title">COMPLETE</div>
+        <div class="res-mode-lbl" id="resModeLbl">1→50 · 1 MIN</div>
+      </div>
+    </div>
+
+    <!-- Score -->
+    <div class="best-badge" id="bestBadge">NEW BEST</div>
+    <div class="res-score-block">
+      <div class="res-score" id="resScore">0</div>
+      <div class="res-score-unit" id="resUnit">tapped</div>
+    </div>
+    <div class="res-stats">
+      <div class="rs"><div class="rs-l">Miss</div><div class="rs-v" id="resMiss" style="color:var(--red)">0</div></div>
+      <div class="rs"><div class="rs-l">Accuracy</div><div class="rs-v" id="resAcc" style="color:var(--cya)">--%</div></div>
+      <div class="rs"><div class="rs-l">Personal Best</div><div class="rs-v" id="resBest" style="color:var(--ora)">0</div></div>
+    </div>
+
+    <div class="res-divider"></div>
+
+    <!-- Level Card -->
+    <div class="level-card" id="levelCard">
+      <div class="lv-row">
+        <div>
+          <div class="lv-tag">Your Level</div>
+          <div class="lv-name" id="lvName">--</div>
+        </div>
+        <div class="lv-emoji-row" id="lvDots"></div>
+      </div>
+      <div style="font-size:12px;color:#aaa;line-height:1.6;" id="lvDesc"></div>
+    </div>
+
+    <!-- Compare bars -->
+    <div class="cmp-section">
+      <div class="cmp-title">Comparison — 1 min benchmark</div>
+      <div id="cmpRows"></div>
+    </div>
+
+    <div class="res-divider"></div>
+
+    <!-- Benefits -->
+    <div class="benefit-section">
+      <div class="benefit-title">What this trains</div>
+      <div class="benefit-grid" id="benefitGrid"></div>
+    </div>
+
+    <!-- AI Trainer -->
+    <div class="ai-trainer-box" id="aiTrainerBox">
+      <div class="ai-trainer-header">
+        <div class="ai-trainer-icon">
+          <div class="ai-icon-dot"></div>
+          <div class="ai-icon-dot"></div>
+          <div class="ai-icon-dot"></div>
+        </div>
+        <div>
+          <div class="ai-trainer-tag">AI Vision Trainer</div>
+          <div class="ai-trainer-name">パーソナルフィードバック</div>
+        </div>
+        <div class="ai-status" id="aiStatus">
+          <div class="ai-pulse"></div>
+          <span id="aiStatusText">生成中...</span>
+        </div>
+      </div>
+      <div class="ai-trainer-body" id="aiTrainerBody">
+        <div class="ai-loading" id="aiLoading">
+          <div class="ai-loading-bar"></div>
+          <div class="ai-loading-bar" style="animation-delay:.2s"></div>
+          <div class="ai-loading-bar" style="animation-delay:.4s"></div>
+        </div>
+        <div class="ai-content" id="aiContent" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="res-btns">
+      <button class="res-btn out" onclick="goMenu()">MENU</button>
+      <button class="res-btn red" onclick="startCountdown()">RETRY</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── MODES ──
+const MODES = {
+  asc:   { items: Array.from({length:50},(_,i)=>String(i+1)),   unit:'numbers tapped' },
+  desc:  { items: Array.from({length:50},(_,i)=>String(50-i)),  unit:'numbers tapped' },
+  alpha: { items:'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),          unit:'letters tapped' },
+};
+
+let selectedTime = 60;
+let selectedMode = 'asc';
+let timer = 0, timerInt = null;
+let score = 0, miss = 0, targetIdx = 0;
+let gameRunning = false;
+let sequence = [];
+const bestScores = {};
+
+// Rebuild nodes on orientation change / resize
+window.addEventListener('resize', () => { if (gameRunning) buildNodes(); });
+
+function setMode(m, btn) {
+  selectedMode = m;
+  btn.closest('.mode-btns').querySelectorAll('.mode-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function setTime(t, btn) {
+  selectedTime = t;
+  btn.closest('.time-btns').querySelectorAll('.time-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function showScr(id) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.add('hide'));
+  document.getElementById(id).classList.remove('hide');
+}
+function goMenu() {
+  clearInterval(timerInt); gameRunning = false; showScr('menu');
+}
+
+// ── COUNTDOWN ──
+function startCountdown() {
+  sequence = [...MODES[selectedMode].items];
+  targetIdx = 0;
+  showScr('countdown');
+  let c = 3;
+  const cdNum = document.getElementById('cdNum');
+  const cdSub = document.getElementById('cdSub');
+
+  const tick = () => {
+    cdNum.textContent = c;
+    cdNum.style.color = 'var(--red)';
+    cdNum.style.textShadow = '0 0 28px rgba(255,30,0,.9)';
+    cdSub.textContent = c===3?'Get ready!':c===2?'Focus...':'Steady...';
+    cdNum.style.animation = 'none'; cdNum.offsetHeight;
+    cdNum.style.animation = 'cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+  };
+  tick();
+  const intv = setInterval(() => {
+    c--;
+    if (c <= 0) {
+      clearInterval(intv);
+      cdNum.textContent = 'GO';
+      cdNum.style.color = 'var(--cya)';
+      cdNum.style.textShadow = '0 0 28px rgba(0,229,255,.9)';
+      cdSub.textContent = 'Touch  ' + sequence[0] + '  first!';
+      cdNum.style.animation = 'none'; cdNum.offsetHeight;
+      cdNum.style.animation = 'cdpop .4s cubic-bezier(.34,1.56,.64,1)';
+      setTimeout(() => startGame(), 650);
+    } else { tick(); }
+  }, 900);
+}
+
+// ── GAME START ──
+function startGame() {
+  score = 0; miss = 0; targetIdx = 0;
+  timer = selectedTime; gameRunning = true;
+  document.getElementById('hudScore').textContent = '0';
+  document.getElementById('hudMiss').textContent  = '0';
+  document.getElementById('hudNext').textContent  = sequence[0];
+  document.getElementById('hudProg').style.width  = '100%';
+  document.getElementById('hudProg').style.transition = 'width 1s linear';
+  showScr('game');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    buildNodes();
+    updateTimerDisp();
+    timerInt = setInterval(() => {
+      timer--;
+      updateTimerDisp();
+      document.getElementById('hudProg').style.width = (timer/selectedTime*100)+'%';
+      if (timer <= 0) endGame();
+    }, 1000);
+  }));
+}
+
+// ── BUILD NODES — fully responsive, Poisson-disk scatter ──
+function buildNodes() {
+  const arena = document.getElementById('arena');
+  arena.innerHTML = '';
+  const W = arena.offsetWidth;
+  const H = arena.offsetHeight;
+  const total = sequence.length;
+
+  // ── Responsive sizing based on screen ──
+  // Treat smallest dimension to handle both portrait & landscape
+  const minDim = Math.min(W, H);
+  const isSmallPhone  = minDim < 375;   // iPhone SE etc
+  const isPhone       = minDim < 500;   // normal phone portrait
+  const isTablet      = minDim < 800;   // iPad portrait
+
+  // Node tap area (invisible box around text)
+  const NODE_SIZE = isSmallPhone ? 38 : isPhone ? 44 : isTablet ? 52 : 56;
+  // Font size
+  const FONT_SIZE = isSmallPhone ? 20 : isPhone ? 23 : isTablet ? 28 : 30;
+  // Minimum center-to-center distance (= spacing)
+  const MIN_DIST  = isSmallPhone ? 46 : isPhone ? 52 : isTablet ? 60 : 64;
+  // Padding from edge
+  const PAD = isSmallPhone ? 4 : 8;
+
+  // Spatial grid for fast overlap check
+  const cellSize = MIN_DIST;
+  const gridCols = Math.ceil(W / cellSize);
+  const gridRows = Math.ceil(H / cellSize);
+  const grid = new Array(gridCols * gridRows).fill(null);
+
+  function tooClose(x, y) {
+    const gc = Math.floor(x / cellSize);
+    const gr = Math.floor(y / cellSize);
+    for (let dr = -2; dr <= 2; dr++) {
+      for (let dc = -2; dc <= 2; dc++) {
+        const nc = gc + dc, nr = gr + dr;
+        if (nc < 0 || nc >= gridCols || nr < 0 || nr >= gridRows) continue;
+        const p = grid[nc + nr * gridCols];
+        if (!p) continue;
+        const dx = p.x - x, dy = p.y - y;
+        if (dx*dx + dy*dy < MIN_DIST*MIN_DIST) return true;
+      }
+    }
+    return false;
+  }
+
+  const shuffled = [...sequence].sort(() => Math.random() - .5);
+
+  for (let i = 0; i < total; i++) {
+    let x, y, tries = 0;
+    // Try to place with spacing constraint
+    do {
+      x = PAD + Math.random() * (W - NODE_SIZE - PAD * 2);
+      y = PAD + Math.random() * (H - NODE_SIZE - PAD * 2);
+      tries++;
+    } while (tooClose(x, y) && tries < 400);
+
+    // Fallback if arena is too small to fit all
+    if (tries >= 400) {
+      x = PAD + Math.random() * Math.max(0, W - NODE_SIZE - PAD * 2);
+      y = PAD + Math.random() * Math.max(0, H - NODE_SIZE - PAD * 2);
+    }
+
+    const pt = { x, y };
+    const gk = Math.floor(x / cellSize) + Math.floor(y / cellSize) * gridCols;
+    grid[gk] = pt;
+
+    const item = shuffled[i];
+    const el = document.createElement('div');
+    el.className = 'node';
+    el.textContent = item;
+    el.style.left     = Math.round(x) + 'px';
+    el.style.top      = Math.round(y) + 'px';
+    el.style.width    = NODE_SIZE + 'px';
+    el.style.height   = NODE_SIZE + 'px';
+    el.style.fontSize = FONT_SIZE + 'px';
+    el.dataset.item = item;
+    el.addEventListener('pointerdown', e => { e.preventDefault(); onTap(item, el, e); });
+    arena.appendChild(el);
+  }
+}
+
+// ── TAP ──
+function onTap(item, el, e) {
+  if (!gameRunning) return;
+  if (item === sequence[targetIdx]) {
+    score++;
+    el.classList.add('done');
+    document.getElementById('hudScore').textContent = score;
+    spawnRipple(e.clientX, e.clientY, true);
+    targetIdx++;
+    if (targetIdx >= sequence.length) { endGame(); return; }
+    document.getElementById('hudNext').textContent = sequence[targetIdx];
+  } else {
+    miss++;
+    document.getElementById('hudMiss').textContent = miss;
+    spawnRipple(e.clientX, e.clientY, false);
+    spawnMissFlash();
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 280);
+  }
+}
+
+// ── FX ──
+function spawnRipple(cx, cy, correct) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = cx+'px'; r.style.top = cy+'px';
+  r.style.background = correct
+    ? 'radial-gradient(circle,rgba(0,229,255,.45) 0%,transparent 70%)'
+    : 'radial-gradient(circle,rgba(255,30,0,.45) 0%,transparent 70%)';
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 450);
+}
+function spawnMissFlash() {
+  const f = document.createElement('div');
+  f.className = 'miss-flash';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 230);
+}
+
+// ── TIMER ──
+function updateTimerDisp() {
+  const m = Math.floor(timer/60), s = timer%60;
+  const el = document.getElementById('hudTimer');
+  el.textContent = m+':'+String(s).padStart(2,'0');
+  el.className = 'hud-val timer'+(timer<=10?' warn':'');
+}
+
+// ── BENCHMARK DATA (スコア基準: 1分間・1→50モード) ──
+// 他のモード/時間はスケール換算
+const BENCHMARKS = {
+  asc: {
+    // [label, minScore(1min), color, lvClass, dots]
+    levels: [
+      { name:'BEGINNER',    min:0,  max:14, cls:'lv1', dots:1, color:'#666',
+        desc:'はじめての挑戦！数字を視覚的に探す力が鍛えられています。継続することで目のスキャン速度が上がります。' },
+      { name:'AVERAGE',     min:15, max:24, cls:'lv2', dots:2, color:'#44aaff',
+        desc:'一般的なレベルです。数字の認識スピードと視線移動が安定してきています。' },
+      { name:'ATHLETE',     min:25, max:34, cls:'lv3', dots:3, color:'var(--ora)',
+        desc:'部活・スポーツ経験者レベル！注意分散と眼球運動が優れています。' },
+      { name:'PRO LEVEL',   min:35, max:44, cls:'lv4', dots:4, color:'var(--red)',
+        desc:'トップアスリートに近いレベル！反応速度と視野スキャンが高度に鍛えられています。' },
+      { name:'ELITE',       min:45, max:999,cls:'lv5', dots:5, color:'var(--cya)',
+        desc:'エリートアスリートレベル！優れた周辺視野と瞬発的な視覚処理能力の持ち主です。' },
+    ],
+    // 比較基準 (1分)
+    refs: [
+      { label:'一般人（平均）',     score:18, color:'rgba(255,255,255,.25)' },
+      { label:'部活生・学生選手',   score:28, color:'rgba(255,119,0,.6)' },
+      { label:'プロ・代表選手',     score:40, color:'rgba(255,30,0,.7)' },
+    ],
+    maxRef: 50,
+  },
+  desc: {
+    levels: [
+      { name:'BEGINNER',    min:0,  max:11, cls:'lv1', dots:1, color:'#666',  desc:'逆順はより高い集中力が必要。着実に力がついています。' },
+      { name:'AVERAGE',     min:12, max:19, cls:'lv2', dots:2, color:'#44aaff', desc:'一般レベル。50から逆算する処理力が育っています。' },
+      { name:'ATHLETE',     min:20, max:27, cls:'lv3', dots:3, color:'var(--ora)', desc:'逆順をこなせる高い認知処理力！スポーツ選手レベルです。' },
+      { name:'PRO LEVEL',   min:28, max:36, cls:'lv4', dots:4, color:'var(--red)', desc:'逆算しながら視野スキャン。卓越した認知能力です。' },
+      { name:'ELITE',       min:37, max:999,cls:'lv5', dots:5, color:'var(--cya)', desc:'逆順でもエリートレベル。圧倒的な視覚処理速度です。' },
+    ],
+    refs: [
+      { label:'一般人（平均）',     score:14, color:'rgba(255,255,255,.25)' },
+      { label:'部活生・学生選手',   score:22, color:'rgba(255,119,0,.6)' },
+      { label:'プロ・代表選手',     score:32, color:'rgba(255,30,0,.7)' },
+    ],
+    maxRef: 45,
+  },
+  alpha: {
+    levels: [
+      { name:'BEGINNER',    min:0,  max:10, cls:'lv1', dots:1, color:'#666',  desc:'アルファベット順の視覚検索。英語・スポーツ両面で役立ちます。' },
+      { name:'AVERAGE',     min:11, max:17, cls:'lv2', dots:2, color:'#44aaff', desc:'標準レベル。アルファベット認識と眼球移動が安定しています。' },
+      { name:'ATHLETE',     min:18, max:23, cls:'lv3', dots:3, color:'var(--ora)', desc:'スポーツ選手レベルの視覚的識別力！' },
+      { name:'PRO LEVEL',   min:24, max:25, cls:'lv4', dots:4, color:'var(--red)', desc:'プロレベルの即反応！文字認識が限界に近い速度です。' },
+      { name:'ELITE',       min:26, max:999,cls:'lv5', dots:5, color:'var(--cya)', desc:'全26文字を1分以内！驚異的な視覚スキャン速度です。' },
+    ],
+    refs: [
+      { label:'一般人（平均）',     score:12, color:'rgba(255,255,255,.25)' },
+      { label:'部活生・学生選手',   score:18, color:'rgba(255,119,0,.6)' },
+      { label:'プロ・代表選手',     score:24, color:'rgba(255,30,0,.7)' },
+    ],
+    maxRef: 26,
+  },
+};
+
+const BENEFITS = [
+  { icon:'EYE', name:'眼球運動速度', desc:'視線を素早く正確に移動させる外眼筋を強化' },
+  { icon:'SNS', name:'視野スキャン力', desc:'広い画面を効率よく探索する能力が向上' },
+  { icon:'CNT', name:'注意分散能力', desc:'コート・フィールド全体を把握する力が育つ' },
+  { icon:'RXN', name:'視覚反応速度', desc:'見てから動くまでのタイムラグが短縮される' },
+];
+
+const ADVICES = {
+  lv1: '毎日5分続けることが大切です。最初は30秒モードで慣れてから、1分に挑戦しましょう。<b>数字を探す時は頭を動かさず、目だけを動かす</b>ことを意識してください。',
+  lv2: '基礎ができています！<b>次の数字を探しながら現在の数字を押す</b>、「先読み」を意識すると一段階上がれます。週3回以上のトレーニングを目標に。',
+  lv3: 'スポーツ選手レベルに突入！<b>2分モードで持久力</b>も鍛えましょう。試合中に「見えている」感覚が強くなってきているはずです。',
+  lv4: 'トップアスリートの域！<b>毎日コンスタントにこのスコアを出せるか</b>が次の課題です。安定性が実戦でのパフォーマンスに直結します。',
+  lv5: '素晴らしい！このレベルは継続が鍵です。<b>REVERSEモードやALPHAモードも並行して鍛える</b>ことで、より多角的な視覚能力が身に付きます。',
+};
+
+// ── END ──
+function endGame() {
+  clearInterval(timerInt); gameRunning = false;
+
+  const key = selectedMode + '_' + selectedTime;
+  if (!bestScores[key]) bestScores[key] = 0;
+  const isNew = score > bestScores[key];
+  if (isNew) bestScores[key] = score;
+
+  const total = score + miss;
+  const acc = total > 0 ? Math.round(score / total * 100) : 0;
+
+  // Normalize score to 1-min equivalent for level lookup
+  const scoreNorm = selectedTime > 0 ? Math.round(score * 60 / selectedTime) : score;
+
+  const modeData = BENCHMARKS[selectedMode];
+  const lvData = modeData.levels.find(l => scoreNorm >= l.min && scoreNorm <= l.max)
+    || modeData.levels[modeData.levels.length - 1];
+
+  // ── Fill UI ──
+  const modeLabels = { asc:'1→50', desc:'50→1', alpha:'A→Z' };
+  const timeLabels  = { 30:'30 SEC', 60:'1 MIN', 120:'2 MIN' };
+  document.getElementById('resModeLbl').textContent  = modeLabels[selectedMode] + ' · ' + timeLabels[selectedTime];
+  document.getElementById('resScore').textContent    = score;
+  document.getElementById('resUnit').textContent     = selectedMode === 'alpha' ? 'letters' : 'numbers';
+  document.getElementById('resMiss').textContent     = miss;
+  document.getElementById('resAcc').textContent      = acc + '%';
+  document.getElementById('resBest').textContent     = bestScores[key];
+  document.getElementById('bestBadge').className     = 'best-badge' + (isNew ? ' show' : '');
+
+  // Level card
+  const lvCard = document.getElementById('levelCard');
+  lvCard.className = 'level-card ' + lvData.cls;
+  document.getElementById('lvName').textContent = lvData.name;
+  document.getElementById('lvName').style.color = lvData.color;
+  document.getElementById('lvDesc').textContent = lvData.desc;
+  const dotsEl = document.getElementById('lvDots');
+  dotsEl.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const d = document.createElement('div');
+    d.className = 'lv-dot' + (i <= lvData.dots ? (lvData.cls === 'lv5' ? ' fill cyan' : ' fill') : '');
+    dotsEl.appendChild(d);
+  }
+
+  // Compare bars
+  const cmpRows = document.getElementById('cmpRows');
+  cmpRows.innerHTML = '';
+  const maxScore = Math.max(score, modeData.maxRef);
+
+  // Your bar
+  const yourRow = document.createElement('div'); yourRow.className = 'cmp-row';
+  const yourPct = Math.min(100, Math.round(score / maxScore * 100));
+  yourRow.innerHTML = `
+    <div class="cmp-row-head">
+      <span class="cmp-label">あなた</span>
+      <span class="cmp-val you">${score}${selectedMode==='alpha'?'文字':'個'}</span>
+    </div>
+    <div class="cmp-track">
+      <div class="cmp-fill you-bar" id="yourBar" style="width:0%"></div>
+    </div>`;
+  cmpRows.appendChild(yourRow);
+
+  // Reference bars
+  modeData.refs.forEach(ref => {
+    const pct = Math.min(100, Math.round(ref.score / maxScore * 100));
+    const row = document.createElement('div'); row.className = 'cmp-row';
+    row.innerHTML = `
+      <div class="cmp-row-head">
+        <span class="cmp-label" style="color:#888">${ref.label}</span>
+        <span class="cmp-val">${ref.score}${selectedMode==='alpha'?'文字':'個'}〜</span>
+      </div>
+      <div class="cmp-track">
+        <div class="cmp-fill ref-bar" style="width:0%;background:${ref.color}" data-pct="${pct}"></div>
+      </div>`;
+    cmpRows.appendChild(row);
+  });
+
+  // Benefits
+  const bgrid = document.getElementById('benefitGrid');
+  bgrid.innerHTML = '';
+  BENEFITS.forEach(b => {
+    const el = document.createElement('div'); el.className = 'benefit-item';
+    el.innerHTML = `
+      <div class="benefit-icon-row">
+        <div class="benefit-icon">${b.icon}</div>
+        <div class="benefit-name">${b.name}</div>
+      </div>
+      <div class="benefit-desc">${b.desc}</div>`;
+    bgrid.appendChild(el);
+  });
+
+  // Advice (static fallback shown while AI loads)
+  // AI generates full personalized advice below
+
+  setTimeout(() => {
+    showScr('result');
+    // Animate bars after screen shows
+    setTimeout(() => {
+      document.getElementById('yourBar').style.width = yourPct + '%';
+      document.querySelectorAll('.cmp-fill.ref-bar').forEach(el => {
+        el.style.width = el.dataset.pct + '%';
+      });
+    }, 200);
+    // Call AI trainer
+    callAITrainer({ score, miss, acc, scoreNorm, selectedMode, selectedTime, lvData });
+  }, 380);
+}
+
+// ── AI TRAINER ──
+async function callAITrainer({ score, miss, acc, scoreNorm, selectedMode, selectedTime, lvData }) {
+  const modeNames = { asc:'1→50（昇順）', desc:'50→1（降順）', alpha:'A→Z（アルファベット）' };
+  const timeNames  = { 30:'30秒', 60:'1分', 120:'2分' };
+  const modeName   = modeNames[selectedMode];
+  const timeName   = timeNames[selectedTime];
+  const totalTaps  = score + miss;
+  const missRate   = totalTaps > 0 ? Math.round(miss / totalTaps * 100) : 0;
+
+  const prompt = `あなたはスポーツビジョントレーニングの専門AIトレーナーです。
+選手が「ナンバータッチ」トレーニングを完了しました。結果を分析して、**この選手だけに向けた**具体的なフィードバックを日本語で提供してください。
+
+【トレーニング結果】
+- モード: ${modeName}
+- 制限時間: ${timeName}
+- スコア: ${score}個
+- ミス: ${miss}回（ミス率 ${missRate}%）
+- 正確性: ${acc}%
+- レベル判定: ${lvData.name}
+- 1分換算スコア: ${scoreNorm}個
+
+【出力形式】以下の3セクションを、それぞれ30〜50文字程度で簡潔に書いてください。マークダウンは使わず、プレーンテキストで。
+
+セクション1「今回の分析」
+→ スコアとミス率から、この選手の現状（強みと課題）を具体的に1〜2文で。
+
+セクション2「目の使い方アドバイス」
+→ このスコアとミス率に基づいた、今すぐ試せる目の動かし方・視線の使い方の具体的テクニックを2〜3文で。「次の数字をXXしながらYYする」「視線をXXに固定してZZを意識する」など実践的に。
+
+セクション3「次のステップ」
+→ 次のトレーニングで意識すべき1つの具体的な目標を1文で。
+
+各セクションは「【セクション名】」で始めてください。`;
+
+  const aiContent = document.getElementById('aiContent');
+  const aiLoading = document.getElementById('aiLoading');
+  const aiStatus  = document.getElementById('aiStatus');
+  const aiStatusText = document.getElementById('aiStatusText');
+  const aiPulse   = aiStatus.querySelector('.ai-pulse');
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) throw new Error('API error');
+
+    // Show content area, hide loading
+    aiLoading.style.display = 'none';
+    aiContent.style.display = 'block';
+    aiContent.innerHTML = '<span class="ai-cursor"></span>';
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '', fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const json = JSON.parse(data);
+          if (json.type === 'content_block_delta' && json.delta?.text) {
+            fullText += json.delta.text;
+            aiContent.innerHTML = formatAIText(fullText) + '<span class="ai-cursor"></span>';
+            // Auto scroll
+            const wrap = document.querySelector('.res-wrap');
+            if (wrap) wrap.scrollTop = wrap.scrollHeight;
+          }
+        } catch {}
+      }
+    }
+
+    // Final render without cursor
+    aiContent.innerHTML = formatAIText(fullText);
+    aiStatusText.textContent = '完了';
+    aiPulse.classList.add('done');
+
+  } catch (err) {
+    // Fallback to static advice on error
+    aiLoading.style.display = 'none';
+    aiContent.style.display = 'block';
+    aiContent.innerHTML = formatAIText(
+      `【今回の分析】\nスコア${score}個、ミス${miss}回。${lvData.desc}\n\n` +
+      `【目の使い方アドバイス】\n${ADVICES[lvData.cls]}\n\n` +
+      `【次のステップ】\n継続的なトレーニングで視覚処理速度を高めていきましょう。`
+    );
+    aiStatusText.textContent = 'オフライン';
+    aiPulse.style.background = 'var(--ora)';
+    aiPulse.style.animation = 'none';
+  }
+}
+
+function formatAIText(text) {
+  // Split by sections
+  const sections = text.split(/(?=【)/).filter(Boolean);
+  if (sections.length === 0) return `<div class="ai-section-content">${text.replace(/\n/g,'<br>')}</div>`;
+
+  return sections.map(sec => {
+    const m = sec.match(/^【(.+?)】\n?([\s\S]*)/);
+    if (!m) return `<div class="ai-section-content">${sec.replace(/\n/g,'<br>')}</div>`;
+    return `<div class="ai-section">
+      <div class="ai-section-head">${m[1]}</div>
+      <div class="ai-section-content">${m[2].trim().replace(/\n/g,'<br>')}</div>
+    </div>`;
+  }).join('');
+}
+
+document.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
+document.addEventListener('gesturestart', e => e.preventDefault());
+</script>
+</body>
+</html>
